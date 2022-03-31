@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Some title</title>
+
+</head>
+<body>
+<style>
+    .blockie {
+        border: 1px solid black;
+        border-radius: 5px;
+    }
+
+</style>
+<!--
+<div class="blockie">
+    Create plots template
+    <br>
+    Add plots
+    <br>
+
+    <label>Expiry date</label>
+    <input id="add_plots_expiry_date" type="date"/>
+    <input id="add_plots_count" type="number" value="1"/>
+    <button onclick="onAddPlotsClicked()">Add plots</button>
+
+</div>
+-->
+
+<!-- Export templates --> <!-- TODO -->
+<!-- Import templates --> <!-- TODO -->
+
+<!-- <button onclick="">Calculate</button> -->
+<br>
+<input value="1" type="number" id="num_of_plots" style="width: 30%" placeholder="how many plots you have ATM"/>
+<button onclick="runTestCode()">Run Test Code</button>
+<div style="padding: 5px" id="results">
+
+</div>
+</body>
+</html>
+
+<script>
+    function copyAndAddDays(initialDate, n) {
+        let myNewDate = new Date(initialDate);
+        myNewDate.setDate(myNewDate.getDate() + n);
+        return myNewDate;
+    }
+
+    function assureDateValidity(d) {
+        let isValid = d instanceof Date && !isNaN(d);
+        if(!isValid) {
+            alert('Invalid date!')
+            throw new Error('Invalid date!');
+        }
+    }
+
+    function alertObj(obj) {
+        alert(JSON.stringify(obj, null, 2))
+    }
+
+    function onAddPlotsClicked() {
+        let expiryDate = new Date(document.getElementById('add_plots_expiry_date').value)
+        assureDateValidity(expiryDate)
+        let count = parseInt(document.getElementById('add_plots_count').value)
+        let plotGroup = createPlotGroupFromExpiration(expiryDate, count)
+        alertObj(plotGroup);
+    }
+
+    function createPlotGroupFromExpiration(expireDate, count) {
+        return {
+            'createdAt': copyAndAddDays(expireDate, -300),
+            'expiresAt': expireDate,
+            'count': count
+        }
+    }
+
+    function createPlotGroupFromCreation(creationDate, count) {
+        return {
+            'createdAt': creationDate,
+            'expiresAt': copyAndAddDays(creationDate, 300),
+            'count': count
+        }
+    }
+
+    function createSettingsTemplate(
+        //todo: add more params to make the calc more generalized.. reward amount (def 0.25), reward frequency in seconds (def 21600),
+        // plot longevity in days (def 300), token price (def $100), sell tax (def 10%) etc..
+        name,
+        compoundingToSellRatio,
+        useSmartCompounding,
+        avgPlotCreationDelayInDays
+    ) {
+        return {
+            'name': name,
+            'compoundingToSellRatio': compoundingToSellRatio,
+            'useSmartCompounding': useSmartCompounding, //means that we first claim to compound, and only then sell
+            'avgPlotCreationDelayInHours': avgPlotCreationDelayInDays,
+        }
+    }
+
+    function createPlotTemplate(plotGroups) {
+        return {
+            'plotGroups': plotGroups,
+        }
+    }
+
+    function calculate(plotTemplate, settingsTemplate, startFromDate, calculateDays) {
+        let dateIterator = new Date(startFromDate);
+
+        let claimable = 0;
+        let activePlots = Object.assign({}, plotTemplate);
+        let decayedPlotGroups = [];
+        let month = dateIterator.getMonth();
+        let results = '';
+
+        for(let i = 0; i < calculateDays; i++) {
+            let survivingGroups = [];
+            activePlots.plotGroups.forEach(item => {
+                claimable += (0.1 * item.count)
+
+                if(dateIterator < item.expiresAt) {
+                    survivingGroups.push(item)
+                } else {
+                    decayedPlotGroups.push(item);
+                }
+            })
+
+            //print every month
+            if(month !== dateIterator.getMonth()) {
+                month = dateIterator.getMonth();
+                let plotsCount = countPlots(activePlots.plotGroups);
+                results += "State at  " + dateIterator.toString() + "!" + "<br>";
+                results += "&nbsp&nbsp&nbsp&nbspClaimable: " + claimable.toString() + "<br>";
+                results += "&nbsp&nbsp&nbsp&nbspPlots: " + plotsCount.toString() + "<br>";
+                results += "&nbsp&nbsp&nbsp&nbspDaily token generation: " + (plotsCount * 0.1).toString() + "<br>";
+                results += "&nbsp&nbsp&nbsp&nbspDaily $$$$$ generation: " + (plotsCount * 0.1 * 100).toString() + "<br>";
+                results += "&nbsp&nbsp&nbsp&nbspDecayed plots: " + countPlots(decayedPlotGroups) + "<br>";
+                results += "" + "<br>";
+
+            }
+
+            //if we have enough to create a plot(s), we create
+            let plotsToCreate = 0;
+            while(claimable >= 10) {
+                claimable -= 10;
+                plotsToCreate++;
+            }
+
+            if(plotsToCreate !== 0) {
+                survivingGroups.push(
+                    createPlotGroupFromCreation(
+                        new Date(dateIterator),
+                        plotsToCreate
+                    )
+                )
+            }
+
+            if(survivingGroups.length === 0) {
+                console.log("On day " + i.toString() + " you've run out of plots, because you sold too much!")
+                break;
+            }
+
+
+            activePlots.plotGroups = survivingGroups;
+            dateIterator = copyAndAddDays(dateIterator, 1);
+        }
+
+        document.getElementById("results").innerHTML = results
+
+    }
+
+    function countPlots(plotGroups) {
+        let sum = 0;
+        for(let i = 0; i < plotGroups.length; i++) {
+            sum += plotGroups[i].count;
+        }
+
+        return sum;
+    }
+
+    //runTestCode();
+    function runTestCode() {
+
+        let todayDate = new Date();
+        let decayDate = copyAndAddDays(todayDate, 300);
+
+        let numOfPlots = parseInt(document.getElementById("num_of_plots").value)
+
+        let settingsTemplate = createSettingsTemplate(
+            'justname',
+            1,
+            true,
+            3
+        )
+
+        let plotTemplate = createPlotTemplate([createPlotGroupFromExpiration(decayDate, numOfPlots)]);
+        calculate(plotTemplate, settingsTemplate, todayDate, 720)
+
+        /*
+        let settingsTemplate = createSettingsTemplate(
+            'justname',
+            1,
+            true,
+            12
+        )
+
+        let plotTemplate = createPlotTemplate([createPlotGroupFromExpiration(new Date('1/16/2023'), 3)]);
+
+        calculate(plotTemplate, settingsTemplate, new Date('03/22/2022'), 720)*/
+    }
+
+</script>
