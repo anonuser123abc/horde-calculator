@@ -205,6 +205,7 @@
                 }
                 results += "State at  " + dateOnlyAsString + "<br>";
                 //results += "&nbsp&nbsp&nbsp&nbspClaimable: " + smartRound(claimable, 2).toString() + "<br>"; //makes no sense to print in a monthly printout
+                results += "&nbsp&nbsp&nbsp&nbspDay: " + (i + 1).toString() + "<br>";
                 results += "&nbsp&nbsp&nbsp&nbspPlots: " + activePlotCount.toString() + "<br>";
                 results += "&nbsp&nbsp&nbsp&nbspDaily token generation: " + smartRound(dailyHordeGeneration, 2) + "<br>";
                 results += "&nbsp&nbsp&nbsp&nbspDaily dollar generation: $" + smartRound(dailyDollarGeneration, 2).toString() + "<br>";
@@ -234,10 +235,9 @@
                 break;
             }
 
-
             calculatedData.push(
                 {
-                    day: i,
+                    day: (i + 1),
                     date: dateOnlyAsString,
                     activePlots: activePlotCount,
                     decayedPlots: decayedPlotCount,
