@@ -410,18 +410,44 @@
     }
 
 
+    function readV1Input(rawQueryParams, startingValues) {
+        if ('plots' in rawQueryParams) {
+            startingValues.plots = parseInt(rawQueryParams.plots)
+        }
+        if ('claimable' in rawQueryParams) {
+            startingValues.claimable = parseInt(rawQueryParams.claimable)
+        }
 
-    var queryDict = {
-        'plots': 1,
+        return startingValues;
+    }
+
+    function readV2Input(rawQueryParams, startingValues) {
+
+    }
+
+
+    let rawQueryParams = {
+        'v': 0, //placeholders
+        'plots': 0,
         'claimable': 0
     }
-    location.search.substr(1).split("&").forEach(function(item) {queryDict[item.split("=")[0]] = item.split("=")[1]})
+    location.search.substr(1).split("&").forEach(function(item) {rawQueryParams[item.split("=")[0]] = item.split("=")[1]})
 
-    queryDict.plots = parseInt(queryDict.plots)
-    queryDict.claimable = parseFloat(queryDict.claimable)
+    let defaultPlots = 1;
+    let defaultClaimable = 0;
+    let startingValues = {
+        plots: defaultPlots,
+        claimable: defaultClaimable
+    }
 
-    document.getElementById("num_of_plots").value = queryDict.plots;
-    document.getElementById("num_of_claimable").value = queryDict.claimable;
+    if(parseInt(rawQueryParams.v) === 1) {
+        startingValues = readV1Input(rawQueryParams, startingValues);
+    } else if(parseInt(rawQueryParams.v) === 2) {
+        startingValues = readV2Input(rawQueryParams, startingValues);
+    } //else - nothing, starting values are used
+
+    document.getElementById("num_of_plots").value = startingValues.plots;
+    document.getElementById("num_of_claimable").value = startingValues.claimable;
     runCalculation();
 
 
