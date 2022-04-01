@@ -39,6 +39,10 @@
             color: #f5f5f5;
         }
 
+        .horde-default-background {
+            background-color: #16191d;
+        }
+
         .btn-horde:hover {
             background-color: #17C139;
             border-color: #17C139;
@@ -186,10 +190,12 @@
                 </h3>
             </div>
             <div style="display: none" id="templates-tab">
-                <h3>
-                    Templates
-                </h3>
-                <br>
+                <div>
+                    <h3 style="display: inline-block">
+                        Templates
+                    </h3>
+                    <button onclick="openCreatePlotTemplateModal()" style="margin-left: 0.7rem; margin-bottom: .5rem;" class="btn btn-primary btn-grad">+ New</button>
+                </div>
                 <div id="templates-tab-container">
                     <div style="display: none"  class="template-card">  <!-- just a template for testing styles, change display style to play with -->
                         <div class="card-header">
@@ -239,6 +245,32 @@
             </div>
         </div>
     </div>
+
+
+
+    <!-- MODALS -->
+
+    <!-- Plot Template Editor Modal -->
+    <div class="horde-modal modal fade" id="plot-template-editor-modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="horde-default-background modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    ...
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
 </body>
 </html>
 
@@ -250,6 +282,11 @@
     };
     let currentTab = 'simple-calculator-tab';
     let templateFromInput = null;
+    let plotTemplateEditorModal = new bootstrap.Modal(document.getElementById('plot-template-editor-modal'))
+
+    function openCreatePlotTemplateModal() {
+        plotTemplateEditorModal.show()
+    }
 
     function openTab(tabId) {
         if(tabId === currentTab) {
@@ -568,10 +605,6 @@
                     <span class="card-row"><span class="card-row-number">${plotTemplate.nftCount}</span> NFTs</span>
                 </div>
         </div>`;
-    }
-
-    function generateInputTemplateUI() {
-
     }
 
     function readInput(rawQueryParams, startingValues) {
