@@ -94,6 +94,44 @@
             color: #dee2e6 !important;
         }
 
+
+        .template-card {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            word-wrap: break-word;
+            background-clip: border-box;
+            border: 2px solid rgba(0,0,0,.125);
+            border-radius: 1.5rem;
+            border-color: #6C0EB6;
+        }
+
+        .template-card {
+            padding: 0.5rem;
+        }
+
+        .template-card .card-header {
+            font-size: 1.2em;
+        }
+
+        .template-card .card-body {
+            padding-left: 2rem;
+        }
+
+
+        .template-card .card-body .card-row {
+            width: 70%;
+            display: block;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #6C0EB6;
+            margin-bottom: 0.5rem;
+            padding-left: 0.8rem;
+        }
+        .template-card .card-body .card-row .card-row-number{
+            font-size: 1.2em;
+        }
+
     </style>
 </head>
 <body class="horde-white-text" style="overflow-y:scroll;">
@@ -129,13 +167,13 @@
             <div>
                 <ul class="nav nav-tabs">
                     <li class="nav-item">
-                        <span onclick="openTab('calculator-tab')" class="nav-link" aria-current="page" href="#">Calculator</span>
+                        <span id="calculator-tab-btn" onclick="openTab('calculator-tab')" class="nav-link" aria-current="page" href="#">Calculator</span>
                     </li>
                     <li class="nav-item">
-                        <span onclick="openTab('templates-tab')" class="nav-link">Templates</span>
+                        <span id="templates-tab-btn" onclick="openTab('templates-tab')" class="nav-link">Templates</span>
                     </li>
                     <li class="nav-item">
-                        <span onclick="openTab('simple-calculator-tab')" class="nav-link tab-active">Simple calculator</span>
+                        <span id="simple-calculator-tab-btn" onclick="openTab('simple-calculator-tab')" class="nav-link tab-active">Simple calculator</span>
                     </li>
                 </ul>
             </div>
@@ -149,6 +187,18 @@
                 <h3>
                     Templates
                 </h3>
+                <br>
+                <div id="templates-tab-container">
+                    <div style="width: 18rem; display: none"  class="template-card">  <!-- just a template for testing styles, change display style to play with -->
+                        <div class="card-header">
+                            Wishful Thinking
+                        </div>
+                        <div class="card-body">
+                            <span class="card-row"><span class="card-row-number">8</span> plots</span>
+                            <span class="card-row"><span class="card-row-number">3</span> NFTs</span>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div id="simple-calculator-tab" >
                 <h3>
@@ -191,12 +241,24 @@
 </html>
 
 <script>
-    let GLOBAL_DATA = {};
+    let GLOBAL_DATA = {
+        'templates': {
+
+        },
+    };
     let currentTab = 'simple-calculator-tab';
+    let templateFromInput = null;
 
     function openTab(tabId) {
+        if(tabId === currentTab) {
+            return;
+        }
         document.getElementById(tabId).style.display = 'block';
+        document.getElementById(tabId + "-btn").classList.add('tab-active');
+
         document.getElementById(currentTab).style.display = 'none';
+        document.getElementById(currentTab + "-btn").classList.remove('tab-active');
+
         currentTab = tabId;
     }
 
@@ -258,9 +320,12 @@
         }
     }
 
-    function createPlotTemplate(plotGroups) {
+    function createPlotTemplate(plotGroups, name) {
         return {
             'plotGroups': plotGroups,
+            'name': name,
+            'plotCount': countPlots(plotGroups),
+            'nftCount': 0
         }
     }
 
@@ -387,7 +452,7 @@
             3
         )
 
-        let plotTemplate = createPlotTemplate([createPlotGroupFromExpiration(decayDate, numOfPlots)]);
+        let plotTemplate = createPlotTemplate([createPlotGroupFromExpiration(decayDate, numOfPlots)], 'simple');
         let calculatedData = calculate(plotTemplate, settingsTemplate, todayDate, numOfDaysInFuture, numOfClaimable)
 
         plotPlotGraph(calculatedData);
@@ -490,6 +555,25 @@
         return typeof item === "object" && item !== null;
     }
 
+    function generateTemplateUICard(plotTemplate) {
+        return `
+        <div style="display: block" id="templates-tab-container"> <!-- just a template for testing styles, change display style to play with -->
+            <div class="template-card" style="width: 18rem;">
+                <div class="card-header">
+                    ${plotTemplate.name}
+                </div>
+                <div class="card-body">
+                    <span class="card-row"><span class="card-row-number">${plotTemplate.plotCount}</span> plots</span>
+                    <span class="card-row"><span class="card-row-number">${plotTemplate.nftCount}</span> NFTs</span>
+                </div>
+            </div>
+        </div>`;
+    }
+
+    function generateInputTemplateUI() {
+
+    }
+
     function readInput(rawQueryParams, startingValues) {
         try {
             if ('plots' in rawQueryParams) {
@@ -515,6 +599,10 @@
 
                     startingValues.plots = plotGroups
                     startingValues.plotsCount = totalCount
+                    templateFromInput = createPlotTemplate(plotGroups, 'Input Template')
+                    let templatesTabContainer = document.getElementById('templates-tab-container')
+                    templatesTabContainer.insertAdjacentHTML('beforeend', "<span>Detected input template</span><br><br>")
+                    templatesTabContainer.insertAdjacentHTML('beforeend', generateTemplateUICard(templateFromInput))
                 }
             }
             if ('claimable' in rawQueryParams) {
@@ -551,6 +639,7 @@
     document.getElementById("scalc_num_of_claimable").value = startingValues.claimable;
     runCalculation();
 
+    openTab("templates-tab")
 
 
 </script>
