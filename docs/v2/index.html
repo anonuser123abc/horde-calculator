@@ -96,6 +96,7 @@
 
 
         .template-card {
+            width: 13rem;
             position: relative;
             display: flex;
             flex-direction: column;
@@ -108,27 +109,28 @@
         }
 
         .template-card {
-            padding: 0.5rem;
+            padding: 0.3rem;
         }
 
         .template-card .card-header {
             font-size: 1.2em;
         }
 
-        .template-card .card-body {
+        .template-card .template-card-body {
             padding-left: 2rem;
+            padding-bottom: 0.5rem;
         }
 
 
-        .template-card .card-body .card-row {
-            width: 70%;
+        .template-card .template-card-body .card-row {
+            width: 90%;
             display: block;
             padding-bottom: 0.5rem;
             border-bottom: 1px solid #6C0EB6;
             margin-bottom: 0.5rem;
             padding-left: 0.8rem;
         }
-        .template-card .card-body .card-row .card-row-number{
+        .template-card .template-card-body .card-row .card-row-number{
             font-size: 1.2em;
         }
 
@@ -189,7 +191,7 @@
                 </h3>
                 <br>
                 <div id="templates-tab-container">
-                    <div style="width: 18rem; display: none"  class="template-card">  <!-- just a template for testing styles, change display style to play with -->
+                    <div style="display: none"  class="template-card">  <!-- just a template for testing styles, change display style to play with -->
                         <div class="card-header">
                             Wishful Thinking
                         </div>
@@ -557,16 +559,14 @@
 
     function generateTemplateUICard(plotTemplate) {
         return `
-        <div style="display: block" id="templates-tab-container"> <!-- just a template for testing styles, change display style to play with -->
-            <div class="template-card" style="width: 18rem;">
+            <div class="template-card">
                 <div class="card-header">
                     ${plotTemplate.name}
                 </div>
-                <div class="card-body">
+                <div class="template-card-body">
                     <span class="card-row"><span class="card-row-number">${plotTemplate.plotCount}</span> plots</span>
                     <span class="card-row"><span class="card-row-number">${plotTemplate.nftCount}</span> NFTs</span>
                 </div>
-            </div>
         </div>`;
     }
 
@@ -599,9 +599,9 @@
 
                     startingValues.plots = plotGroups
                     startingValues.plotsCount = totalCount
-                    templateFromInput = createPlotTemplate(plotGroups, 'Input Template')
+                    templateFromInput = createPlotTemplate(plotGroups, 'Current Wallet')
                     let templatesTabContainer = document.getElementById('templates-tab-container')
-                    templatesTabContainer.insertAdjacentHTML('beforeend', "<span>Detected input template</span><br><br>")
+                    templatesTabContainer.insertAdjacentHTML('beforeend', "<span>Detected wallet template</span><br><br>")
                     templatesTabContainer.insertAdjacentHTML('beforeend', generateTemplateUICard(templateFromInput))
                 }
             }
