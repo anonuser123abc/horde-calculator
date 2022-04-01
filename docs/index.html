@@ -415,7 +415,7 @@
             startingValues.plots = parseInt(rawQueryParams.plots)
         }
         if ('claimable' in rawQueryParams) {
-            startingValues.claimable = parseInt(rawQueryParams.claimable)
+            startingValues.claimable = parseFloat(rawQueryParams.claimable)
         }
 
         return startingValues;
@@ -429,7 +429,7 @@
     let rawQueryParams = {
         'v': 0, //placeholders
         'plots': 0,
-        'claimable': 0
+        'claimable': 0.0
     }
     location.search.substr(1).split("&").forEach(function(item) {rawQueryParams[item.split("=")[0]] = item.split("=")[1]})
 
