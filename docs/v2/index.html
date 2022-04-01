@@ -67,6 +67,33 @@
             color:#e2e2e2
         }
 
+        .nav-tabs {
+            border-bottom: 1px solid #6C0EB6;
+        }
+
+        .nav-link {
+            color: #dee2e6 !important;
+            border-color: #6C0EB6 !important;
+            cursor: pointer;
+        }
+
+        .nav-tabs .nav-link:hover {
+            color: #dee2e6;
+            background-color: #6C0EB6;
+        }
+
+        .tab-active {
+            background:-webkit-gradient(linear,right bottom,left top,from(#f5f97f),color-stop(65%,#17c139),to(#17c139)) !important;
+            background:linear-gradient(to left top,#f5f97f 0,#17c139 65%,#17c139) !important;
+            color:#000 !important;
+            border:none;
+            cursor: pointer;
+        }
+
+        .tab-active:hover {
+            color: #dee2e6 !important;
+        }
+
     </style>
 </head>
 <body class="horde-white-text" style="overflow-y:scroll;">
@@ -97,34 +124,66 @@
             Link to github
             <a class="horde-white-text" href="https://github.com/anonuser123abc/horde-calculator">https://github.com/anonuser123abc/horde-calculator</a>
         </div>
-        <div class="form-container horde-purple-border">
-            <form onsubmit="return false" >
-                <label class="form-label" for="num_of_plots">How many plots you have at the moment:</label><br>
-                <input class="form-control" value="1" type="number" id="num_of_plots" style="width: 20%"/>
-                <br>
-                <label class="form-label" for="num_of_claimable">How many claimable tokens you have at the moment:</label>
-                <br>
-                <input class="form-control" value="0" type="number" id="num_of_claimable" style="width: 20%" step="0.001"/>
-                <br>
-                <label class="form-label" for="num_of_days_in_future">Duration in future:</label>
-                <br>
-                <input class="form-control" value="500" type="number" id="num_of_days_in_future" style="width: 20%"/>
-                <br>
-                <button onclick="runCalculation()" class="btn btn-primary btn-grad">Compound &nbsp:)</button>
-            </form>
-        </div>
         <br>
-        <div style="padding: 5px; display: none" id="results">
-            <h1 style="padding-left: 20px">Plot Graph</h1>
-            <br>
-            <div class="standard-size-plot" id="activePlotsGraphContainer">
-                <canvas id="activePlotsGraph"></canvas>
+        <div>
+            <div>
+                <ul class="nav nav-tabs">
+                    <li class="nav-item">
+                        <span onclick="openTab('calculator-tab')" class="nav-link" aria-current="page" href="#">Calculator</span>
+                    </li>
+                    <li class="nav-item">
+                        <span onclick="openTab('templates-tab')" class="nav-link">Templates</span>
+                    </li>
+                    <li class="nav-item">
+                        <span onclick="openTab('simple-calculator-tab')" class="nav-link tab-active">Simple calculator</span>
+                    </li>
+                </ul>
             </div>
             <br>
-            <br>
-            <div id="monthly-results">
-                <h3>Monthly printouts</h3>
-                <div id="monthly-results-raw"></div>
+            <div style="display: none" id="calculator-tab">
+                <h3>
+                    Calculator
+                </h3>
+            </div>
+            <div style="display: none" id="templates-tab">
+                <h3>
+                    Templates
+                </h3>
+            </div>
+            <div id="simple-calculator-tab" >
+                <h3>
+                    Simple calculator - it supposes plots were created today
+                </h3>
+                <div class="form-container horde-purple-border">
+                    <form onsubmit="return false" >
+                        <label class="form-label" for="scalc_num_of_plots">How many plots:</label><br>
+                        <input class="form-control" value="1" type="number" id="scalc_num_of_plots" style="width: 20%"/>
+                        <br>
+                        <label class="form-label" for="scalc_num_of_claimable">How many claimable tokens you have at the moment:</label>
+                        <br>
+                        <input class="form-control" value="0" type="number" id="scalc_num_of_claimable" style="width: 20%" step="0.001"/>
+                        <br>
+                        <label class="form-label" for="scalc_num_of_days_in_future">Duration in future:</label>
+                        <br>
+                        <input class="form-control" value="500" type="number" id="scalc_num_of_days_in_future" style="width: 20%"/>
+                        <br>
+                        <button onclick="runCalculation()" class="btn btn-primary btn-grad">Compound &nbsp:)</button>
+                    </form>
+                </div>
+                <br>
+                <div style="padding: 5px; display: none" id="results">
+                    <h1 style="padding-left: 20px">Plot Graph</h1>
+                    <br>
+                    <div class="standard-size-plot" id="activePlotsGraphContainer">
+                        <canvas id="activePlotsGraph"></canvas>
+                    </div>
+                    <br>
+                    <br>
+                    <div id="monthly-results">
+                        <h3>Monthly printouts</h3>
+                        <div id="monthly-results-raw"></div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -132,6 +191,15 @@
 </html>
 
 <script>
+    let GLOBAL_DATA = {};
+    let currentTab = 'simple-calculator-tab';
+
+    function openTab(tabId) {
+        document.getElementById(tabId).style.display = 'block';
+        document.getElementById(currentTab).style.display = 'none';
+        currentTab = tabId;
+    }
+
     function copyAndAddDays(initialDate, n) {
         let myNewDate = new Date(initialDate);
         myNewDate.setDate(myNewDate.getDate() + n);
@@ -269,7 +337,7 @@
             }
 
             if(survivingGroups.length === 0) {
-                console.log("On day " + i.toString() + " you've run out of plots, because you sold too much!")
+                results += "On day " + (i + 1).toString() + " you've run out of plots, because you sold too much!"
                 break;
             }
 
@@ -308,9 +376,9 @@
         let todayDate = new Date();
         let decayDate = copyAndAddDays(todayDate, 300);
 
-        let numOfPlots = parseInt(document.getElementById("num_of_plots").value)
-        let numOfClaimable = parseInt(document.getElementById("num_of_claimable").value)
-        let numOfDaysInFuture = parseInt(document.getElementById("num_of_days_in_future").value)
+        let numOfPlots = parseInt(document.getElementById("scalc_num_of_plots").value)
+        let numOfClaimable = parseInt(document.getElementById("scalc_num_of_claimable").value)
+        let numOfDaysInFuture = parseInt(document.getElementById("scalc_num_of_days_in_future").value)
 
         let settingsTemplate = createSettingsTemplate(
             'justname',
@@ -321,7 +389,6 @@
 
         let plotTemplate = createPlotTemplate([createPlotGroupFromExpiration(decayDate, numOfPlots)]);
         let calculatedData = calculate(plotTemplate, settingsTemplate, todayDate, numOfDaysInFuture, numOfClaimable)
-        console.log(calculatedData)
 
         plotPlotGraph(calculatedData);
         document.getElementById("results").style.display = 'block';
@@ -409,45 +476,79 @@
         return chart;
     }
 
+    function isJson(item) {
+        item = typeof item !== "string"
+            ? JSON.stringify(item)
+            : item;
 
-    function readV1Input(rawQueryParams, startingValues) {
-        if ('plots' in rawQueryParams) {
-            startingValues.plots = parseInt(rawQueryParams.plots)
+        try {
+            item = JSON.parse(item);
+        } catch (e) {
+            return false;
         }
-        if ('claimable' in rawQueryParams) {
-            startingValues.claimable = parseFloat(rawQueryParams.claimable)
+
+        return typeof item === "object" && item !== null;
+    }
+
+    function readInput(rawQueryParams, startingValues) {
+        try {
+            if ('plots' in rawQueryParams) {
+                let decodedString = atob(rawQueryParams.plots);
+                if (isJson) {
+                    let plotsDecayList = JSON.parse(decodedString)
+                    let countByDate = {}
+                    let totalCount = 0;
+                    plotsDecayList.forEach((x, i) => {
+                        if (!(x in countByDate)) {
+                            countByDate[x] = 0
+                        }
+                        countByDate[x]++
+                        totalCount++;
+                    })
+
+                    let plotGroups = []
+                    for(const dateString in countByDate) {
+                        const decayDate = new Date(dateString)
+                        const count = countByDate[dateString];
+                        plotGroups.push(createPlotGroupFromExpiration(decayDate, count))
+                    }
+
+                    startingValues.plots = plotGroups
+                    startingValues.plotsCount = totalCount
+                }
+            }
+            if ('claimable' in rawQueryParams) {
+                startingValues.claimable = parseFloat(rawQueryParams.claimable)
+            }
+        } catch (e) {
+            console.log(e)
         }
 
         return startingValues;
     }
 
-    function readV2Input(rawQueryParams, startingValues) {
-
-    }
-
 
     let rawQueryParams = {
         'v': 0, //placeholders
-        'plots': 0,
+        'plots': [],
+        'plotsCount': [],
         'claimable': 0.0
     }
     location.search.substr(1).split("&").forEach(function(item) {rawQueryParams[item.split("=")[0]] = item.split("=")[1]})
 
-    let defaultPlots = 1;
+    let defaultPlotsCount = 1;
+    let defaultPlots = [createPlotGroupFromCreation(new Date(), defaultPlotsCount)];
     let defaultClaimable = 0;
     let startingValues = {
         plots: defaultPlots,
-        claimable: defaultClaimable
+        claimable: defaultClaimable,
+        plotsCount: defaultPlotsCount,
     }
 
-    if(parseInt(rawQueryParams.v) === 1) {
-        startingValues = readV1Input(rawQueryParams, startingValues);
-    } else if(parseInt(rawQueryParams.v) === 2) {
-        startingValues = readV2Input(rawQueryParams, startingValues);
-    } //else - nothing, starting values are used
+    startingValues = readInput(rawQueryParams, startingValues);
 
-    document.getElementById("num_of_plots").value = startingValues.plots;
-    document.getElementById("num_of_claimable").value = startingValues.claimable;
+    document.getElementById("scalc_num_of_plots").value = startingValues.plotsCount;
+    document.getElementById("scalc_num_of_claimable").value = startingValues.claimable;
     runCalculation();
 
 
