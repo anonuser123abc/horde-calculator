@@ -138,6 +138,21 @@
             font-size: 1.2em;
         }
 
+        .template-card .template-card-pencil {
+            position: absolute;
+            top: 3%;
+            right: 3%;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 1rem;
+            user-select: none; /* Standard */
+        }
+
+        .template-card .template-card-pencil:hover {
+            background-color: #6C0EB6;
+        }
+
         #ptem-outer-body {
             max-width: 35rem;
         }
@@ -210,7 +225,7 @@
                     <h3 style="display: inline-block">
                         Templates
                     </h3>
-                    <button onclick="openCreatePlotTemplateModal()" style="margin-left: 0.7rem; margin-bottom: .5rem;" class="btn btn-primary btn-grad">+ New</button>
+                    <button onclick="openCreatePTEM()" style="margin-left: 0.7rem; margin-bottom: .5rem;" class="btn btn-primary btn-grad">+ New</button>
                 </div>
                 <div id="templates-tab-container">
                     <div style="display: none"  class="template-card">  <!-- just a template for testing styles, change display style to play with -->
@@ -313,9 +328,11 @@
 <script>
     let GLOBAL_DATA = {
         'templates': {
-
+            //keyed by name
         },
     };
+
+    const LIVE_WALLET_TEMPLATE_NAME = 'Live Wallet'
     let currentTab = 'simple-calculator-tab';
     let templateFromInput = null;
     let plotTemplateEditorModal = new bootstrap.Modal(document.getElementById('plot-template-editor-modal'))
@@ -325,8 +342,9 @@
     let ptemTotalNfts = document.getElementById('ptem-total-nfts')
 
     let currentPtemTemplate = {}
+    //openCreatePTEM();
 
-    function openCreatePlotTemplateModal() {
+    function openCreatePTEM() {
         document.getElementById('ptem-title').innerText = "Create new template";
         currentPtemTemplate = createPlotTemplate([
             createPlotGroupFromCreation(new Date(), 5),
@@ -337,7 +355,24 @@
         plotTemplateEditorModal.show()
     }
 
+    function openWalletPTEM() {
+        document.getElementById('ptem-title').innerText = "Edit live-wallet template (not permanent)";
+        currentPtemTemplate = templateFromInput
+        preparePtem(currentPtemTemplate)
+        plotTemplateEditorModal.show()
+    }
+
+    function openPTEM(name) {
+        console.log("huhu")
+        if(name === LIVE_WALLET_TEMPLATE_NAME) {
+            openWalletPTEM();
+        } else {
+            //TODO:
+        }
+    }
+
     function preparePtem(template) {
+        ptemGroupsDiv.innerHTML = ''
         ptemName.value = template.name;
         ptemTotalPlots.innerText = template.plotCount;
         ptemTotalNfts.innerText = template.nftCount;
@@ -374,7 +409,6 @@
         return newestDate
     }
 
-    openCreatePlotTemplateModal();
     function openTab(tabId) {
         if(tabId === currentTab) {
             return;
@@ -695,9 +729,17 @@
         return typeof item === "object" && item !== null;
     }
 
-    function generateTemplateUICard(plotTemplate) {
+    function generateTemplateUICard(plotTemplate, generateEditPencil, generateDeleteButton) {
+        let editPencilHTML = '';
+        if(generateEditPencil) {
+            editPencilHTML = `
+                <span onclick="openPTEM('${plotTemplate.name}')" class="template-card-pencil">🖉</span>
+            `;
+        }
+
         return `
             <div class="template-card">
+                ${editPencilHTML}
                 <div class="card-header">
                     ${plotTemplate.name}
                 </div>
@@ -733,10 +775,10 @@
 
                     startingValues.plots = plotGroups
                     startingValues.plotsCount = totalCount
-                    templateFromInput = createPlotTemplate(plotGroups, 'Current Wallet')
+                    templateFromInput = createPlotTemplate(plotGroups, LIVE_WALLET_TEMPLATE_NAME)
                     let templatesTabContainer = document.getElementById('templates-tab-container')
                     templatesTabContainer.insertAdjacentHTML('beforeend', "<span>Detected wallet template</span><br><br>")
-                    templatesTabContainer.insertAdjacentHTML('beforeend', generateTemplateUICard(templateFromInput))
+                    templatesTabContainer.insertAdjacentHTML('beforeend', generateTemplateUICard(templateFromInput, true, false))
                 }
             }
             if ('claimable' in rawQueryParams) {
