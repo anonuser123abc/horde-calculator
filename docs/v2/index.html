@@ -349,15 +349,29 @@
     }
 
     function addEmptyPlotGroupToPtem() {
+        let date = copyAndAddDays(findNewestCreateDateInPlotTemplate(currentPtemTemplate), 1)
         let plotCount = 1;
-        let newPlotGroup = createPlotGroupFromCreation(new Date(), plotCount)
+        let newPlotGroup = createPlotGroupFromCreation(date, plotCount)
         addPlotGroupToPtem(currentPtemTemplate.plotGroups.length + 1, newPlotGroup)
         currentPtemTemplate.plotGroups.push(newPlotGroup)
         currentPtemTemplate.plotCount = countPlots(currentPtemTemplate.plotGroups)
     }
 
     function addPlotGroupToPtem(num, plotGroup) {
-        ptemGroupsDiv.insertAdjacentHTML('beforeend', generatePlotGroupEditUI(num, plotGroup.count))
+        ptemGroupsDiv.insertAdjacentHTML('beforeend', generatePlotGroupEditUI(num, plotGroup.count, dateOnlyString(plotGroup.createdAt), dateOnlyString(plotGroup.expiresAt)))
+    }
+
+    function findNewestCreateDateInPlotTemplate(template) {
+        let newestDate = new Date()
+        template.plotGroups.forEach(
+            (item, i) => {
+                if(item.createdAt > newestDate) {
+                    newestDate = item.createdAt
+                }
+            }
+        )
+
+        return newestDate
     }
 
     openCreatePlotTemplateModal();
@@ -382,8 +396,8 @@
             numString = '0' + num.toString();
         }
         return  `
-            <div class="ptem-plot-group">
-                <span style="font-size: 1.2rem;">${numString}. &nbsp</span> <input type="number" class="ptem-plotcount" value="${plotCount}"/> - <input class="ptem-datepicker" type="date"/> - <input class="ptem-datepicker"  type="date"/>
+            <div data-pgroupid="${num}" class="ptem-plot-group">
+                <span style="font-size: 1.2rem;">${numString}. &nbsp</span> <input type="number" class="ptem-plotcount" value="${plotCount}"/> - <input class="ptem-datepicker" type="date" value="${createDate}"/> - <input class="ptem-datepicker"  type="date" value="${decayDate}"/>
             </div>
         `;
     }
