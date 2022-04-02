@@ -138,6 +138,22 @@
             font-size: 1.2em;
         }
 
+        #ptem-outer-body {
+            max-width: 35rem;
+        }
+
+        .ptem-datepicker {
+            width: 10rem;
+        }
+
+        .ptem-plotcount {
+            width: 5rem;
+            text-align: right;
+        }
+
+        .ptem-plot-group {
+            margin-bottom: 0.3rem;
+        }
     </style>
 </head>
 <body class="horde-white-text" style="overflow-y:scroll;">
@@ -252,14 +268,34 @@
 
     <!-- Plot Template Editor Modal -->
     <div class="horde-modal modal fade" id="plot-template-editor-modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
+        <div id="ptem-outer-body" class="modal-dialog">
             <div class="horde-default-background modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                    <h5 class="modal-title" id="ptem-title">Modal title</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
-                    ...
+                <div id="ptem-body" class="modal-body">
+                    Name <input id="ptem-name" style="font-size: 14px">
+                    <br>
+                    <br>
+                    <div>
+                    Plot groups
+                        <br>
+                        <div style="border-bottom: 1px solid white;">
+                            <span style="font-size: 1.2rem;">#. &nbsp</span> <span style="width: 5rem; display: inline-block; text-align: center;">plot count</span> &nbsp <span style="width: 10rem; display: inline-block; text-align: center;">creation date</span> &nbsp <span style="width: 10rem; display: inline-block; text-align: center;">decay date</span>
+                        </div>
+                        <br>
+                        <div style="border-bottom: 1px solid white;">
+                            <!-- Wow such empty -->
+                            <div id="ptem-plot-groups">
+                            </div>
+                            <br>
+                            <button onclick="addEmptyPlotGroupToPtem()" style="margin-left: 0.7rem; margin-bottom: .5rem;" class="btn btn-primary btn-grad">+ Another Plot Group</button>
+                        </div>
+                    </div>
+                    Total plots: <span id="ptem-total-plots">1</span>
+                    <br>
+                    Total NFTs: <span id="ptem-total-nfts">0</span>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -283,11 +319,48 @@
     let currentTab = 'simple-calculator-tab';
     let templateFromInput = null;
     let plotTemplateEditorModal = new bootstrap.Modal(document.getElementById('plot-template-editor-modal'))
+    let ptemGroupsDiv = document.getElementById('ptem-plot-groups');
+    let ptemName = document.getElementById('ptem-name')
+    let ptemTotalPlots = document.getElementById('ptem-total-plots')
+    let ptemTotalNfts = document.getElementById('ptem-total-nfts')
+
+    let currentPtemTemplate = {}
 
     function openCreatePlotTemplateModal() {
+        document.getElementById('ptem-title').innerText = "Create new template";
+        currentPtemTemplate = createPlotTemplate([
+            createPlotGroupFromCreation(new Date(), 5),
+            createPlotGroupFromCreation(copyAndAddDays(new Date(), 5), 1),
+            createPlotGroupFromCreation(copyAndAddDays(new Date(), 15), 1),
+        ], '--- be creative ---')
+        preparePtem(currentPtemTemplate)
         plotTemplateEditorModal.show()
     }
 
+    function preparePtem(template) {
+        ptemName.value = template.name;
+        ptemTotalPlots.innerText = template.plotCount;
+        ptemTotalNfts.innerText = template.nftCount;
+        template.plotGroups.forEach(
+            (item, i) => {
+                addPlotGroupToPtem(i + 1, item)
+            }
+        )
+    }
+
+    function addEmptyPlotGroupToPtem() {
+        let plotCount = 1;
+        let newPlotGroup = createPlotGroupFromCreation(new Date(), plotCount)
+        addPlotGroupToPtem(currentPtemTemplate.plotGroups.length + 1, newPlotGroup)
+        currentPtemTemplate.plotGroups.push(newPlotGroup)
+        currentPtemTemplate.plotCount = countPlots(currentPtemTemplate.plotGroups)
+    }
+
+    function addPlotGroupToPtem(num, plotGroup) {
+        ptemGroupsDiv.insertAdjacentHTML('beforeend', generatePlotGroupEditUI(num, plotGroup.count))
+    }
+
+    openCreatePlotTemplateModal();
     function openTab(tabId) {
         if(tabId === currentTab) {
             return;
@@ -299,6 +372,20 @@
         document.getElementById(currentTab + "-btn").classList.remove('tab-active');
 
         currentTab = tabId;
+    }
+
+    function generatePlotGroupEditUI(num, plotCount, createDate, decayDate) {
+        let numString = num.toString();
+        if(num < 10) {
+            numString = '00' + num.toString();
+        } else if (num < 100) {
+            numString = '0' + num.toString();
+        }
+        return  `
+            <div class="ptem-plot-group">
+                <span style="font-size: 1.2rem;">${numString}. &nbsp</span> <input type="number" class="ptem-plotcount" value="${plotCount}"/> - <input class="ptem-datepicker" type="date"/> - <input class="ptem-datepicker"  type="date"/>
+            </div>
+        `;
     }
 
     function copyAndAddDays(initialDate, n) {
