@@ -256,25 +256,6 @@
 </head>
 <body class="horde-white-text">
     <div class="container" id="main-container">
-        <!--
-        <div class="blockie">
-            Create plots template
-            <br>
-            Add plots
-            <br>:w
-
-            <label>Expiry date</label>
-            <input id="add_plots_expiry_date" type="date"/>
-            <input id="add_plots_count" type="number" value="1"/>
-            <button onclick="onAddPlotsClicked()">Add plots</button>
-
-        </div>
-        -->
-
-        <!-- Export templates --> <!-- TODO -->
-        <!-- Import templates --> <!-- TODO -->
-
-        <!-- <button onclick="">Calculate</button> -->
         <br>
         <img alt="logo" src="horde-logo-250.png"/>
         <br>
@@ -1062,18 +1043,6 @@
 
         plotPlotGraph(calculatedData, 'scalcActivePlotsGraph');
         document.getElementById("results").style.display = 'block';
-
-        /*
-        let settingsTemplate = createSettingsTemplate(
-            'justname',
-            1,
-            true,
-            12
-        )
-
-        let plotTemplate = createPlotTemplate([createPlotGroupFromExpiration(new Date('1/16/2023'), 3)]);
-
-        calculate(plotTemplate, settingsTemplate, new Date('03/22/2022'), 720)*/
     }
 
     function plotPlotGraph(calculatedData, plotCanvasId) { //plotPlot lmao
@@ -1242,8 +1211,6 @@
                     startingValues.plotsCount = totalCount
                     templateFromInput = createPlotTemplate(plotGroups, LIVE_WALLET_TEMPLATE_NAME)
                     syncAllTemplates();
-                    //templatesTabContainer.insertAdjacentHTML('beforeend', "<span>Detected live wallet template</span><br><br>")
-                    //templatesTabContainer.insertAdjacentHTML('beforeend', generateTemplateUICard(templateFromInput, true, false, true, false))
                 }
             }
             if ('claimable' in rawQueryParams) {
