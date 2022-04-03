@@ -146,7 +146,22 @@
         .template-card .template-card-pencil {
             position: absolute;
             top: 3%;
-            right: 3%;
+            right: 2%;
+            font-size: 14px;
+            cursor: pointer;
+            padding: 4px 6px 4px 6px;
+            border-radius: 1rem;
+            user-select: none; /* Standard */
+        }
+
+        .template-card .template-card-pencil:hover {
+            background-color: #6C0EB6;
+        }
+
+        .template-card .template-card-trash {
+            position: absolute;
+            top: 20%;
+            right: 2%;
             font-size: 14px;
             cursor: pointer;
             padding: 4px;
@@ -154,7 +169,7 @@
             user-select: none; /* Standard */
         }
 
-        .template-card .template-card-pencil:hover {
+        .template-card .template-card-trash:hover {
             background-color: #6C0EB6;
         }
 
@@ -409,6 +424,13 @@
             openWalletPTEM();
         } else {
             openEditPTEM(GLOBAL_DATA['templates'][name]);
+        }
+    }
+
+    function deleteTemplate(name) {
+        if(name in GLOBAL_DATA.templates) {
+            delete GLOBAL_DATA.templates[name]
+            renderTemplates()
         }
     }
 
@@ -879,7 +901,14 @@
         let editPencilHTML = '';
         if(generateEditPencil) {
             editPencilHTML = `
-                <span onclick="openPTEM('${plotTemplate.name}')" class="template-card-pencil">🖉</span>
+                <span onclick="openPTEM('${plotTemplate.name}')" class="template-card-pencil"> 🖉 </span>
+            `;
+        }
+
+        let deleteButtonHTML = '';
+        if(generateDeleteButton) {
+            deleteButtonHTML = `
+                <span onclick="deleteTemplate('${plotTemplate.name}')" class="template-card-trash">🗑</span>
             `;
         }
 
@@ -895,6 +924,7 @@
         return `
             <div class="template-card">
                 ${editPencilHTML}
+                ${deleteButtonHTML}
                 <div class="card-header">
                     ${name}
                 </div>
