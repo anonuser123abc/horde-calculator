@@ -715,6 +715,8 @@
         let plotGroupIndex = parseInt(inputElement.parentNode.dataset.pgroupid);
 
         currentPtemTemplate.plotGroups.splice(plotGroupIndex, 1) //remove from data
+        currentPtemTemplate.plotCount = countPlots(currentPtemTemplate.plotGroups)
+        ptemTotalPlots.innerText = currentPtemTemplate.plotCount.toString();
         inputElement.parentNode.remove() //remove from UI
 
         //since the index is removed, array elements index have been reduced by one to fill the gap, so we start from the index itself until the end
