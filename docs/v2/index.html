@@ -246,7 +246,7 @@
                 <div class="form-container horde-purple-border">
                     <form onsubmit="return false" >
                         <label class="form-label" for="scalc_num_of_plots">How many plots:</label><br>
-                        <input class="form-control" value="1" type="number" id="scalc_num_of_plots" style="width: 20%"/>
+                        <input onchange="testch()" class="form-control" value="1" type="number" id="scalc_num_of_plots" style="width: 20%"/>
                         <br>
                         <label class="form-label" for="scalc_num_of_claimable">How many claimable tokens you have at the moment:</label>
                         <br>
@@ -333,6 +333,8 @@
     };
 
     const LIVE_WALLET_TEMPLATE_NAME = 'Live Wallet'
+    const PLOT_DECAY = 300;
+
     let currentTab = 'simple-calculator-tab';
     let templateFromInput = null;
     let plotTemplateEditorModal = new bootstrap.Modal(document.getElementById('plot-template-editor-modal'))
@@ -357,7 +359,7 @@
 
     function openWalletPTEM() {
         document.getElementById('ptem-title').innerText = "Edit live-wallet template (not permanent)";
-        currentPtemTemplate = templateFromInput
+        currentPtemTemplate = clone(templateFromInput)
         preparePtem(currentPtemTemplate)
         plotTemplateEditorModal.show()
     }
@@ -390,6 +392,9 @@
         addPlotGroupToPtem(currentPtemTemplate.plotGroups.length + 1, newPlotGroup)
         currentPtemTemplate.plotGroups.push(newPlotGroup)
         currentPtemTemplate.plotCount = countPlots(currentPtemTemplate.plotGroups)
+
+        ptemTotalPlots.innerText = currentPtemTemplate.plotCount.toString();
+        ptemTotalNfts.innerText = currentPtemTemplate.nftCount.toString();
     }
 
     function addPlotGroupToPtem(num, plotGroup) {
@@ -422,6 +427,39 @@
         currentTab = tabId;
     }
 
+    function ptemPlotCountChanged(inputElement) {
+        let plotGroupIndex = parseInt(inputElement.parentNode.dataset.pgroupid) - 1;
+        currentPtemTemplate.plotGroups[plotGroupIndex].count = parseInt(inputElement.value)
+        currentPtemTemplate.plotCount = countPlots(currentPtemTemplate.plotGroups)
+
+        ptemTotalPlots.innerText = currentPtemTemplate.plotCount.toString();
+        ptemTotalNfts.innerText = currentPtemTemplate.nftCount.toString();
+    }
+
+    function ptemPlotCreatedAtChanged(inputElement) {
+        let plotGroupIndex = parseInt(inputElement.parentNode.dataset.pgroupid) - 1;
+
+        let newCreatedAtDate = new Date(inputElement.value);
+        let newDecayDate = copyAndAddDays(newCreatedAtDate, PLOT_DECAY);
+        let decayAtElement = inputElement.parentNode.querySelectorAll('.plot-decay-at')[0];
+        decayAtElement.value = dateOnlyString(newDecayDate);
+
+        currentPtemTemplate.plotGroups[plotGroupIndex].createdAt = newCreatedAtDate;
+        currentPtemTemplate.plotGroups[plotGroupIndex].expiresAt = newDecayDate;
+    }
+
+    function ptemPlotExpiresAtChanged(inputElement) {
+        let plotGroupIndex = parseInt(inputElement.parentNode.dataset.pgroupid) - 1;
+
+        let newDecayDate = new Date(inputElement.value);
+        let newCreatedAtDate = copyAndAddDays(newDecayDate, -PLOT_DECAY);
+        let createdAtElement = inputElement.parentNode.querySelectorAll('.plot-created-at')[0];
+        createdAtElement.value = dateOnlyString(newCreatedAtDate);
+
+        currentPtemTemplate.plotGroups[plotGroupIndex].createdAt = newCreatedAtDate;
+        currentPtemTemplate.plotGroups[plotGroupIndex].expiresAt = newDecayDate;
+    }
+
     function generatePlotGroupEditUI(num, plotCount, createDate, decayDate) {
         let numString = num.toString();
         if(num < 10) {
@@ -431,7 +469,7 @@
         }
         return  `
             <div data-pgroupid="${num}" class="ptem-plot-group">
-                <span style="font-size: 1.2rem;">${numString}. &nbsp</span> <input type="number" class="ptem-plotcount" value="${plotCount}"/> - <input class="ptem-datepicker" type="date" value="${createDate}"/> - <input class="ptem-datepicker"  type="date" value="${decayDate}"/>
+                <span style="font-size: 1.2rem;">${numString}. &nbsp</span> <input min="1" onchange="ptemPlotCountChanged(this)" type="number" class="ptem-plotcount" value="${plotCount}"/> - <input onchange="ptemPlotCreatedAtChanged(this)" class="plot-created-at ptem-datepicker" type="date" value="${createDate}"/> - <input onchange="ptemPlotExpiresAtChanged(this)" class="plot-decay-at ptem-datepicker"  type="date" value="${decayDate}"/>
             </div>
         `;
     }
@@ -464,7 +502,7 @@
 
     function createPlotGroupFromExpiration(expireDate, count) {
         return {
-            'createdAt': copyAndAddDays(expireDate, -300),
+            'createdAt': copyAndAddDays(expireDate, -PLOT_DECAY),
             'expiresAt': expireDate,
             'count': count
         }
@@ -473,7 +511,7 @@
     function createPlotGroupFromCreation(creationDate, count) {
         return {
             'createdAt': creationDate,
-            'expiresAt': copyAndAddDays(creationDate, 300),
+            'expiresAt': copyAndAddDays(creationDate, PLOT_DECAY),
             'count': count
         }
     }
@@ -512,6 +550,25 @@
         return new Date(date.getTime() - (date.getTimezoneOffset() * 60000 ))
             .toISOString()
             .split("T")[0];
+    }
+
+    function clone(obj) { //.. makes me happy i dont usually work in JS
+        if (obj === null || typeof (obj) !== 'object' || 'isActiveClone' in obj)
+            return obj;
+
+        if (obj instanceof Date)
+            return new Date(obj); //or new Date(obj);
+        else
+            var temp = obj.constructor();
+
+        for (var key in obj) {
+            if (Object.prototype.hasOwnProperty.call(obj, key)) {
+                obj['isActiveClone'] = null;
+                temp[key] = clone(obj[key]);
+                delete obj['isActiveClone'];
+            }
+        }
+        return temp;
     }
 
     function calculate(plotTemplate, settingsTemplate, startFromDate, calculateDays, claimable) {
@@ -613,7 +670,7 @@
     function runCalculation() {
 
         let todayDate = new Date();
-        let decayDate = copyAndAddDays(todayDate, 300);
+        let decayDate = copyAndAddDays(todayDate, PLOT_DECAY);
 
         let numOfPlots = parseInt(document.getElementById("scalc_num_of_plots").value)
         let numOfClaimable = parseInt(document.getElementById("scalc_num_of_claimable").value)
@@ -777,7 +834,7 @@
                     startingValues.plotsCount = totalCount
                     templateFromInput = createPlotTemplate(plotGroups, LIVE_WALLET_TEMPLATE_NAME)
                     let templatesTabContainer = document.getElementById('templates-tab-container')
-                    templatesTabContainer.insertAdjacentHTML('beforeend', "<span>Detected wallet template</span><br><br>")
+                    templatesTabContainer.insertAdjacentHTML('beforeend', "<span>Detected live wallet template</span><br><br>")
                     templatesTabContainer.insertAdjacentHTML('beforeend', generateTemplateUICard(templateFromInput, true, false))
                 }
             }
