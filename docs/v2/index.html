@@ -486,7 +486,7 @@
     function generateTemplateOption(template, selected) {
         let selectedText = selected ? 'selected' : '';
         return `
-            <option ${selectedText} id="${template.name}">${template.name}</option>
+            <option ${selectedText} id="${template.name}">${template.name} (${template.plotCount} plots)</option>
         `;
     }
 
