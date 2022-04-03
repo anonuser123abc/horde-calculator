@@ -287,18 +287,18 @@
             <div>
                 <ul class="nav nav-tabs">
                     <li class="nav-item">
-                        <span id="calculator-tab-btn" onclick="openTab('calculator-tab')" class="nav-link" aria-current="page" href="#">Calculator</span>
+                        <span id="calculator-tab-btn" onclick="openTab('calculator-tab')" class="nav-link tab-active" aria-current="page" href="#">Calculator</span>
                     </li>
                     <li class="nav-item">
                         <span id="templates-tab-btn" onclick="openTab('templates-tab')" class="nav-link">Templates</span>
                     </li>
                     <li class="nav-item">
-                        <span id="simple-calculator-tab-btn" onclick="openTab('simple-calculator-tab')" class="nav-link tab-active">Simple calculator</span>
+                        <span id="simple-calculator-tab-btn" onclick="openTab('simple-calculator-tab')" class="nav-link">Simple calculator</span>
                     </li>
                 </ul>
             </div>
             <br>
-            <div style="display: none" id="calculator-tab">
+            <div id="calculator-tab">
                 <h3>
                     Calculator
                 </h3>
@@ -322,7 +322,7 @@
                     </div>
                 </div>
             </div>
-            <div id="simple-calculator-tab" >
+            <div style="display: none" id="simple-calculator-tab" >
                 <h3>
                     Simple calculator - it supposes plots were created today
                 </h3>
@@ -1177,8 +1177,6 @@
     document.getElementById("scalc_num_of_plots").value = startingValues.plotsCount;
     document.getElementById("scalc_num_of_claimable").value = startingValues.claimable;
     runCalculation();
-
-    openTab("templates-tab")
 
 
 </script>
