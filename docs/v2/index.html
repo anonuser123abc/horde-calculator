@@ -216,7 +216,7 @@
             cursor: pointer;
             padding: 4px;
             border-radius: 1rem;
-            user-select: none; /* Standard */
+            user-select: none;
         }
 
         .template-card .template-card-trash:hover {
@@ -239,6 +239,19 @@
         .ptem-plot-group {
             margin-bottom: 0.3rem;
         }
+
+        .ptem-delete {
+            cursor: pointer;
+            font-size: 16px;
+            padding: 4px;
+            border-radius: 1rem;
+            user-select: none;
+        }
+
+        .ptem-delete:hover {
+            background-color: #6C0EB6;
+        }
+
     </style>
 </head>
 <body class="horde-white-text">
@@ -367,7 +380,7 @@
                     Plot groups
                         <br>
                         <div style="border-bottom: 1px solid white;">
-                            <span style="font-size: 1.2rem;">#. &nbsp</span> <span style="width: 5rem; display: inline-block; text-align: center;">plot count</span> &nbsp <span style="width: 10rem; display: inline-block; text-align: center;">creation date</span> &nbsp <span style="width: 10rem; display: inline-block; text-align: center;">decay date</span>
+                            <span style="font-size: 1.2rem;">#. &nbsp&nbsp&nbsp&nbsp</span> <span style="width: 5rem; display: inline-block; text-align: center;">plot count</span> &nbsp <span style="width: 10rem; display: inline-block; text-align: center;">creation date</span> &nbsp <span style="width: 10rem; display: inline-block; text-align: center;">decay date</span>
                         </div>
                         <br>
                         <div style="border-bottom: 1px solid white;">
@@ -498,7 +511,7 @@
     }
 
     function openEditPTEM(template) {
-        document.getElementById('ptem-title').innerText = "Edit " + template.name + " template";
+        document.getElementById('ptem-title').innerText = "Edit '" + template.name + "' template";
         currentPtemTemplate = clone(template)
         preparePtem(currentPtemTemplate)
         ptemSaveButton.innerText = "Update"
@@ -559,12 +572,18 @@
         ptemTotalNfts.innerText = template.nftCount;
         template.plotGroups.forEach(
             (item, i) => {
-                addPlotGroupToPtem(i + 1, item)
+                addPlotGroupToPtem(i, item)
             }
         )
     }
 
     function onPtemSaveClick() {
+        if(currentPtemTemplate.plotGroups.length === 0) {
+            ptemError.innerText = 'Cant save a template that has no plots! Add at least one plot group'
+            ptemError.style.display = 'block'
+            return;
+        }
+
         if(ptemMode === PTEM_MODE_CREATE || ptemMode === PTEM_MODE_EDIT) {
 
             if(ptemName.value in FORBIDDEN_NAMES) {
@@ -621,7 +640,7 @@
         let date = copyAndAddDays(findNewestCreateDateInPlotTemplate(currentPtemTemplate), 1)
         let plotCount = 1;
         let newPlotGroup = createPlotGroupFromCreation(date, plotCount)
-        addPlotGroupToPtem(currentPtemTemplate.plotGroups.length + 1, newPlotGroup)
+        addPlotGroupToPtem(currentPtemTemplate.plotGroups.length, newPlotGroup)
         currentPtemTemplate.plotGroups.push(newPlotGroup)
         currentPtemTemplate.plotCount = countPlots(currentPtemTemplate.plotGroups)
 
@@ -660,7 +679,7 @@
     }
 
     function ptemPlotCountChanged(inputElement) {
-        let plotGroupIndex = parseInt(inputElement.parentNode.dataset.pgroupid) - 1;
+        let plotGroupIndex = parseInt(inputElement.parentNode.dataset.pgroupid);
         currentPtemTemplate.plotGroups[plotGroupIndex].count = parseInt(inputElement.value)
         currentPtemTemplate.plotCount = countPlots(currentPtemTemplate.plotGroups)
 
@@ -669,7 +688,7 @@
     }
 
     function ptemPlotCreatedAtChanged(inputElement) {
-        let plotGroupIndex = parseInt(inputElement.parentNode.dataset.pgroupid) - 1;
+        let plotGroupIndex = parseInt(inputElement.parentNode.dataset.pgroupid);
 
         let newCreatedAtDate = new Date(inputElement.value);
         let newDecayDate = copyAndAddDays(newCreatedAtDate, PLOT_DECAY);
@@ -681,7 +700,7 @@
     }
 
     function ptemPlotExpiresAtChanged(inputElement) {
-        let plotGroupIndex = parseInt(inputElement.parentNode.dataset.pgroupid) - 1;
+        let plotGroupIndex = parseInt(inputElement.parentNode.dataset.pgroupid);
 
         let newDecayDate = new Date(inputElement.value);
         let newCreatedAtDate = copyAndAddDays(newDecayDate, -PLOT_DECAY);
@@ -692,18 +711,45 @@
         currentPtemTemplate.plotGroups[plotGroupIndex].expiresAt = newDecayDate;
     }
 
+    function ptemDeletePlotGroup(inputElement) {
+        let plotGroupIndex = parseInt(inputElement.parentNode.dataset.pgroupid);
+
+        currentPtemTemplate.plotGroups.splice(plotGroupIndex, 1) //remove from data
+        inputElement.parentNode.remove() //remove from UI
+
+        //since the index is removed, array elements index have been reduced by one to fill the gap, so we start from the index itself until the end
+        for (let i = plotGroupIndex; i < currentPtemTemplate.plotGroups.length; i++) {
+            let oldId = i + 1;
+            let newId = i;
+            let elem = document.getElementById('pgroup-' + oldId);
+            let textElem = document.getElementById('pgroup-number-' + oldId);
+            elem.id = 'pgroup-' + newId.toString();
+            elem.dataset.pgroupid = newId.toString();
+            textElem.id = 'pgroup-number-' + newId.toString();
+            textElem.innerHTML = generatePlotGroupNumberText(newId + 1);
+        }
+    }
+
     function generatePlotGroupEditUI(num, plotCount, createDate, decayDate) {
+        let deleteButtonHtml = '<span onclick="ptemDeletePlotGroup(this)" class="ptem-delete">🗑</span>';
+        let numberText = generatePlotGroupNumberText(num + 1)
+        return  `
+            <div id="pgroup-${num}" data-pgroupid="${num}" class="ptem-plot-group">
+                <span id="pgroup-number-${num}" style="font-size: 1.2rem;">${numberText}</span> <input min="1" onchange="ptemPlotCountChanged(this)" type="number" class="ptem-plotcount" value="${plotCount}"/> - <input onchange="ptemPlotCreatedAtChanged(this)" class="plot-created-at ptem-datepicker" type="date" value="${createDate}"/> - <input onchange="ptemPlotExpiresAtChanged(this)" class="plot-decay-at ptem-datepicker"  type="date" value="${decayDate}"/> ${deleteButtonHtml}
+            </div>
+        `;
+    }
+
+    function generatePlotGroupNumberText(num) {
+
         let numString = num.toString();
         if(num < 10) {
             numString = '00' + num.toString();
         } else if (num < 100) {
             numString = '0' + num.toString();
         }
-        return  `
-            <div data-pgroupid="${num}" class="ptem-plot-group">
-                <span style="font-size: 1.2rem;">${numString}. &nbsp</span> <input min="1" onchange="ptemPlotCountChanged(this)" type="number" class="ptem-plotcount" value="${plotCount}"/> - <input onchange="ptemPlotCreatedAtChanged(this)" class="plot-created-at ptem-datepicker" type="date" value="${createDate}"/> - <input onchange="ptemPlotExpiresAtChanged(this)" class="plot-decay-at ptem-datepicker"  type="date" value="${decayDate}"/>
-            </div>
-        `;
+
+        return `${numString}. &nbsp`;
     }
 
     function copyAndAddDays(initialDate, n) {
@@ -722,14 +768,6 @@
 
     function alertObj(obj) {
         alert(JSON.stringify(obj, null, 2))
-    }
-
-    function onAddPlotsClicked() {
-        let expiryDate = new Date(document.getElementById('add_plots_expiry_date').value)
-        assureDateValidity(expiryDate)
-        let count = parseInt(document.getElementById('add_plots_count').value)
-        let plotGroup = createPlotGroupFromExpiration(expiryDate, count)
-        alertObj(plotGroup);
     }
 
     function createPlotGroupFromExpiration(expireDate, count) {
