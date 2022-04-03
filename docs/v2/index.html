@@ -149,7 +149,7 @@
             right: 2%;
             font-size: 14px;
             cursor: pointer;
-            padding: 4px 6px 4px 6px;
+            padding: 4px 7px 4px 7px;
             border-radius: 1rem;
             user-select: none; /* Standard */
         }
@@ -347,11 +347,7 @@
 </html>
 
 <script>
-    let GLOBAL_DATA = {
-        'templates': {
-            //keyed by name
-        },
-    };
+    let GLOBAL_DATA = readLocalStorage();
 
     const LIVE_WALLET_TEMPLATE_NAME = 'Live Wallet'
     const LIVE_WALLET_TEMPLATE_NAME_EDITED = 'Live Wallet Edited'
@@ -383,6 +379,49 @@
 
     let currentPtemTemplate = {}
     //openCreatePTEM();
+
+    function readLocalStorage() {
+        let data = localStorage.getItem('horde-calc-global-data');
+        if(data === null) {
+            return {
+                'templates': {
+                    //keyed by name
+                },
+            };
+        } else {
+            let dataAsJson = JSON.parse(data);
+
+            //convert all date strings to date objects
+            for(let name in dataAsJson.templates) {
+                let template = dataAsJson.templates[name]
+                template.plotGroups.forEach((x, i) =>
+                    {
+                        template.plotGroups[i].createdAt = new Date(template.plotGroups[i].createdAt)
+                        template.plotGroups[i].expiresAt = new Date(template.plotGroups[i].expiresAt)
+                    }
+                )
+            }
+
+            return dataAsJson;
+        }
+    }
+
+    function writeToLocalStorage(data) {
+        let dataClone = clone(data)
+
+        //convert all dates to strings
+        for(let name in dataClone.templates) {
+            let template = dataClone.templates[name]
+            template.plotGroups.forEach((x, i) =>
+                {
+                    template.plotGroups[i].createdAt = dateOnlyString(template.plotGroups[i].createdAt)
+                    template.plotGroups[i].expiresAt = dateOnlyString(template.plotGroups[i].expiresAt)
+                }
+            )
+        }
+
+        localStorage.setItem('horde-calc-global-data', JSON.stringify(dataClone))
+    }
 
     function openCreatePTEM() {
         document.getElementById('ptem-title').innerText = "Create new template";
@@ -430,7 +469,7 @@
     function deleteTemplate(name) {
         if(name in GLOBAL_DATA.templates) {
             delete GLOBAL_DATA.templates[name]
-            renderTemplates()
+            syncAllTemplates()
         }
     }
 
@@ -465,16 +504,21 @@
 
             currentPtemTemplate.name = ptemName.value;
             GLOBAL_DATA.templates[currentPtemTemplate.name] = clone(currentPtemTemplate);
-            renderTemplates();
+            syncAllTemplates();
 
         } else if(ptemMode === PTEM_MODE_EDIT_LIVE_WALLET) {
             currentPtemTemplate.name = LIVE_WALLET_TEMPLATE_NAME_EDITED
             templateFromInput = clone(currentPtemTemplate)
-            renderTemplates();
+            syncAllTemplates();
         }
 
         plotTemplateEditorModal.hide()
         currentPtemTemplate = null;
+    }
+
+    function syncAllTemplates() {
+        writeToLocalStorage(GLOBAL_DATA)
+        renderTemplates()
     }
 
     function renderTemplates() {
@@ -961,7 +1005,7 @@
                     startingValues.plots = plotGroups
                     startingValues.plotsCount = totalCount
                     templateFromInput = createPlotTemplate(plotGroups, LIVE_WALLET_TEMPLATE_NAME)
-                    renderTemplates();
+                    syncAllTemplates();
                     //templatesTabContainer.insertAdjacentHTML('beforeend', "<span>Detected live wallet template</span><br><br>")
                     //templatesTabContainer.insertAdjacentHTML('beforeend', generateTemplateUICard(templateFromInput, true, false, true, false))
                 }
