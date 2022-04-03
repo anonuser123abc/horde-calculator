@@ -98,6 +98,10 @@
             color: #dee2e6 !important;
         }
 
+        .template-cards-container {
+            display: flex;
+            flex-direction: row;
+        }
 
         .template-card {
             width: 13rem;
@@ -110,6 +114,7 @@
             border: 2px solid rgba(0,0,0,.125);
             border-radius: 1.5rem;
             border-color: #6C0EB6;
+            margin-right: 1rem;
         }
 
         .template-card {
@@ -142,7 +147,7 @@
             position: absolute;
             top: 3%;
             right: 3%;
-            font-size: 24px;
+            font-size: 14px;
             cursor: pointer;
             padding: 4px;
             border-radius: 1rem;
@@ -227,7 +232,7 @@
                     </h3>
                     <button onclick="openCreatePTEM()" style="margin-left: 0.7rem; margin-bottom: .5rem;" class="btn btn-primary btn-grad">+ New</button>
                 </div>
-                <div id="templates-tab-container">
+                <div class="template-cards-container" id="templates-tab-container">
                     <div style="display: none"  class="template-card">  <!-- just a template for testing styles, change display style to play with -->
                         <div class="card-header">
                             Wishful Thinking
@@ -290,7 +295,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div id="ptem-body" class="modal-body">
-                    Name <input id="ptem-name" style="font-size: 14px">
+                    Name <input id="ptem-name" style="font-size: 14px" maxlength="18">
                     <br>
                     <br>
                     <div>
@@ -312,9 +317,10 @@
                     <br>
                     Total NFTs: <span id="ptem-total-nfts">0</span>
                 </div>
+                <span id="ptem-error" style="color: red; display:none"></span>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary">Save changes</button>
+                    <button onclick="onPtemSaveClick()" id="ptem-save-btn" type="button" class="btn btn-primary btn-grad"></button>
                 </div>
             </div>
         </div>
@@ -333,7 +339,20 @@
     };
 
     const LIVE_WALLET_TEMPLATE_NAME = 'Live Wallet'
+    const LIVE_WALLET_TEMPLATE_NAME_EDITED = 'Live Wallet Edited'
+    const BE_CREATIVE_NAME = '-- be creative --';
+
+    let FORBIDDEN_NAMES = {};
+    FORBIDDEN_NAMES[LIVE_WALLET_TEMPLATE_NAME] = 1;
+    FORBIDDEN_NAMES[LIVE_WALLET_TEMPLATE_NAME_EDITED] = 1;
+    FORBIDDEN_NAMES[BE_CREATIVE_NAME] = 1;
+
     const PLOT_DECAY = 300;
+
+    const PTEM_MODE_CREATE = 'create';
+    const PTEM_MODE_EDIT = 'edit';
+    const PTEM_MODE_EDIT_LIVE_WALLET = 'edit_live_wallet';
+
 
     let currentTab = 'simple-calculator-tab';
     let templateFromInput = null;
@@ -342,6 +361,10 @@
     let ptemName = document.getElementById('ptem-name')
     let ptemTotalPlots = document.getElementById('ptem-total-plots')
     let ptemTotalNfts = document.getElementById('ptem-total-nfts')
+    let ptemSaveButton = document.getElementById('ptem-save-btn')
+    let ptemError = document.getElementById('ptem-error')
+    let templatesTabContainer = document.getElementById('templates-tab-container')
+    let ptemMode = null;
 
     let currentPtemTemplate = {}
     //openCreatePTEM();
@@ -352,8 +375,11 @@
             createPlotGroupFromCreation(new Date(), 5),
             createPlotGroupFromCreation(copyAndAddDays(new Date(), 5), 1),
             createPlotGroupFromCreation(copyAndAddDays(new Date(), 15), 1),
-        ], '--- be creative ---')
+        ], BE_CREATIVE_NAME)
         preparePtem(currentPtemTemplate)
+        ptemSaveButton.innerText = "Create Template"
+        ptemMode = PTEM_MODE_CREATE;
+        ptemName.disabled = false
         plotTemplateEditorModal.show()
     }
 
@@ -361,19 +387,34 @@
         document.getElementById('ptem-title').innerText = "Edit live-wallet template (not permanent)";
         currentPtemTemplate = clone(templateFromInput)
         preparePtem(currentPtemTemplate)
+        ptemSaveButton.innerText = "Update Live Template (temporarily)"
+        ptemMode = PTEM_MODE_EDIT_LIVE_WALLET;
+        ptemName.disabled = true
+        plotTemplateEditorModal.show()
+    }
+
+    function openEditPTEM(template) {
+        document.getElementById('ptem-title').innerText = "Edit " + template.name + " template";
+        currentPtemTemplate = clone(template)
+        preparePtem(currentPtemTemplate)
+        ptemSaveButton.innerText = "Update"
+        ptemMode = PTEM_MODE_EDIT;
+        ptemName.disabled = false
         plotTemplateEditorModal.show()
     }
 
     function openPTEM(name) {
         console.log("huhu")
-        if(name === LIVE_WALLET_TEMPLATE_NAME) {
+        if(name === LIVE_WALLET_TEMPLATE_NAME || name === LIVE_WALLET_TEMPLATE_NAME_EDITED) {
             openWalletPTEM();
         } else {
-            //TODO:
+            openEditPTEM(GLOBAL_DATA['templates'][name]);
         }
     }
 
     function preparePtem(template) {
+        ptemError.innerText = '';
+        ptemError.style.display = 'none'
         ptemGroupsDiv.innerHTML = ''
         ptemName.value = template.name;
         ptemTotalPlots.innerText = template.plotCount;
@@ -383,6 +424,54 @@
                 addPlotGroupToPtem(i + 1, item)
             }
         )
+    }
+
+    function onPtemSaveClick() {
+        if(ptemMode === PTEM_MODE_CREATE || ptemMode === PTEM_MODE_EDIT) {
+
+            if(ptemName.value in FORBIDDEN_NAMES) {
+                ptemError.innerText = 'That name is not allowed! Try a different one'
+                ptemError.style.display = 'block'
+                return;
+            }
+
+            //if its an edit and the name is changed, first remove the old key
+            if(ptemMode === PTEM_MODE_EDIT && ptemName.value !== currentPtemTemplate.name) {
+                delete GLOBAL_DATA.templates[currentPtemTemplate.name]
+                currentPtemTemplate.name = ptemName.value;
+            }
+
+            currentPtemTemplate.name = ptemName.value;
+            GLOBAL_DATA.templates[currentPtemTemplate.name] = clone(currentPtemTemplate);
+            renderTemplates();
+
+        } else if(ptemMode === PTEM_MODE_EDIT_LIVE_WALLET) {
+            currentPtemTemplate.name = LIVE_WALLET_TEMPLATE_NAME_EDITED
+            templateFromInput = clone(currentPtemTemplate)
+            renderTemplates();
+        }
+
+        plotTemplateEditorModal.hide()
+        currentPtemTemplate = null;
+    }
+
+    function renderTemplates() {
+        templatesTabContainer.innerHTML = '';
+        if(templateFromInput !== null) {
+            //plotTemplate, isLiveTemplate, isLiveTemplateEdited, generateEditPencil, generateDeleteButton
+            templatesTabContainer.insertAdjacentHTML(
+                'beforeend',
+                generateTemplateUICard(templateFromInput, true, templateFromInput.name === LIVE_WALLET_TEMPLATE_NAME_EDITED, true, false)
+            )
+        }
+
+        for(let templateName in GLOBAL_DATA.templates) {
+            let template = GLOBAL_DATA.templates[templateName]
+            templatesTabContainer.insertAdjacentHTML(
+                'beforeend',
+                generateTemplateUICard(template, false, false, true, true)
+            )
+        }
     }
 
     function addEmptyPlotGroupToPtem() {
@@ -786,7 +875,7 @@
         return typeof item === "object" && item !== null;
     }
 
-    function generateTemplateUICard(plotTemplate, generateEditPencil, generateDeleteButton) {
+    function generateTemplateUICard(plotTemplate, isLiveTemplate, isLiveTemplateEdited, generateEditPencil, generateDeleteButton) {
         let editPencilHTML = '';
         if(generateEditPencil) {
             editPencilHTML = `
@@ -794,11 +883,20 @@
             `;
         }
 
+        let name = plotTemplate.name;
+        if(isLiveTemplate) {
+            let text = '• LIVE';
+            if(isLiveTemplateEdited) {
+                text = '• LIVE (edited) ';
+            }
+            name = `<span style="padding: 2px 12px 2px 8px; background-color: #6C0EB6">${text}</span>`;
+        }
+
         return `
             <div class="template-card">
                 ${editPencilHTML}
                 <div class="card-header">
-                    ${plotTemplate.name}
+                    ${name}
                 </div>
                 <div class="template-card-body">
                     <span class="card-row"><span class="card-row-number">${plotTemplate.plotCount}</span> plots</span>
@@ -833,9 +931,9 @@
                     startingValues.plots = plotGroups
                     startingValues.plotsCount = totalCount
                     templateFromInput = createPlotTemplate(plotGroups, LIVE_WALLET_TEMPLATE_NAME)
-                    let templatesTabContainer = document.getElementById('templates-tab-container')
-                    templatesTabContainer.insertAdjacentHTML('beforeend', "<span>Detected live wallet template</span><br><br>")
-                    templatesTabContainer.insertAdjacentHTML('beforeend', generateTemplateUICard(templateFromInput, true, false))
+                    renderTemplates();
+                    //templatesTabContainer.insertAdjacentHTML('beforeend', "<span>Detected live wallet template</span><br><br>")
+                    //templatesTabContainer.insertAdjacentHTML('beforeend', generateTemplateUICard(templateFromInput, true, false, true, false))
                 }
             }
             if ('claimable' in rawQueryParams) {
