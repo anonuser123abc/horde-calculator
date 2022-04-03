@@ -302,6 +302,36 @@
                 <h3>
                     Calculator
                 </h3>
+                <div>
+                    <div class="form-container horde-purple-border">
+                        <form onsubmit="return false" >
+                            <select id="calculator-template-select">
+                            </select>
+                            <br>
+                            <label class="form-label" for="calculator_num_of_claimable">How many claimable tokens you have at the moment:</label>
+                            <br>
+                            <input class="form-control" value="0" type="number" id="calculator_num_of_claimable" style="width: 20%" step="0.001"/>
+                            <br>
+                            <label class="form-label" for="calculator_num_of_days_in_future">Duration in future:</label>
+                            <br>
+                            <input class="form-control" value="500" type="number" id="calculator_num_of_days_in_future" style="width: 20%"/>
+                            <br>
+                            <button onclick="runCalculation()" class="btn btn-primary btn-grad">Compound &nbsp:)</button> (scroll down)
+                        </form>
+                    </div>
+                    <div style="display: none" id="calculator-notemp-message">
+                        There are no templates in the system, create some in the "Templates" tab!
+                    </div>
+
+
+                    <h1 style="padding-left: 20px">Plot Graph</h1>
+                    <br>
+                    <div class="standard-size-plot">
+                        <canvas id="calculatorActivePlotsGraph"></canvas>
+                    </div>
+                    <br>
+                </div>
+                </div>
             </div>
             <div style="display: none" id="templates-tab">
                 <div>
@@ -339,15 +369,15 @@
                         <br>
                         <input class="form-control" value="500" type="number" id="scalc_num_of_days_in_future" style="width: 20%"/>
                         <br>
-                        <button onclick="runCalculation()" class="btn btn-primary btn-grad">Compound &nbsp:)</button> (scroll down)
+                        <button onclick="runSimpleCalculation()" class="btn btn-primary btn-grad">Compound &nbsp:)</button> (scroll down)
                     </form>
                 </div>
                 <br>
                 <div style="padding: 5px; display: none" id="results">
                     <h1 style="padding-left: 20px">Plot Graph</h1>
                     <br>
-                    <div class="standard-size-plot" id="activePlotsGraphContainer">
-                        <canvas id="activePlotsGraph"></canvas>
+                    <div class="standard-size-plot">
+                        <canvas id="scalcActivePlotsGraph"></canvas>
                     </div>
                     <br>
                     <br>
@@ -428,7 +458,7 @@
     const PTEM_MODE_EDIT_LIVE_WALLET = 'edit_live_wallet';
 
 
-    let currentTab = 'simple-calculator-tab';
+    let currentTab = 'calculator-tab';
     let templateFromInput = null;
     let plotTemplateEditorModal = new bootstrap.Modal(document.getElementById('plot-template-editor-modal'))
     let ptemGroupsDiv = document.getElementById('ptem-plot-groups');
@@ -438,10 +468,41 @@
     let ptemSaveButton = document.getElementById('ptem-save-btn')
     let ptemError = document.getElementById('ptem-error')
     let templatesTabContainer = document.getElementById('templates-tab-container')
+
+    let calculatorTemplatesSelect = document.getElementById('calculator-template-select')
     let ptemMode = null;
 
     let currentPtemTemplate = {}
     //openCreatePTEM();
+
+    function populateCalculatorTemplatesSelect() {
+        if(templateFromInput === null && isEmpty(GLOBAL_DATA.templates)) {
+            document.getElementById('calculator-notemp-message').style.display = 'block';
+        } else {
+            document.getElementById('calculator-notemp-message').style.display = 'none';
+
+            calculatorTemplatesSelect.innerHTML = '';
+            if(templateFromInput !== null) {
+                calculatorTemplatesSelect.insertAdjacentHTML(
+                    'beforeend',
+                    generateTemplateOption(templateFromInput, true)
+                );
+            }
+            for(let name in GLOBAL_DATA.templates) {
+                calculatorTemplatesSelect.insertAdjacentHTML(
+                    'beforeend',
+                    generateTemplateOption(GLOBAL_DATA.templates[name], false)
+                );
+            }
+        }
+    }
+
+    function generateTemplateOption(template, selected) {
+        let selectedText = selected ? 'selected' : '';
+        return `
+            <option ${selectedText} id="${template.name}">${template.name}</option>
+        `;
+    }
 
     function readLocalStorage() {
         let data = localStorage.getItem('horde-calc-global-data');
@@ -843,6 +904,10 @@
         return temp;
     }
 
+    function isEmpty(obj) { //another 'I hate JS' instance.. cant they offer this in the standard lib? kill me
+        return Object.keys(obj).length === 0;
+    }
+
     function calculate(plotTemplate, settingsTemplate, startFromDate, calculateDays, claimable) {
         let dateIterator = new Date(startFromDate);
 
@@ -940,6 +1005,31 @@
     let ACTIVE_PLOT_CHART = null;
 
     function runCalculation() {
+        let templateName = calculatorTemplatesSelect.value;
+        let template = null;
+        if(templateName === LIVE_WALLET_TEMPLATE_NAME || templateName === LIVE_WALLET_TEMPLATE_NAME_EDITED) {
+            template = templateFromInput;
+        } else {
+            template = GLOBAL_DATA.templates[templateName]
+        }
+        console.log()
+        let settingsTemplate = createSettingsTemplate(
+            'justname',
+            1,
+            true,
+            3
+        )
+
+        let numOfClaimable = parseInt(document.getElementById("calculator_num_of_claimable").value)
+        let numOfDaysInFuture = parseInt(document.getElementById("calculator_num_of_days_in_future").value)
+        let todayDate = new Date();
+        let calculatedData = calculate(template, settingsTemplate, todayDate, numOfDaysInFuture, numOfClaimable)
+
+        plotPlotGraph(calculatedData, 'calculatorActivePlotsGraph');
+        document.getElementById("results").style.display = 'block';
+    }
+
+    function runSimpleCalculation() {
 
         let todayDate = new Date();
         let decayDate = copyAndAddDays(todayDate, PLOT_DECAY);
@@ -958,7 +1048,7 @@
         let plotTemplate = createPlotTemplate([createPlotGroupFromExpiration(decayDate, numOfPlots)], 'simple');
         let calculatedData = calculate(plotTemplate, settingsTemplate, todayDate, numOfDaysInFuture, numOfClaimable)
 
-        plotPlotGraph(calculatedData);
+        plotPlotGraph(calculatedData, 'scalcActivePlotsGraph');
         document.getElementById("results").style.display = 'block';
 
         /*
@@ -974,11 +1064,11 @@
         calculate(plotTemplate, settingsTemplate, new Date('03/22/2022'), 720)*/
     }
 
-    function plotPlotGraph(calculatedData) { //plotPlot lmao
+    function plotPlotGraph(calculatedData, plotCanvasId) { //plotPlot lmao
         if (ACTIVE_PLOT_CHART !== null) {
             ACTIVE_PLOT_CHART.destroy()
         }
-        ACTIVE_PLOT_CHART = plotGraphFromCalcData(document.getElementById('activePlotsGraph'), calculatedData,
+        ACTIVE_PLOT_CHART = plotGraphFromCalcData(document.getElementById(plotCanvasId), calculatedData,
             [{
                 label: 'Active Plots',
                 data: calculatedData,
@@ -1176,7 +1266,10 @@
 
     document.getElementById("scalc_num_of_plots").value = startingValues.plotsCount;
     document.getElementById("scalc_num_of_claimable").value = startingValues.claimable;
-    runCalculation();
+
+    document.getElementById("calculator_num_of_claimable").value = startingValues.claimable;
+    runSimpleCalculation();
+    populateCalculatorTemplatesSelect();
 
 
 </script>
