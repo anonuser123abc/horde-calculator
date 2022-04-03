@@ -132,7 +132,7 @@
 
 
         .template-card .template-card-body .card-row {
-            width: 90%;
+            width: 95%;
             display: block;
             padding-bottom: 0.5rem;
             border-bottom: 1px solid #6C0EB6;
@@ -158,9 +158,24 @@
             background-color: #6C0EB6;
         }
 
-        .template-card .template-card-trash {
+        .template-card .template-card-copy {
             position: absolute;
             top: 20%;
+            right: 2%;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 2px 7px 2px 7px;
+            border-radius: 1rem;
+            user-select: none; /* Standard */
+        }
+
+        .template-card .template-card-copy:hover {
+            background-color: #6C0EB6;
+        }
+
+        .template-card .template-card-trash {
+            position: absolute;
+            top: 37%;
             right: 2%;
             font-size: 14px;
             cursor: pointer;
@@ -473,6 +488,33 @@
         }
     }
 
+    function copyTemplate(name) {
+
+        let copiedTemplate = null
+        if (name in GLOBAL_DATA.templates) {
+            copiedTemplate = clone(GLOBAL_DATA.templates[name])
+        } else if (name === LIVE_WALLET_TEMPLATE_NAME || name === LIVE_WALLET_TEMPLATE_NAME) {
+            copiedTemplate = clone(templateFromInput)
+        }
+
+        if(copiedTemplate !== null) {
+            let proposedName = '(copy) ' + name
+            let i = 1;
+            while (proposedName in GLOBAL_DATA.templates) {
+                proposedName = '(copy ' + i + ') ' + name;
+                if(i > 100) {
+                    alert('Too much copied templates...')
+                    return;
+                }
+                i++;
+            }
+
+            copiedTemplate.name = proposedName;
+            GLOBAL_DATA.templates[proposedName] = copiedTemplate
+            syncAllTemplates()
+        }
+    }
+
     function preparePtem(template) {
         ptemError.innerText = '';
         ptemError.style.display = 'none'
@@ -527,7 +569,7 @@
             //plotTemplate, isLiveTemplate, isLiveTemplateEdited, generateEditPencil, generateDeleteButton
             templatesTabContainer.insertAdjacentHTML(
                 'beforeend',
-                generateTemplateUICard(templateFromInput, true, templateFromInput.name === LIVE_WALLET_TEMPLATE_NAME_EDITED, true, false)
+                generateTemplateUICard(templateFromInput, true, templateFromInput.name === LIVE_WALLET_TEMPLATE_NAME_EDITED, true, false, true)
             )
         }
 
@@ -535,7 +577,7 @@
             let template = GLOBAL_DATA.templates[templateName]
             templatesTabContainer.insertAdjacentHTML(
                 'beforeend',
-                generateTemplateUICard(template, false, false, true, true)
+                generateTemplateUICard(template, false, false, true, true, true)
             )
         }
     }
@@ -941,11 +983,18 @@
         return typeof item === "object" && item !== null;
     }
 
-    function generateTemplateUICard(plotTemplate, isLiveTemplate, isLiveTemplateEdited, generateEditPencil, generateDeleteButton) {
+    function generateTemplateUICard(plotTemplate, isLiveTemplate, isLiveTemplateEdited, generateEditPencil, generateDeleteButton, generateCopyButton) {
         let editPencilHTML = '';
         if(generateEditPencil) {
             editPencilHTML = `
                 <span onclick="openPTEM('${plotTemplate.name}')" class="template-card-pencil"> 🖉 </span>
+            `;
+        }
+
+        let copyButtonHTML = '';
+        if(generateCopyButton) {
+            copyButtonHTML = `
+                <span onclick="copyTemplate('${plotTemplate.name}')" class="template-card-copy">⎘</span>
             `;
         }
 
@@ -965,9 +1014,9 @@
             name = `<span style="padding: 2px 12px 2px 8px; background-color: #6C0EB6">${text}</span>`;
         }
 
-        return `
-            <div class="template-card">
+        return `<div class="template-card">
                 ${editPencilHTML}
+                ${copyButtonHTML}
                 ${deleteButtonHTML}
                 <div class="card-header">
                     ${name}
