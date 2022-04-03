@@ -10,6 +10,30 @@
     <link rel="icon" type="image/png" href="horde-logo-250.png"/>
 
     <style>
+
+        <!-- scrollbars -->
+
+        body { /* totaly strange, but if this is not here, the scrollbar doesnt work */
+        }
+
+        /* Scroll 6 */
+        .sc6::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+
+        }
+        .sc6::-webkit-scrollbar-track {
+            border-radius: 10px;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+        .sc6::-webkit-scrollbar-thumb {
+            background-color: #aab74d;
+            background-image:linear-gradient(to left top,#f5f97f 0,#17c139 95%,#17c139);
+            border-radius: 10px;
+        }
+        <!-- scrollbars end -->
+
+
         .blockie {
             border: 1px solid black;
             border-radius: 5px;
@@ -101,9 +125,12 @@
         .template-cards-container {
             display: flex;
             flex-direction: row;
+            overflow-x: auto;
+            padding-bottom: 1rem;
         }
 
         .template-card {
+            flex-shrink : 0;
             width: 13rem;
             position: relative;
             display: flex;
@@ -123,6 +150,14 @@
 
         .template-card .card-header {
             font-size: 1.2em;
+        }
+
+        .template-card .card-header-small {
+            font-size: 1.1em;
+        }
+
+        .template-card .card-header-smaller {
+            font-size: 1em;
         }
 
         .template-card .template-card-body {
@@ -206,7 +241,7 @@
         }
     </style>
 </head>
-<body class="horde-white-text" style="overflow-y:scroll;">
+<body class="horde-white-text">
     <div class="container" id="main-container">
         <!--
         <div class="blockie">
@@ -258,11 +293,11 @@
             <div style="display: none" id="templates-tab">
                 <div>
                     <h3 style="display: inline-block">
-                        Templates
+                        Plot Templates
                     </h3>
                     <button onclick="openCreatePTEM()" style="margin-left: 0.7rem; margin-bottom: .5rem;" class="btn btn-primary btn-grad">+ New</button>
                 </div>
-                <div class="template-cards-container" id="templates-tab-container">
+                <div class="sc6 template-cards-container" id="templates-tab-container">
                     <div style="display: none"  class="template-card">  <!-- just a template for testing styles, change display style to play with -->
                         <div class="card-header">
                             Wishful Thinking
@@ -1014,11 +1049,21 @@
             name = `<span style="padding: 2px 12px 2px 8px; background-color: #6C0EB6">${text}</span>`;
         }
 
+        let headerClass = 'card-header';
+        if(plotTemplate.name.length > 18) {
+            headerClass = 'card-header-small';
+            if(plotTemplate.name.length > 21) {
+                headerClass = 'card-header-smaller';
+            }
+        }
+
+
+
         return `<div class="template-card">
                 ${editPencilHTML}
                 ${copyButtonHTML}
                 ${deleteButtonHTML}
-                <div class="card-header">
+                <div class="${headerClass}">
                     ${name}
                 </div>
                 <div class="template-card-body">
