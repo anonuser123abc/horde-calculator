@@ -259,7 +259,7 @@
 
     </style>
 </head>
-<body class="horde-white-text">
+<body class="horde-white-text sc6">
     <div class="container" id="main-container">
         <br>
         <img alt="logo" src="horde-logo-250.png"/>
@@ -284,12 +284,13 @@
                 </ul>
             </div>
             <br>
-            <div id="calculator-tab">
+            <div style="display: none" id="calculator-tab">
                 <h3>
                     Calculator
                 </h3>
                 <div>
                     <div class="form-container horde-purple-border">
+                        <span id="calc-no-template-error" style="color: red; display:none">No templates found, create one!</span>
                         <form onsubmit="return false" >
                             <div class="input-group mb-3">
                                 <div class="input-group-prepend">
@@ -386,7 +387,7 @@
     <!-- MODALS -->
 
     <!-- Plot Template Editor Modal -->
-    <div class="horde-modal modal fade" id="plot-template-editor-modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="sc6 horde-modal modal fade" id="plot-template-editor-modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div id="ptem-outer-body" class="modal-dialog">
             <div class="horde-default-background modal-content">
                 <div class="modal-header">
@@ -477,25 +478,31 @@
     let currentPtemTemplate = {}
     //openCreatePTEM();
 
-    function populateCalculatorTemplatesSelect() {
-        if(templateFromInput === null && isEmpty(GLOBAL_DATA.templates)) {
-            document.getElementById('calculator-notemp-message').style.display = 'block';
-        } else {
-            document.getElementById('calculator-notemp-message').style.display = 'none';
+    function showNoTemplateError() {
+        document.getElementById('calc-no-template-error').style.display = 'block'
+    }
 
-            calculatorTemplatesSelect.innerHTML = '';
-            if(templateFromInput !== null) {
-                calculatorTemplatesSelect.insertAdjacentHTML(
-                    'beforeend',
-                    generateTemplateOption(templateFromInput, true)
-                );
-            }
-            for(let name in GLOBAL_DATA.templates) {
-                calculatorTemplatesSelect.insertAdjacentHTML(
-                    'beforeend',
-                    generateTemplateOption(GLOBAL_DATA.templates[name], false)
-                );
-            }
+    function hideNoTemplateError() {
+        document.getElementById('calc-no-template-error').style.display = 'none'
+    }
+
+    function userHasTemplates() {
+        return !(templateFromInput === null && isEmpty(GLOBAL_DATA.templates));
+    }
+
+    function populateCalculatorTemplatesSelect() {
+        calculatorTemplatesSelect.innerHTML = '';
+        if(templateFromInput !== null) {
+            calculatorTemplatesSelect.insertAdjacentHTML(
+                'beforeend',
+                generateTemplateOption(templateFromInput, true)
+            );
+        }
+        for(let name in GLOBAL_DATA.templates) {
+            calculatorTemplatesSelect.insertAdjacentHTML(
+                'beforeend',
+                generateTemplateOption(GLOBAL_DATA.templates[name], false)
+            );
         }
     }
 
@@ -698,6 +705,12 @@
         writeToLocalStorage(GLOBAL_DATA)
         renderTemplates()
         populateCalculatorTemplatesSelect()
+        if(userHasTemplates()) {
+            hideNoTemplateError()
+        } else {
+            showNoTemplateError()
+
+        }
     }
 
     function renderTemplates() {
@@ -1062,6 +1075,9 @@
     let ACTIVE_PLOT_CHART = null;
 
     function runCalculation() {
+        if(!userHasTemplates()) {
+            return;
+        }
         let templateName = calculatorTemplatesSelect.value;
         let template = null;
         if(templateName === LIVE_WALLET_TEMPLATE_NAME || templateName === LIVE_WALLET_TEMPLATE_NAME_EDITED) {
@@ -1274,7 +1290,6 @@
                     startingValues.plots = plotGroups
                     startingValues.plotsCount = totalCount
                     templateFromInput = createPlotTemplate(plotGroups, createEmptyNftGroup(), LIVE_WALLET_TEMPLATE_NAME)
-                    syncAllTemplates();
                 }
             }
             if ('claimable' in rawQueryParams) {
@@ -1306,14 +1321,13 @@
     }
 
     startingValues = readInput(rawQueryParams, startingValues);
-
     document.getElementById("scalc_num_of_plots").value = startingValues.plotsCount;
     document.getElementById("scalc_num_of_claimable").value = startingValues.claimable;
 
     document.getElementById("calculator_num_of_claimable").value = startingValues.claimable;
     runSimpleCalculation();
-    populateCalculatorTemplatesSelect();
-    openCreatePTEM();
+    syncAllTemplates();
+    document.getElementById('calculator-tab').style.display = 'block'
 
 
 </script>
