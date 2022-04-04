@@ -236,6 +236,11 @@
             text-align: right;
         }
 
+        .ptem-nftcount {
+            width: 5rem;
+            text-align: right;
+        }
+
         .ptem-plot-group {
             margin-bottom: 0.3rem;
         }
@@ -393,7 +398,7 @@
                     <br>
                     <br>
                     <div>
-                    Plot groups
+                        Plot groups
                         <br>
                         <div style="border-bottom: 1px solid white;">
                             <span style="font-size: 1.2rem;">#. &nbsp&nbsp&nbsp&nbsp</span> <span style="width: 5rem; display: inline-block; text-align: center;">plot count</span> &nbsp <span style="width: 10rem; display: inline-block; text-align: center;">creation date</span> &nbsp <span style="width: 10rem; display: inline-block; text-align: center;">decay date</span>
@@ -405,6 +410,17 @@
                             </div>
                             <br>
                             <button onclick="addEmptyPlotGroupToPtem()" style="margin-left: 0.7rem; margin-bottom: .5rem;" class="btn btn-primary btn-grad">+ Another Plot Group</button>
+                        </div>
+                    </div>
+                    <div style="border-bottom: 1px solid white; margin-top: 1rem;margin-bottom: 1rem; padding-bottom: 1rem">
+                        NFTs
+                        <div>
+                            <label style="width: 5rem;" for="ptem-nft5perc">NFT 5%</label><input min="0" onchange="ptemNft5Changed()" id="ptem-nft5perc" class="ptem-nftcount" type="number" value="0">
+                            <br>
+                            <label style="width: 5rem;" for="ptem-nft10perc">NFT 10%</label><input min="0" onchange="ptemNft10Changed()" id="ptem-nft10perc" class="ptem-nftcount" type="number" value="0">
+                            <br>
+                            <label style="width: 5rem;" for="ptem-nft15perc">NFT 10%</label><input min="0" onchange="ptemNft15Changed()" id="ptem-nft15perc" class="ptem-nftcount" type="number" value="0">
+                            <br>
                         </div>
                     </div>
                     Total plots: <span id="ptem-total-plots">1</span>
@@ -486,7 +502,7 @@
     function generateTemplateOption(template, selected) {
         let selectedText = selected ? 'selected' : '';
         return `
-            <option value="${template.name}" ${selectedText} id="${template.name}">${template.name} (${template.plotCount} plots)</option>
+            <option value="${template.name}" ${selectedText} id="${template.name}">${template.name} (${template.plotCount} plots | ${template.nftCount} NFTs)</option>
         `;
     }
 
@@ -535,11 +551,15 @@
 
     function openCreatePTEM() {
         document.getElementById('ptem-title').innerText = "Create new template";
-        currentPtemTemplate = createPlotTemplate([
-            createPlotGroupFromCreation(new Date(), 5),
-            createPlotGroupFromCreation(copyAndAddDays(new Date(), 5), 1),
-            createPlotGroupFromCreation(copyAndAddDays(new Date(), 15), 1),
-        ], BE_CREATIVE_NAME)
+        currentPtemTemplate = createPlotTemplate(
+            [
+                createPlotGroupFromCreation(new Date(), 5),
+                createPlotGroupFromCreation(copyAndAddDays(new Date(), 5), 1),
+                createPlotGroupFromCreation(copyAndAddDays(new Date(), 15), 1),
+            ],
+            createEmptyNftGroup(),
+            BE_CREATIVE_NAME
+        )
         preparePtem(currentPtemTemplate)
         ptemSaveButton.innerText = "Create Template"
         ptemMode = PTEM_MODE_CREATE;
@@ -617,6 +637,11 @@
         ptemName.value = template.name;
         ptemTotalPlots.innerText = template.plotCount;
         ptemTotalNfts.innerText = template.nftCount;
+
+        document.getElementById('ptem-nft5perc').value = template.nftGroup.nft5perc;
+        document.getElementById('ptem-nft10perc').value = template.nftGroup.nft10perc;
+        document.getElementById('ptem-nft15perc').value = template.nftGroup.nft15perc;
+
         template.plotGroups.forEach(
             (item, i) => {
                 addPlotGroupToPtem(i, item)
@@ -639,7 +664,11 @@
                 return;
             }
 
-            if(ptemName.value in GLOBAL_DATA.templates) {
+            if (
+                (ptemMode === PTEM_MODE_CREATE && ptemName.value in GLOBAL_DATA.templates) //if new one is being created and the name is already taken
+                ||
+                (ptemMode === PTEM_MODE_EDIT && ptemName.value !== currentPtemTemplate.name && ptemName.value in GLOBAL_DATA.templates) //OR its edit, and the name is changed, and its changed to an existing one
+            ) {
                 ptemError.innerText = 'That name is already taken! Try a different one'
                 ptemError.style.display = 'block'
                 return;
@@ -786,6 +815,24 @@
         }
     }
 
+    function ptemNft5Changed(inputElement) {
+        ptemNftChanged("nft5perc");
+    }
+
+    function ptemNft10Changed(inputElement) {
+        ptemNftChanged("nft10perc");
+    }
+
+    function ptemNft15Changed(inputElement) {
+        ptemNftChanged("nft15perc");
+    }
+
+    function ptemNftChanged(nftIdentifier) {
+        currentPtemTemplate.nftGroup[nftIdentifier] = parseInt(document.getElementById('ptem-'+nftIdentifier).value);
+        currentPtemTemplate.nftCount = countNfts(currentPtemTemplate.nftGroup)
+        ptemTotalNfts.innerText = currentPtemTemplate.nftCount.toString();
+    }
+
     function generatePlotGroupEditUI(num, plotCount, createDate, decayDate) {
         let deleteButtonHtml = '<span onclick="ptemDeletePlotGroup(this)" class="ptem-delete">🗑</span>';
         let numberText = generatePlotGroupNumberText(num + 1)
@@ -858,12 +905,25 @@
         }
     }
 
-    function createPlotTemplate(plotGroups, name) {
+    function createPlotTemplate(plotGroups, nftGroup, name) {
         return {
             'plotGroups': plotGroups,
+            'nftGroup': nftGroup,
             'name': name,
             'plotCount': countPlots(plotGroups),
             'nftCount': 0
+        }
+    }
+
+    function createEmptyNftGroup() {
+        return createNftGroup(0, 0, 0)
+    }
+
+    function createNftGroup(nft5perc, nft10perc, nft15perc) {
+        return {
+            'nft5perc': nft5perc,
+            'nft10perc': nft10perc,
+            'nft15perc': nft15perc,
         }
     }
 
@@ -995,6 +1055,10 @@
         return sum;
     }
 
+    function countNfts(nftGroup) {
+        return nftGroup.nft5perc + nftGroup.nft10perc + nftGroup.nft15perc;
+    }
+
     let ACTIVE_PLOT_CHART = null;
 
     function runCalculation() {
@@ -1038,7 +1102,7 @@
             3
         )
 
-        let plotTemplate = createPlotTemplate([createPlotGroupFromExpiration(decayDate, numOfPlots)], 'simple');
+        let plotTemplate = createPlotTemplate([createPlotGroupFromExpiration(decayDate, numOfPlots)], createEmptyNftGroup(), 'simple');
         let calculatedData = calculate(plotTemplate, settingsTemplate, todayDate, numOfDaysInFuture, numOfClaimable)
 
         plotPlotGraph(calculatedData, 'scalcActivePlotsGraph');
@@ -1209,7 +1273,7 @@
 
                     startingValues.plots = plotGroups
                     startingValues.plotsCount = totalCount
-                    templateFromInput = createPlotTemplate(plotGroups, LIVE_WALLET_TEMPLATE_NAME)
+                    templateFromInput = createPlotTemplate(plotGroups, createEmptyNftGroup(), LIVE_WALLET_TEMPLATE_NAME)
                     syncAllTemplates();
                 }
             }
@@ -1249,6 +1313,7 @@
     document.getElementById("calculator_num_of_claimable").value = startingValues.claimable;
     runSimpleCalculation();
     populateCalculatorTemplatesSelect();
+    openCreatePTEM();
 
 
 </script>
