@@ -293,25 +293,36 @@
                 <div>
                     <div class="form-container horde-purple-border">
                         <span id="calc-no-template-error" style="color: red; display:none">No templates found, create one!</span>
-                        <form onsubmit="return false" >
-                            <div class="input-group mb-3">
-                                <div class="input-group-prepend">
-                                    <label class="input-group-text" for="calculator-template-select">Plot Template</label>
+                        <div class="row">
+                            <div class="col">
+                                <label class="form-label" >Select a template</label>
+                                <br>
+                                <div class="input-group mb-3">
+                                    <div class="input-group-prepend">
+                                        <label class="input-group-text" for="calculator-template-select">Plot Template</label>
+                                    </div>
+                                    <br/>
+                                    <select id="calculator-template-select">
+                                    </select>
                                 </div>
-                                <br/>
-                                <select id="calculator-template-select">
-                                </select>
+                                <label class="form-label" for="calculator_num_of_claimable">Claimable tokens at the moment:</label>
+                                <br>
+                                <input class="form-control" value="0" type="number" id="calculator_num_of_claimable" style="width: 20%" step="0.001"/>
+                                <br>
+                                <label class="form-label" for="calculator_num_of_days_in_future">Duration in future:</label>
+                                <br>
+                                <input class="form-control" value="500" type="number" id="calculator_num_of_days_in_future" style="width: 20%"/>
+                                <br>
+                                <button onclick="runCalculation()" class="btn btn-primary btn-grad">Compound &nbsp:)</button> (scroll down)
                             </div>
-                            <label class="form-label" for="calculator_num_of_claimable">How many claimable tokens you have at the moment:</label>
-                            <br>
-                            <input class="form-control" value="0" type="number" id="calculator_num_of_claimable" style="width: 20%" step="0.001"/>
-                            <br>
-                            <label class="form-label" for="calculator_num_of_days_in_future">Duration in future:</label>
-                            <br>
-                            <input class="form-control" value="500" type="number" id="calculator_num_of_days_in_future" style="width: 20%"/>
-                            <br>
-                            <button onclick="runCalculation()" class="btn btn-primary btn-grad">Compound &nbsp:)</button> (scroll down)
-                        </form>
+                            <div class="col-8">
+
+                                <label class="form-label" for="calculator_wallets_hardcap"># Wallets Hardcap (how many wallets you use)</label>
+                                <br>
+                                <input class="form-control" value="1" min="1" max="5" type="number" id="calculator_wallets_hardcap" style="width: 20%" step="1"/>
+                                <br>
+                            </div>
+                        </div>
                     </div>
                     <div style="display: none" id="calculator-notemp-message">
                         There are no templates in the system, create some in the "Templates" tab!
@@ -1053,16 +1064,15 @@
     }
     testPrepareApplicableNfts()
 
-    function calculate(plotTemplate, settingsTemplate, startFromDate, calculateDays, claimable) {
+    function calculate(plotTemplate, settingsTemplate, startFromDate, calculateDays, claimable, plotHardcap) {
         let dateIterator = new Date(startFromDate);
 
         let activePlots = Object.assign({}, plotTemplate);
         let decayedPlotGroups = [];
         let month = 69; //crazy value to make it print once as soon as it starts
-        let results = ''; //
         let calculatedData = [];
         let nftRewardSum = 0;
-
+        let totalHordeCashedOut = 0;
 
         for(let i = 0; i < calculateDays; i++) {
             let isLastLoop = (i + 1) === calculateDays;
@@ -1090,25 +1100,15 @@
             //print every month (or last date)
             if(month !== dateIterator.getMonth() ||  isLastLoop) {
                 month = dateIterator.getMonth();
-                if(isLastLoop) {
-                    results += "<h4>Result on last day</h4>" + "<br>";
-                }
-                results += "State at  " + dateOnlyAsString + "<br>";
-                //results += "&nbsp&nbsp&nbsp&nbspClaimable: " + smartRound(claimable, 2).toString() + "<br>"; //makes no sense to print in a monthly printout
-                results += "&nbsp&nbsp&nbsp&nbspDay: " + (i + 1).toString() + "<br>";
-                results += "&nbsp&nbsp&nbsp&nbspPlots: " + activePlotCount.toString() + "<br>";
-                results += "&nbsp&nbsp&nbsp&nbspDaily token generation: " + smartRound(dailyHordeGeneration, 2) + "<br>";
-                results += "&nbsp&nbsp&nbsp&nbspDaily dollar generation: $" + smartRound(dailyDollarGeneration, 2).toString() + "<br>";
-                results += "&nbsp&nbsp&nbsp&nbspDecayed plots: " + decayedPlotCount + "<br>";
-                results += "<br>";
-
             }
 
             //if we have enough to create a plot(s), we create
             let plotsToCreate = 0;
-            while(claimable >= 10) {
+            let activePlotCountAfterCreation = activePlotCount;
+            while(claimable >= 10 && activePlotCountAfterCreation < plotHardcap) {
                 claimable -= 10;
                 plotsToCreate++;
+                activePlotCountAfterCreation++;
             }
 
             if(plotsToCreate !== 0) {
@@ -1121,25 +1121,38 @@
             }
 
             if(survivingGroups.length === 0) {
-                results += "On day " + (i + 1).toString() + " you've run out of plots, because you sold too much!"
                 break;
             }
+
+            let ceilingIsHit = activePlotCountAfterCreation >= plotHardcap;
+            let hordeCashedOut = 0;
+            if(ceilingIsHit) {
+                //if ceiling is hit, no strategy can be done except keep at least 10 tokens (to fill the gap in next day if a plot decays) and claim the rest
+                if(claimable > 10) {
+                    hordeCashedOut = claimable - 10;
+                    claimable -= hordeCashedOut;
+                }
+            } else {
+                //do selected strategy
+            }
+
+            totalHordeCashedOut += hordeCashedOut;
 
             calculatedData.push(
                 {
                     day: (i + 1),
                     date: dateOnlyAsString,
-                    activePlots: activePlotCount,
+                    activePlots: activePlotCountAfterCreation,
                     decayedPlots: decayedPlotCount,
                     dailyHorde: dailyHordeGeneration,
-                    dailyDollar: dailyDollarGeneration
+                    dailyDollar: dailyDollarGeneration,
+                    totalHordeCashedOut: totalHordeCashedOut,
+                    hordeCashedOut: hordeCashedOut
                 }
             )
             activePlots.plotGroups = survivingGroups;
             dateIterator = copyAndAddDays(dateIterator, 1);
         }
-
-        document.getElementById("monthly-results-raw").innerHTML = results
 
         return calculatedData;
     }
@@ -1242,6 +1255,7 @@
         return nftGroup.nft5perc + nftGroup.nft10perc + nftGroup.nft15perc;
     }
 
+    let OLD_ACTIVE_PLOT_CHART = null;
     let ACTIVE_PLOT_CHART = null;
 
     function runCalculation() {
@@ -1265,8 +1279,9 @@
 
         let numOfClaimable = parseInt(document.getElementById("calculator_num_of_claimable").value)
         let numOfDaysInFuture = parseInt(document.getElementById("calculator_num_of_days_in_future").value)
+        let plotHardcap = parseInt(document.getElementById("calculator_wallets_hardcap").value) * 100
         let todayDate = new Date();
-        let calculatedData = calculate(template, settingsTemplate, todayDate, numOfDaysInFuture, numOfClaimable)
+        let calculatedData = calculate(template, settingsTemplate, todayDate, numOfDaysInFuture, numOfClaimable, plotHardcap)
 
         plotPlotGraph(calculatedData, 'calculatorActivePlotsGraph');
         document.getElementById("results").style.display = 'block';
@@ -1291,15 +1306,84 @@
         let plotTemplate = createPlotTemplate([createPlotGroupFromExpiration(decayDate, numOfPlots)], createEmptyNftGroup(), 'simple');
         let calculatedData = oldCalculate(plotTemplate, settingsTemplate, todayDate, numOfDaysInFuture, numOfClaimable)
 
-        plotPlotGraph(calculatedData, 'scalcActivePlotsGraph');
+        oldPlotPlotGraph(calculatedData, 'scalcActivePlotsGraph');
         document.getElementById("results").style.display = 'block';
     }
 
-    function plotPlotGraph(calculatedData, plotCanvasId) { //plotPlot lmao
+    function plotPlotGraph(calculatedData, plotCanvasId) {
         if (ACTIVE_PLOT_CHART !== null) {
             ACTIVE_PLOT_CHART.destroy()
         }
-        ACTIVE_PLOT_CHART = plotGraphFromCalcData(document.getElementById(plotCanvasId), calculatedData,
+        let ctx = document.getElementById(plotCanvasId);
+        ACTIVE_PLOT_CHART = new Chart(ctx, {
+            type: 'line',
+            data: {
+                datasets: [{
+                    label: 'Decayed Plots',
+                    data: calculatedData,
+                    borderColor:'#6C0EB6',
+                    backgroundColor: 'rgba(108, 14, 182, 0.5)',
+                    borderWidth: 3,
+                    pointBorderWidth: 0,
+                    pointRadius: 0,
+                    fill: true,
+                    parsing: {
+                        xAxisKey: 'date',
+                        yAxisKey: 'decayedPlots'
+                    }
+                },{
+                    label: 'Active Plots',
+                    data: calculatedData,
+                    borderColor:'#17C139',
+                    backgroundColor:'rgba(23, 193, 57, 0.5)',
+                    borderWidth: 3,
+                    pointBorderWidth: 0,
+                    pointRadius: 0,
+                    fill: true,
+                    parsing: {
+                        xAxisKey: 'date',
+                        yAxisKey: 'activePlots'
+                    }
+                }]
+            },
+            options: {
+                plugins: {  // 'legend' now within object 'plugins {}'
+                    legend: {
+                        labels: {
+                            color: "#dee2e6",  // not 'fontColor:' anymore
+                            // fontSize: 18  // not 'fontSize:' anymore
+                            font: {
+                                size: 12 // 'size' now within object 'font {}'
+                            }
+                        }
+                    }
+                },
+                responsive:true,
+                maintainAspectRatio: false,
+                interaction: {
+                    intersect: false,
+                    axis: 'x'
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        stacked: true,
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    },
+                }
+            }
+        });
+    }
+
+    function oldPlotPlotGraph(calculatedData, plotCanvasId) { //plotPlot lmao
+        if (OLD_ACTIVE_PLOT_CHART !== null) {
+            OLD_ACTIVE_PLOT_CHART.destroy()
+        }
+        OLD_ACTIVE_PLOT_CHART = oldPlotGraphFromCalcData(document.getElementById(plotCanvasId), calculatedData,
             [{
                 label: 'Active Plots',
                 data: calculatedData,
@@ -1325,8 +1409,8 @@
             }]);
     }
 
-    function plotGraphFromCalcData(ctx, calculatedData, datasets) {
-        let chart = new Chart(ctx, {
+    function oldPlotGraphFromCalcData(ctx, calculatedData, datasets) {
+        return new Chart(ctx, {
             type: 'line',
             data: {
                 datasets: datasets
@@ -1361,8 +1445,6 @@
                 }
             }
         });
-
-        return chart;
     }
 
     function isJson(item) {
