@@ -184,7 +184,7 @@
             right: 2%;
             font-size: 14px;
             cursor: pointer;
-            padding: 4px 7px 4px 7px;
+            padding: 3px 8px 3px 8px;
             border-radius: 1rem;
             user-select: none;
         }
@@ -282,6 +282,17 @@
         .post-graph-header-note {
             font-size: 0.6em
         }
+
+        .pencil-img {
+            background-image: url("pencil.png");
+            width: 2px;
+            height: 2px;
+            display: inline-block;
+            filter: invert(100%);
+            background-size: contain;
+            padding: 8px;
+        }
+
     </style>
 </head>
 <body class="horde-white-text sc6">
@@ -325,12 +336,12 @@
                                 <br>
                                 <div class="template-select-container input-group mb-3">
                                     <div class="input-group-prepend">
-                                        <label class="input-group-text" for="calculator-template-select">Plot Template</label>
+                                        <label class="input-group-text" for="calculator-template-select">Template</label>
                                     </div>
                                     <br/>
-                                    <select style="font-size: 0.9em" id="calculator-template-select">
+                                    <select style="font-size: 0.8em" id="calculator-template-select">
                                     </select>
-                                    <span onclick="openSelectPTEM()" class="template-card-pencil"> 🖉 </span>
+                                    <span onclick="openSelectPTEM()" class=" template-card-pencil"><span class="pencil-img" style="padding: 10px;"></span></span>
                                 </div>
                                 <label class="form-label" for="calculator_num_of_claimable">Claimable tokens at the moment:</label>
                                 <br>
@@ -1823,7 +1834,7 @@
         let editPencilHTML = '';
         if(generateEditPencil) {
             editPencilHTML = `
-                <span onclick="openPTEM('${plotTemplate.name}')" class="template-card-pencil"> 🖉 </span>
+                <span onclick="openPTEM('${plotTemplate.name}')" class="template-card-pencil"><span class="pencil-img" style="padding: 0.4em;"></span></span>
             `;
         }
 
