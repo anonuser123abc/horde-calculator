@@ -316,11 +316,11 @@
                                 </div>
                                 <label class="form-label" for="calculator_num_of_claimable">Claimable tokens at the moment:</label>
                                 <br>
-                                <input class="form-control" value="0" type="number" id="calculator_num_of_claimable" style="width: 20%" step="0.001"/>
+                                <input class="form-control" value="0" type="number" id="calculator_num_of_claimable" style="width: 60%" step="0.001"/>
                                 <br>
                                 <label class="form-label" for="calculator_num_of_days_in_future">Duration in future:</label>
                                 <br>
-                                <input class="form-control" value="500" type="number" id="calculator_num_of_days_in_future" style="width: 20%"/>
+                                <input class="form-control" value="500" type="number" id="calculator_num_of_days_in_future" style="width: 60%"/>
                                 <br>
                                 <button onclick="runCalculation()" class="btn btn-primary btn-grad">Compound &nbsp:)</button> (scroll down)
                             </div>
@@ -328,8 +328,15 @@
 
                                 <label class="form-label" for="calculator_wallets_hardcap"># Wallets Hardcap (how many wallets you use)</label>
                                 <br>
-                                <input class="form-control" value="1" min="1" max="5" type="number" id="calculator_wallets_hardcap" style="width: 20%" step="1"/>
+                                <input class="form-control" value="1" min="1" max="5" type="number" id="calculator_wallets_hardcap" style="width: 30%" step="1"/>
                                 <br>
+                                <label class="form-label" for="calculator_wallets_hardcap">$$$ Invested (optional)</label>
+                                <br>
+                                <input class="form-control" value="0" min="0" type="number" id="calculator_invested" style="width: 30%" step="1"/>
+                                <br>
+                                <div id="calculator-strategies-container">
+
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1306,11 +1313,17 @@
         let numOfClaimable = parseInt(document.getElementById("calculator_num_of_claimable").value)
         let numOfDaysInFuture = parseInt(document.getElementById("calculator_num_of_days_in_future").value)
         let plotHardcap = parseInt(document.getElementById("calculator_wallets_hardcap").value) * 100
+        let invested = parseFloat(document.getElementById("calculator_invested").value)
+
+
+        if(numOfDaysInFuture < 2) {
+            return;
+        }
         let todayDate = new Date();
         let calculatedData = calculate(template, settingsTemplate, todayDate, numOfDaysInFuture, numOfClaimable, plotHardcap)
 
         plotPlotGraph(calculatedData, 'calculatorActivePlotsGraph');
-        plotCashoutChart(calculatedData, 'calculatorCashoutGraph');
+        plotCashoutChart(calculatedData, 'calculatorCashoutGraph', invested);
         document.getElementById("results").style.display = 'block';
     }
 
@@ -1375,38 +1388,70 @@
         );
     }
 
-    function plotCashoutChart(calculatedData, plotCanvasId) {
+    function plotCashoutChart(calculatedData, plotCanvasId, invested) {
+        let datasets = [{
+            label: 'Cashout (accumulated)',
+            data: calculatedData,
+            borderColor:'#17C139',
+            borderWidth: 3,
+            pointBorderWidth: 0,
+            pointRadius: 0,
+            parsing: {
+                xAxisKey: 'date',
+                yAxisKey: 'totalDollarCashedOut'
+            }
+        },{
+            label: 'Cashout (daily)',
+            data: calculatedData,
+            borderColor:'#6C0EB6',
+            borderWidth: 3,
+            pointBorderWidth: 0,
+            pointRadius: 0,
+            parsing: {
+                xAxisKey: 'date',
+                yAxisKey: 'dollarCashedOut'
+            }
+        }];
+
+        if(invested !== 0) {
+            console.log(invested)
+            console.log(calculatedData)
+            let firstDate = calculatedData[0].date;
+            let secondDate = calculatedData[calculatedData.length - 1].date;
+            let investedDataset = [
+                {
+                    'date': firstDate,
+                    'invested': invested
+                },
+                {
+                    'date': secondDate,
+                    'invested': invested
+                },
+            ]
+            console.log(investedDataset)
+            datasets.push(
+                {
+                    label: 'Break Even',
+                    data: investedDataset,
+                    borderColor:'white',
+                    borderWidth: 1,
+                    pointBorderWidth: 0,
+                    pointRadius: 0,
+                    parsing: {
+                        xAxisKey: 'date',
+                        yAxisKey: 'invested'
+                    }
+                }
+            )
+        }
+
         if (CASHOUT_CHART !== null) {
             CASHOUT_CHART.destroy()
         }
         let ctx = document.getElementById(plotCanvasId);
         CASHOUT_CHART = plotChart(
             ctx,
-            [{
-                label: 'Cashout (accumulated)',
-                data: calculatedData,
-                borderColor:'#6C0EB6',
-                backgroundColor: 'rgba(108, 14, 182, 0.5)',
-                borderWidth: 3,
-                pointBorderWidth: 0,
-                pointRadius: 0,
-                parsing: {
-                    xAxisKey: 'date',
-                    yAxisKey: 'totalDollarCashedOut'
-                }
-            },{
-                label: 'Cashout (daily)',
-                data: calculatedData,
-                borderColor:'#17C139',
-                backgroundColor:'rgba(23, 193, 57, 0.5)',
-                borderWidth: 3,
-                pointBorderWidth: 0,
-                pointRadius: 0,
-                parsing: {
-                    xAxisKey: 'date',
-                    yAxisKey: 'dollarCashedOut'
-                }
-            }],
+            datasets,
             false
         );
     }
