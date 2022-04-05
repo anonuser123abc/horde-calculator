@@ -260,13 +260,15 @@
     </style>
 </head>
 <body class="horde-white-text sc6">
-    <div class="container" id="main-container">
-        <br>
-        <img alt="logo" src="horde-logo-250.png"/>
-        <br>
-        <div>
-            Link to github
-            <a class="horde-white-text" href="https://github.com/anonuser123abc/horde-calculator">https://github.com/anonuser123abc/horde-calculator</a>
+    <div style="display: none" class="container" id="main-container">
+        <div id="horde-header">
+            <br>
+            <img alt="logo" src="horde-logo-250.png"/>
+            <br>
+            <div>
+                Link to github
+                <a class="horde-white-text" href="https://github.com/anonuser123abc/horde-calculator">https://github.com/anonuser123abc/horde-calculator</a>
+            </div>
         </div>
         <br>
         <div>
@@ -284,7 +286,7 @@
                 </ul>
             </div>
             <br>
-            <div style="display: none" id="calculator-tab">
+            <div id="calculator-tab">
                 <h3>
                     Calculator
                 </h3>
@@ -1434,6 +1436,9 @@
 
     function readInput(rawQueryParams, startingValues) {
         try {
+            if('hideHeader' in rawQueryParams) {
+                startingValues.hideHeader = rawQueryParams.hideHeader
+            }
             if ('plots' in rawQueryParams) {
                 let decodedString = atob(rawQueryParams.plots);
                 if (isJson) {
@@ -1486,6 +1491,7 @@
         plots: defaultPlots,
         claimable: defaultClaimable,
         plotsCount: defaultPlotsCount,
+        'hideHeader': 'no'
     }
 
     startingValues = readInput(rawQueryParams, startingValues);
@@ -1495,7 +1501,11 @@
     document.getElementById("calculator_num_of_claimable").value = startingValues.claimable;
     runSimpleCalculation();
     syncAllTemplates();
-    document.getElementById('calculator-tab').style.display = 'block'
+
+    if (startingValues.hideHeader === 'yes') {
+        document.getElementById('horde-header').style.display = 'none'
+    }
+    document.getElementById('main-container').style.display = 'block'
 
 
 </script>
