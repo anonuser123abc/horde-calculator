@@ -1208,7 +1208,7 @@
             nftRewardSum += nftReward
 
             let decayedPlotCount = countPlots(decayedPlotGroups);
-            let activePlotCount = countPlots(activePlots.plotGroups);
+            let activePlotCount = countPlots(survivingGroups); //hmm
             let dailyHordeGeneration = smartRound(activePlotCount * 0.1, 2);
             let dailyDollarGeneration = smartRound(dailyHordeGeneration * HORDE_CURRENT_MIDDLE_PRICE, 2);
             let dateOnlyAsString = dateOnlyString(dateIterator);
