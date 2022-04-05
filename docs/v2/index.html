@@ -265,6 +265,15 @@
             background-color: #6C0EB6;
         }
 
+        .form-check-input:checked {
+            background-color: #17C139;
+            border-color:  #f5f97f;
+        }
+
+        .horde-radio-button {
+            margin-top: 1em;
+        }
+
     </style>
 </head>
 <body class="horde-white-text sc6">
@@ -301,8 +310,9 @@
                 <div>
                     <div class="form-container horde-purple-border">
                         <span id="calc-no-template-error" style="color: red; display:none">No templates found, create one!</span>
+                        <span id="calc-generic-error" style="color: red; display:none"></span>
                         <div class="row">
-                            <div class="col">
+                            <div class="col-4">
                                 <label class="form-label" >Select a template</label>
                                 <br>
                                 <div class="template-select-container input-group mb-3">
@@ -324,22 +334,49 @@
                                 <br>
                                 <button onclick="runCalculation()" class="btn btn-primary btn-grad">Compound &nbsp:)</button> (scroll down)
                             </div>
-                            <div class="col-8">
+                            <div class="col-4">
 
                                 <label class="form-label" for="calculator_wallets_hardcap"># Wallets Hardcap (how many wallets you use)</label>
                                 <br>
-                                <input class="form-control" value="1" min="1" max="5" type="number" id="calculator_wallets_hardcap" style="width: 30%" step="1"/>
+                                <input class="form-control" value="1" min="1" max="5" type="number" id="calculator_wallets_hardcap" style="width: 60%" step="1"/>
                                 <br>
                                 <label class="form-label" for="calculator_wallets_hardcap">$$$ Invested (optional)</label>
                                 <br>
-                                <input class="form-control" value="0" min="0" type="number" id="calculator_invested" style="width: 30%" step="1"/>
+                                <input class="form-control" value="0" min="0" type="number" id="calculator_invested" style="width: 60%" step="1"/>
                                 <br>
                                 <label class="form-label" for="calculator_wallets_hardcap">$$$ Cashed Out Already (optional)</label>
                                 <br>
-                                <input class="form-control" value="0" min="0" type="number" id="calculator_cashed_out_already" style="width: 30%" step="1"/>
+                                <input class="form-control" value="0" min="0" type="number" id="calculator_cashed_out_already" style="width: 60%" step="1"/>
                                 <br>
-                                <div id="calculator-strategies-container">
+                            </div>
 
+                            <div class="col-4" id="calculator-strategies-container">
+                                <span>Choose a strategy:</span>
+                                <div style="padding-left: 0.8em">
+                                    <div class="form-check horde-radio-button">
+                                        <input class="form-check-input" type="radio" name="calculator_strategy" id="strategy_full_compound" value="strategy_full_compound" checked>
+                                        <label class="form-check-label" for="strategy_full_compound">
+                                            Full Compound <span style="font-size: 0.6em">(compound until the hardcap is hit)</span>
+                                        </label>
+                                    </div>
+                                    <div class="form-check horde-radio-button">
+                                        <input class="form-check-input" type="radio" name="calculator_strategy" id="strategy_cashout_breakeven" value="strategy_cashout_breakeven">
+                                        <label class="form-check-label" for="strategy_cashout_breakeven">
+                                            Cashout Until Breakeven  <span style="font-size: 0.6em">(then compound)</span>
+                                        </label>
+                                    </div>
+                                    <div class="form-check horde-radio-button">
+                                        <input class="form-check-input" type="radio" name="calculator_strategy" id="strategy_cashout_then_compound" value="strategy_cashout_then_compound">
+                                        <label class="form-check-label" for="strategy_cashout_then_compound">
+                                            Cashout Then Compound  <span style="font-size: 0.6em">(for each plot cashout first 100 days rewards, compound the rest, NFTs rewards are always cashed out)</span>
+                                        </label>
+                                    </div>
+                                    <div class="form-check horde-radio-button">
+                                        <input class="form-check-input" type="radio" name="calculator_strategy" id="strategy_compound_then_cashout" value="strategy_compound_then_cashout">
+                                        <label class="form-check-label" for="strategy_compound_then_cashout">
+                                            Compound Then Cashout <span style="font-size: 0.6em">(for each plot compound first 200 days rewards, cashout the rest, NFTs rewards are always compounded)</span>
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -488,6 +525,12 @@
     const LIVE_WALLET_TEMPLATE_NAME_EDITED = 'Live Wallet Edited'
     const BE_CREATIVE_NAME = '-- be creative --';
 
+    const STRATEGY_FULL_COMPOUND = 'strategy_full_compound'
+    const STRATEGY_CASHOUT_BREAKEVEN = 'strategy_cashout_breakeven'
+    const STRATEGY_CASHOUT_THEN_COMPOUND = 'strategy_cashout_then_compound'
+    const STRATEGY_COMPOUND_THEN_CASHOUT = 'strategy_compound_then_cashout'
+
+
     let FORBIDDEN_NAMES = {};
     FORBIDDEN_NAMES[LIVE_WALLET_TEMPLATE_NAME] = 1;
     FORBIDDEN_NAMES[LIVE_WALLET_TEMPLATE_NAME_EDITED] = 1;
@@ -525,8 +568,22 @@
         document.getElementById('calc-no-template-error').style.display = 'none'
     }
 
+    function showCalculatorError(msg) {
+        document.getElementById('calc-generic-error').innerText = msg
+        document.getElementById('calc-generic-error').style.display = 'block'
+    }
+
+    function hideCalculatorError() {
+        document.getElementById('calc-generic-error').innerText = ''
+        document.getElementById('calc-no-template-error').style.display = 'none'
+    }
+
     function userHasTemplates() {
         return !(templateFromInput === null && isEmpty(GLOBAL_DATA.templates));
+    }
+
+    function getSelectedStrategy() {
+        return document.querySelector('input[name="calculator_strategy"]:checked').value;
     }
 
     function populateCalculatorTemplatesSelect(keepSameSelectedIfFound) {
@@ -1098,17 +1155,22 @@
     }
     testPrepareApplicableNfts()
 
-    function calculate(plotTemplate, settingsTemplate, startFromDate, calculateDays, claimable, plotHardcap) {
+    function calculate(plotTemplate, settingsTemplate, startFromDate, calculateDays, claimable, plotHardcap, invested, cashedOutAlready, selectedStrategy) {
         let dateIterator = new Date(startFromDate);
+
+        let hordeMiddlePrice = 100;
 
         let activePlots = Object.assign({}, plotTemplate);
         let decayedPlotGroups = [];
         let month = 69; //crazy value to make it print once as soon as it starts
         let calculatedData = [];
         let nftRewardSum = 0;
-        let totalHordeCashedOut = 0;
+        let dollarAlreadyCashedOutWithoutTax = (cashedOutAlready * 1.11111111)
+        let totalHordeCashedOut = dollarAlreadyCashedOutWithoutTax / hordeMiddlePrice;
+        let breakEvenStrategyActive = selectedStrategy === STRATEGY_CASHOUT_BREAKEVEN
 
         for(let i = 0; i < calculateDays; i++) {
+            let hordeCashedOut = 0;
             let isLastLoop = (i + 1) === calculateDays;
             let survivingGroups = [];
             let plotCountBeforeDecay = 0;
@@ -1129,16 +1191,26 @@
             let decayedPlotCount = countPlots(decayedPlotGroups);
             let activePlotCount = countPlots(activePlots.plotGroups);
             let dailyHordeGeneration = smartRound(activePlotCount * 0.1, 2);
-            let dailyDollarGeneration = smartRound(dailyHordeGeneration * 100, 2);
+            let dailyDollarGeneration = smartRound(dailyHordeGeneration * hordeMiddlePrice, 2);
             let dateOnlyAsString = dateOnlyString(dateIterator);
             //print every month (or last date)
             if(month !== dateIterator.getMonth() ||  isLastLoop) {
                 month = dateIterator.getMonth();
             }
 
-            //if we have enough to create a plot(s), we create
             let plotsToCreate = 0;
             let activePlotCountAfterCreation = activePlotCount;
+            if(breakEvenStrategyActive) {
+                let cashedOutDollarTotal = totalHordeCashedOut * hordeMiddlePrice * 0.9;
+                let leftToBreakEven = invested - cashedOutDollarTotal;
+                if(leftToBreakEven > 0) { //if we have not broken even, do a full cashout
+                    hordeCashedOut = claimable;
+                    claimable = 0;
+                } else {
+                    breakEvenStrategyActive = false; //we have cashed out, so we stop the strategy
+                }
+            }
+            //if we have enough to create a plot(s), we create
             while(claimable >= 10 && activePlotCountAfterCreation < plotHardcap) {
                 claimable -= 10;
                 plotsToCreate++;
@@ -1159,7 +1231,6 @@
             }
 
             let ceilingIsHit = activePlotCountAfterCreation >= plotHardcap;
-            let hordeCashedOut = 0;
             if(ceilingIsHit) {
                 //if ceiling is hit, no strategy can be done except keep at least 10 tokens (to fill the gap in next day if a plot decays) and claim the rest
                 if(claimable > 10) {
@@ -1182,10 +1253,10 @@
                     dailyDollar: dailyDollarGeneration,
                     totalHordeCashedOut: totalHordeCashedOut,
                     hordeCashedOut: hordeCashedOut,
-                    totalDollarCashedOut: totalHordeCashedOut * 100 * 0.9,
-                    totalDollarTaxed: totalHordeCashedOut * 100 * 0.1,
-                    dailyDollarCashedOut: hordeCashedOut * 100 * 0.9,
-                    dailyDollarTaxed: hordeCashedOut * 100 * 0.1,
+                    totalDollarCashedOut: totalHordeCashedOut * hordeMiddlePrice * 0.9,
+                    totalDollarTaxed: totalHordeCashedOut * hordeMiddlePrice * 0.1,
+                    dailyDollarCashedOut: hordeCashedOut * hordeMiddlePrice * 0.9,
+                    dailyDollarTaxed: hordeCashedOut * hordeMiddlePrice * 0.1,
                 }
             )
             activePlots.plotGroups = survivingGroups;
@@ -1298,6 +1369,7 @@
     let CASHOUT_CHART = null;
 
     function runCalculation() {
+        hideCalculatorError()
         if(!userHasTemplates()) {
             return;
         }
@@ -1321,13 +1393,18 @@
         let plotHardcap = parseInt(document.getElementById("calculator_wallets_hardcap").value) * 100
         let invested = parseFloat(document.getElementById("calculator_invested").value)
         let cashedOutAlready = parseFloat(document.getElementById("calculator_cashed_out_already").value)
+        let strategy = getSelectedStrategy()
 
+        if(strategy === STRATEGY_CASHOUT_BREAKEVEN && invested <= 0) {
+            showCalculatorError('Cant do breakeven strategy if you dont input your investment $$$!')
+            return;
+        }
 
         if(numOfDaysInFuture < 2) {
             return;
         }
         let todayDate = new Date();
-        let calculatedData = calculate(template, settingsTemplate, todayDate, numOfDaysInFuture, numOfClaimable, plotHardcap)
+        let calculatedData = calculate(template, settingsTemplate, todayDate, numOfDaysInFuture, numOfClaimable, plotHardcap, invested, cashedOutAlready, strategy)
 
         plotPlotGraph(calculatedData, 'calculatorActivePlotsGraph');
         plotCashoutChart(calculatedData, 'calculatorCashoutGraph', invested, cashedOutAlready);
@@ -1397,15 +1474,17 @@
 
     function plotCashoutChart(calculatedData, plotCanvasId, invested, cashedOutAlready) {
         let data = clone(calculatedData)
-        data.forEach(
-            (x, i) => {
-                data[i].totalDollarCashedOut = data[i].totalDollarCashedOut + cashedOutAlready
-                data[i].totalDollarTaxed = data[i].totalDollarTaxed + (cashedOutAlready * 0.1111111111) //multiplying cashed out by 0.1111111111 will give how much was taxed
-            }
-        )
+        /* commented out because the cashedOutAlready is now included in the calculation
+            data.forEach(
+                (x, i) => {
+                    data[i].totalDollarCashedOut = data[i].totalDollarCashedOut + cashedOutAlready
+                    data[i].totalDollarTaxed = data[i].totalDollarTaxed + (cashedOutAlready * 0.1111111111) //multiplying cashed out by 0.1111111111 will give how much was taxed
+                }
+            )
+        */
 
         let datasets = [{
-            label: 'Cashout (accumulated)',
+            label: 'Cashout Profit (accumulated)',
             data: data,
             borderColor:'#17C139',
             borderWidth: 3,
@@ -1427,7 +1506,7 @@
                 yAxisKey: 'totalDollarTaxed'
             }
         },{
-            label: 'Cashout (daily)',
+            label: 'Cashout Profit (daily)',
             data: data,
             borderColor:'#6C0EB6',
             borderWidth: 3,
