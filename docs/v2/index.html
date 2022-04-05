@@ -365,18 +365,6 @@
                                             Cashout Until Breakeven  <span style="font-size: 0.6em">(then compound)</span>
                                         </label>
                                     </div>
-                                    <div class="form-check horde-radio-button">
-                                        <input class="form-check-input" type="radio" name="calculator_strategy" id="strategy_cashout_then_compound" value="strategy_cashout_then_compound">
-                                        <label class="form-check-label" for="strategy_cashout_then_compound">
-                                            Cashout Then Compound  <span style="font-size: 0.6em">(for each plot cashout first 100 days rewards, compound the rest, NFTs rewards are always cashed out)</span>
-                                        </label>
-                                    </div>
-                                    <div class="form-check horde-radio-button">
-                                        <input class="form-check-input" type="radio" name="calculator_strategy" id="strategy_compound_then_cashout" value="strategy_compound_then_cashout">
-                                        <label class="form-check-label" for="strategy_compound_then_cashout">
-                                            Compound Then Cashout <span style="font-size: 0.6em">(for each plot compound first 200 days rewards, cashout the rest, NFTs rewards are always compounded)</span>
-                                        </label>
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -396,6 +384,19 @@
                     <br>
                     <div class="standard-size-plot">
                         <canvas id="calculatorCashoutGraph"></canvas>
+                    </div>
+                    <br>
+                    <h1 style="padding-left: 20px">Tokenomics Graph</h1>
+                    <br>
+                    <div class="standard-size-plot">
+                        <canvas id="calculatorTokenomicsGraph"></canvas>
+                    </div>
+                    <br>
+                    <br>
+                    <h1 style="padding-left: 20px">Tokenomics in $$$ Graph</h1>
+                    <br>
+                    <div class="standard-size-plot">
+                        <canvas id="calculatorTokenomicsDollarsGraph"></canvas>
                     </div>
                     <br>
                 </div>
@@ -527,9 +528,8 @@
 
     const STRATEGY_FULL_COMPOUND = 'strategy_full_compound'
     const STRATEGY_CASHOUT_BREAKEVEN = 'strategy_cashout_breakeven'
-    const STRATEGY_CASHOUT_THEN_COMPOUND = 'strategy_cashout_then_compound'
-    const STRATEGY_COMPOUND_THEN_CASHOUT = 'strategy_compound_then_cashout'
 
+    const HORDE_CURRENT_MIDDLE_PRICE = 100;
 
     let FORBIDDEN_NAMES = {};
     FORBIDDEN_NAMES[LIVE_WALLET_TEMPLATE_NAME] = 1;
@@ -1158,7 +1158,6 @@
     function calculate(plotTemplate, settingsTemplate, startFromDate, calculateDays, claimable, plotHardcap, invested, cashedOutAlready, selectedStrategy) {
         let dateIterator = new Date(startFromDate);
 
-        let hordeMiddlePrice = 100;
 
         let activePlots = Object.assign({}, plotTemplate);
         let decayedPlotGroups = [];
@@ -1166,7 +1165,7 @@
         let calculatedData = [];
         let nftRewardSum = 0;
         let dollarAlreadyCashedOutWithoutTax = (cashedOutAlready * 1.11111111)
-        let totalHordeCashedOut = dollarAlreadyCashedOutWithoutTax / hordeMiddlePrice;
+        let totalHordeCashedOut = dollarAlreadyCashedOutWithoutTax / HORDE_CURRENT_MIDDLE_PRICE;
         let breakEvenStrategyActive = selectedStrategy === STRATEGY_CASHOUT_BREAKEVEN
 
         for(let i = 0; i < calculateDays; i++) {
@@ -1191,7 +1190,7 @@
             let decayedPlotCount = countPlots(decayedPlotGroups);
             let activePlotCount = countPlots(activePlots.plotGroups);
             let dailyHordeGeneration = smartRound(activePlotCount * 0.1, 2);
-            let dailyDollarGeneration = smartRound(dailyHordeGeneration * hordeMiddlePrice, 2);
+            let dailyDollarGeneration = smartRound(dailyHordeGeneration * HORDE_CURRENT_MIDDLE_PRICE, 2);
             let dateOnlyAsString = dateOnlyString(dateIterator);
             //print every month (or last date)
             if(month !== dateIterator.getMonth() ||  isLastLoop) {
@@ -1201,7 +1200,7 @@
             let plotsToCreate = 0;
             let activePlotCountAfterCreation = activePlotCount;
             if(breakEvenStrategyActive) {
-                let cashedOutDollarTotal = totalHordeCashedOut * hordeMiddlePrice * 0.9;
+                let cashedOutDollarTotal = totalHordeCashedOut * HORDE_CURRENT_MIDDLE_PRICE * 0.9;
                 let leftToBreakEven = invested - cashedOutDollarTotal;
                 if(leftToBreakEven > 0) { //if we have not broken even, do a full cashout
                     hordeCashedOut = claimable;
@@ -1253,10 +1252,10 @@
                     dailyDollar: dailyDollarGeneration,
                     totalHordeCashedOut: totalHordeCashedOut,
                     hordeCashedOut: hordeCashedOut,
-                    totalDollarCashedOut: totalHordeCashedOut * hordeMiddlePrice * 0.9,
-                    totalDollarTaxed: totalHordeCashedOut * hordeMiddlePrice * 0.1,
-                    dailyDollarCashedOut: hordeCashedOut * hordeMiddlePrice * 0.9,
-                    dailyDollarTaxed: hordeCashedOut * hordeMiddlePrice * 0.1,
+                    totalDollarCashedOut: totalHordeCashedOut * HORDE_CURRENT_MIDDLE_PRICE * 0.9,
+                    totalDollarTaxed: totalHordeCashedOut * HORDE_CURRENT_MIDDLE_PRICE * 0.1,
+                    dailyDollarCashedOut: hordeCashedOut * HORDE_CURRENT_MIDDLE_PRICE * 0.9,
+                    dailyDollarTaxed: hordeCashedOut * HORDE_CURRENT_MIDDLE_PRICE * 0.1,
                 }
             )
             activePlots.plotGroups = survivingGroups;
@@ -1367,6 +1366,8 @@
     let OLD_ACTIVE_PLOT_CHART = null;
     let ACTIVE_PLOT_CHART = null;
     let CASHOUT_CHART = null;
+    let TOKENOMICS_CHART = null;
+    let TOKENOMICS_CHART_DOLLARS = null;
 
     function runCalculation() {
         hideCalculatorError()
@@ -1408,6 +1409,8 @@
 
         plotPlotGraph(calculatedData, 'calculatorActivePlotsGraph');
         plotCashoutChart(calculatedData, 'calculatorCashoutGraph', invested, cashedOutAlready);
+        plotTokenomicsChart(calculatedData, 'calculatorTokenomicsGraph');
+        plotTokenomicsChart(calculatedData, 'calculatorTokenomicsDollarsGraph', true, HORDE_CURRENT_MIDDLE_PRICE);
         document.getElementById("results").style.display = 'block';
     }
 
@@ -1552,7 +1555,7 @@
                     label: 'Break Even',
                     data: investedDataset,
                     borderColor:'white',
-                    borderWidth: 1,
+                    borderWidth: 2,
                     pointBorderWidth: 0,
                     pointRadius: 0,
                     parsing: {
@@ -1572,6 +1575,90 @@
             datasets,
             false
         );
+    }
+
+
+    function plotTokenomicsChart(calculatedData, plotCanvasId, inDollars, hordeAvgPrice) {
+        let data = clone(calculatedData)
+        let stringInDollars = '';
+        if(inDollars) {
+            stringInDollars = ' (in $$$)'
+        }
+        data.forEach(
+            (x, i) => {
+                let totalCreatedPlotsHordeValue = (data[i].activePlots + data[i].decayedPlots) * 10;
+                if(inDollars) {
+                    totalCreatedPlotsHordeValue *= hordeAvgPrice
+                }
+                data[i].totalBackRewards = totalCreatedPlotsHordeValue * 0.6
+                data[i].totalBackTreasury = totalCreatedPlotsHordeValue * 0.2
+                data[i].totalBackHordePool = totalCreatedPlotsHordeValue * 0.2
+            }
+        )
+
+        let datasets = [{
+            label: 'Plot creation HORDE -> horde pool' + stringInDollars,
+            data: data,
+            borderColor:'#F7C139',
+            backgroundColor: 'rgba(247, 193, 57, 0.5)',
+            borderWidth: 3,
+            pointBorderWidth: 0,
+            pointRadius: 0,
+            fill: true,
+            parsing: {
+                xAxisKey: 'date',
+                yAxisKey: 'totalBackHordePool'
+            }
+        },{
+            label: 'Plot creation HORDE -> treasury' + stringInDollars,
+            data: data,
+            borderColor:'#6C0EB6',
+            backgroundColor: 'rgba(108, 14, 182, 0.5)',
+            borderWidth: 3,
+            pointBorderWidth: 0,
+            pointRadius: 0,
+            fill: true,
+            parsing: {
+                xAxisKey: 'date',
+                yAxisKey: 'totalBackTreasury'
+            }
+        },{
+            label: 'Plot creation HORDE -> rewards' + stringInDollars,
+            data: data,
+            borderColor:'#17C139',
+            backgroundColor:'rgba(23, 193, 57, 0.5)',
+            borderWidth: 3,
+            pointBorderWidth: 0,
+            pointRadius: 0,
+            fill: true,
+            parsing: {
+                xAxisKey: 'date',
+                yAxisKey: 'totalBackRewards'
+            }
+        }];
+
+        //this is ugly AF but have no mental capacity to make it nice
+        if(inDollars) {
+            if (TOKENOMICS_CHART_DOLLARS !== null) {
+                TOKENOMICS_CHART_DOLLARS.destroy()
+            }
+            let ctx = document.getElementById(plotCanvasId);
+            TOKENOMICS_CHART_DOLLARS = plotChart(
+                ctx,
+                datasets,
+                true
+            );
+        } else {
+            if (TOKENOMICS_CHART !== null) {
+                TOKENOMICS_CHART.destroy()
+            }
+            let ctx = document.getElementById(plotCanvasId);
+            TOKENOMICS_CHART = plotChart(
+                ctx,
+                datasets,
+                true
+            );
+        }
     }
 
 
