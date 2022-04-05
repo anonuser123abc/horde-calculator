@@ -186,10 +186,18 @@
             cursor: pointer;
             padding: 4px 7px 4px 7px;
             border-radius: 1rem;
-            user-select: none; /* Standard */
+            user-select: none;
         }
 
-        .template-card .template-card-pencil:hover {
+        .template-select-container .template-card-pencil {
+            font-size: 14px;
+            cursor: pointer;
+            padding: 7px;
+            border-radius: 1rem;
+            user-select: none;
+        }
+
+        .template-card-pencil:hover {
             background-color: #6C0EB6;
         }
 
@@ -297,13 +305,14 @@
                             <div class="col">
                                 <label class="form-label" >Select a template</label>
                                 <br>
-                                <div class="input-group mb-3">
+                                <div class="template-select-container input-group mb-3">
                                     <div class="input-group-prepend">
                                         <label class="input-group-text" for="calculator-template-select">Plot Template</label>
                                     </div>
                                     <br/>
-                                    <select id="calculator-template-select">
+                                    <select style="font-size: 0.9em" id="calculator-template-select">
                                     </select>
+                                    <span onclick="openSelectPTEM()" class="template-card-pencil"> 🖉 </span>
                                 </div>
                                 <label class="form-label" for="calculator_num_of_claimable">Claimable tokens at the moment:</label>
                                 <br>
@@ -509,18 +518,20 @@
         return !(templateFromInput === null && isEmpty(GLOBAL_DATA.templates));
     }
 
-    function populateCalculatorTemplatesSelect() {
+    function populateCalculatorTemplatesSelect(keepSameSelectedIfFound) {
+        let selectedTemplateName = calculatorTemplatesSelect.value;
+        console.log(selectedTemplateName)
         calculatorTemplatesSelect.innerHTML = '';
         if(templateFromInput !== null) {
             calculatorTemplatesSelect.insertAdjacentHTML(
                 'beforeend',
-                generateTemplateOption(templateFromInput, true)
+                generateTemplateOption(templateFromInput, selectedTemplateName === templateFromInput.name)
             );
         }
         for(let name in GLOBAL_DATA.templates) {
             calculatorTemplatesSelect.insertAdjacentHTML(
                 'beforeend',
-                generateTemplateOption(GLOBAL_DATA.templates[name], false)
+                generateTemplateOption(GLOBAL_DATA.templates[name], selectedTemplateName === name)
             );
         }
     }
@@ -613,8 +624,14 @@
         plotTemplateEditorModal.show()
     }
 
+    function openSelectPTEM() {
+        let templateName = calculatorTemplatesSelect.value;
+        if(!isEmpty(templateName)) {
+            openPTEM(templateName)
+        }
+    }
+
     function openPTEM(name) {
-        console.log("huhu")
         if(name === LIVE_WALLET_TEMPLATE_NAME || name === LIVE_WALLET_TEMPLATE_NAME_EDITED) {
             openWalletPTEM();
         } else {
@@ -723,7 +740,7 @@
     function syncAllTemplates() {
         writeToLocalStorage(GLOBAL_DATA)
         renderTemplates()
-        populateCalculatorTemplatesSelect()
+        populateCalculatorTemplatesSelect(true)
         if(userHasTemplates()) {
             hideNoTemplateError()
         } else {
@@ -1638,6 +1655,9 @@
     document.getElementById("calculator_num_of_claimable").value = startingValues.claimable;
     runSimpleCalculation();
     syncAllTemplates();
+    if(userHasTemplates()) {
+        runCalculation()
+    }
 
     if (startingValues.hideHeader === 'yes') {
         document.getElementById('horde-header').style.display = 'none'
