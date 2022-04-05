@@ -1182,8 +1182,10 @@
                     dailyDollar: dailyDollarGeneration,
                     totalHordeCashedOut: totalHordeCashedOut,
                     hordeCashedOut: hordeCashedOut,
-                    totalDollarCashedOut: totalHordeCashedOut * 100,
-                    dollarCashedOut: hordeCashedOut * 100
+                    totalDollarCashedOut: totalHordeCashedOut * 100 * 0.9,
+                    totalDollarTaxed: totalHordeCashedOut * 100 * 0.1,
+                    dailyDollarCashedOut: hordeCashedOut * 100 * 0.9,
+                    dailyDollarTaxed: hordeCashedOut * 100 * 0.1,
                 }
             )
             activePlots.plotGroups = survivingGroups;
@@ -1398,6 +1400,7 @@
         data.forEach(
             (x, i) => {
                 data[i].totalDollarCashedOut = data[i].totalDollarCashedOut + cashedOutAlready
+                data[i].totalDollarTaxed = data[i].totalDollarTaxed + (cashedOutAlready * 0.1111111111) //multiplying cashed out by 0.1111111111 will give how much was taxed
             }
         )
 
@@ -1413,15 +1416,39 @@
                 yAxisKey: 'totalDollarCashedOut'
             }
         },{
+            label: 'Cashout Tax (accumulated)',
+            data: data,
+            borderColor:'#F7C139',
+            borderWidth: 3,
+            pointBorderWidth: 0,
+            pointRadius: 0,
+            parsing: {
+                xAxisKey: 'date',
+                yAxisKey: 'totalDollarTaxed'
+            }
+        },{
             label: 'Cashout (daily)',
             data: data,
             borderColor:'#6C0EB6',
             borderWidth: 3,
             pointBorderWidth: 0,
             pointRadius: 0,
+            hidden: true,
             parsing: {
                 xAxisKey: 'date',
-                yAxisKey: 'dollarCashedOut'
+                yAxisKey: 'dailyDollarCashedOut'
+            }
+        },{
+            label: 'Cashout Tax (daily)',
+            data: data,
+            borderColor:'#FC0EB6',
+            borderWidth: 3,
+            pointBorderWidth: 0,
+            pointRadius: 0,
+            hidden: true,
+            parsing: {
+                xAxisKey: 'date',
+                yAxisKey: 'dailyDollarTaxed'
             }
         }];
 
