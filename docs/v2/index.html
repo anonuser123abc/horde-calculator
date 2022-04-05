@@ -974,7 +974,175 @@
         return Object.keys(obj).length === 0;
     }
 
+    function prepareApplicableNfts(plotCount, nftGroup) {
+        let applicableNftGroup = createEmptyNftGroup()
+        let nftsApplicable = plotCount;
+        if(plotCount > 0) {
+            //first exhaust highest paying NFTs
+
+            if(nftGroup.nft15perc < nftsApplicable) { //if we have less 15% NFTs than whats applicable
+                applicableNftGroup.nft15perc = nftGroup.nft15perc
+                nftsApplicable -= nftGroup.nft15perc
+
+                if(nftGroup.nft10perc < nftsApplicable) { //if we have less 10% NFTs than whats applicable
+                    applicableNftGroup.nft10perc = nftGroup.nft10perc
+                    nftsApplicable -= nftGroup.nft10perc
+
+                    if(nftGroup.nft5perc < nftsApplicable) { //if we have less 10% NFTs than whats applicable
+                        applicableNftGroup.nft5perc = nftGroup.nft5perc
+                        nftsApplicable -= nftGroup.nft5perc
+
+
+                    } else { //if we have more NFTs than whats applicable, we will apply only as many as are applicable
+                        applicableNftGroup.nft5perc = nftsApplicable;
+                    }
+
+
+                } else { //if we have more NFTs than whats applicable, we will apply only as many as are applicable
+                    applicableNftGroup.nft10perc = nftsApplicable;
+                }
+
+
+            } else { //if we have more NFTs than whats applicable, we will apply only as many as are applicable
+                applicableNftGroup.nft15perc = nftsApplicable;
+            }
+
+        }
+
+        return applicableNftGroup;
+    }
+
+    function calculateNftDailyReward(applicableNftGroup)
+    {
+        return applicableNftGroup.nft5perc * 0.005 + applicableNftGroup.nft10perc * 0.01 + applicableNftGroup.nft15perc * 0.015;
+    }
+
+    function confirmNftCountTest(nftGroup, nft5perc, nft10perc, nft15perc) {
+        if(nftGroup.nft5perc !== nft5perc) {
+            console.log('failed perc5 test', nftGroup, nft5perc);
+        }
+        if(nftGroup.nft10perc !== nft10perc) {
+            console.log('failed perc10 test', nftGroup, nft10perc);
+        }
+        if(nftGroup.nft15perc !== nft15perc) {
+            console.log('failed perc15 test', nftGroup, nft15perc);
+        }
+    }
+
+    //just quick test because i'm writing this late and my brain cant simulate prepareApplicableNfts logic atm
+    function testPrepareApplicableNfts() {
+        let applicableNftTest1 = prepareApplicableNfts(5, createNftGroup(0, 0, 4))
+        confirmNftCountTest(applicableNftTest1, 0, 0, 4)
+
+        let applicableNftTest2 = prepareApplicableNfts(5, createNftGroup(1, 2, 7))
+        confirmNftCountTest(applicableNftTest2, 0, 0, 5)
+
+        let applicableNftTest3 = prepareApplicableNfts(8, createNftGroup(1, 2, 7))
+        confirmNftCountTest(applicableNftTest3, 0, 1, 7)
+
+        let applicableNftTest4 = prepareApplicableNfts(9, createNftGroup(1, 2, 7))
+        confirmNftCountTest(applicableNftTest4, 0, 2, 7)
+
+        let applicableNftTest5 = prepareApplicableNfts(10, createNftGroup(1, 2, 7))
+        confirmNftCountTest(applicableNftTest5, 1, 2, 7)
+
+        let applicableNftTest6 = prepareApplicableNfts(11, createNftGroup(1, 2, 7))
+        confirmNftCountTest(applicableNftTest6, 1, 2, 7)
+    }
+    testPrepareApplicableNfts()
+
     function calculate(plotTemplate, settingsTemplate, startFromDate, calculateDays, claimable) {
+        let dateIterator = new Date(startFromDate);
+
+        let activePlots = Object.assign({}, plotTemplate);
+        let decayedPlotGroups = [];
+        let month = 69; //crazy value to make it print once as soon as it starts
+        let results = ''; //
+        let calculatedData = [];
+        let nftRewardSum = 0;
+
+
+        for(let i = 0; i < calculateDays; i++) {
+            let isLastLoop = (i + 1) === calculateDays;
+            let survivingGroups = [];
+            let plotCountBeforeDecay = 0;
+            activePlots.plotGroups.forEach(item => {
+                claimable += (0.1 * item.count)
+                plotCountBeforeDecay += item.count
+
+                if(dateIterator < item.expiresAt) {
+                    survivingGroups.push(item)
+                } else {
+                    decayedPlotGroups.push(item);
+                }
+            })
+            let nftReward = calculateNftDailyReward(prepareApplicableNfts(plotCountBeforeDecay, plotTemplate.nftGroup))
+            claimable += nftReward
+            nftRewardSum += nftReward
+
+            let decayedPlotCount = countPlots(decayedPlotGroups);
+            let activePlotCount = countPlots(activePlots.plotGroups);
+            let dailyHordeGeneration = smartRound(activePlotCount * 0.1, 2);
+            let dailyDollarGeneration = smartRound(dailyHordeGeneration * 100, 2);
+            let dateOnlyAsString = dateOnlyString(dateIterator);
+            //print every month (or last date)
+            if(month !== dateIterator.getMonth() ||  isLastLoop) {
+                month = dateIterator.getMonth();
+                if(isLastLoop) {
+                    results += "<h4>Result on last day</h4>" + "<br>";
+                }
+                results += "State at  " + dateOnlyAsString + "<br>";
+                //results += "&nbsp&nbsp&nbsp&nbspClaimable: " + smartRound(claimable, 2).toString() + "<br>"; //makes no sense to print in a monthly printout
+                results += "&nbsp&nbsp&nbsp&nbspDay: " + (i + 1).toString() + "<br>";
+                results += "&nbsp&nbsp&nbsp&nbspPlots: " + activePlotCount.toString() + "<br>";
+                results += "&nbsp&nbsp&nbsp&nbspDaily token generation: " + smartRound(dailyHordeGeneration, 2) + "<br>";
+                results += "&nbsp&nbsp&nbsp&nbspDaily dollar generation: $" + smartRound(dailyDollarGeneration, 2).toString() + "<br>";
+                results += "&nbsp&nbsp&nbsp&nbspDecayed plots: " + decayedPlotCount + "<br>";
+                results += "<br>";
+
+            }
+
+            //if we have enough to create a plot(s), we create
+            let plotsToCreate = 0;
+            while(claimable >= 10) {
+                claimable -= 10;
+                plotsToCreate++;
+            }
+
+            if(plotsToCreate !== 0) {
+                survivingGroups.push(
+                    createPlotGroupFromCreation(
+                        new Date(dateIterator),
+                        plotsToCreate
+                    )
+                )
+            }
+
+            if(survivingGroups.length === 0) {
+                results += "On day " + (i + 1).toString() + " you've run out of plots, because you sold too much!"
+                break;
+            }
+
+            calculatedData.push(
+                {
+                    day: (i + 1),
+                    date: dateOnlyAsString,
+                    activePlots: activePlotCount,
+                    decayedPlots: decayedPlotCount,
+                    dailyHorde: dailyHordeGeneration,
+                    dailyDollar: dailyDollarGeneration
+                }
+            )
+            activePlots.plotGroups = survivingGroups;
+            dateIterator = copyAndAddDays(dateIterator, 1);
+        }
+
+        document.getElementById("monthly-results-raw").innerHTML = results
+
+        return calculatedData;
+    }
+
+    function oldCalculate(plotTemplate, settingsTemplate, startFromDate, calculateDays, claimable) {
         let dateIterator = new Date(startFromDate);
 
         let activePlots = Object.assign({}, plotTemplate);
@@ -1119,7 +1287,7 @@
         )
 
         let plotTemplate = createPlotTemplate([createPlotGroupFromExpiration(decayDate, numOfPlots)], createEmptyNftGroup(), 'simple');
-        let calculatedData = calculate(plotTemplate, settingsTemplate, todayDate, numOfDaysInFuture, numOfClaimable)
+        let calculatedData = oldCalculate(plotTemplate, settingsTemplate, todayDate, numOfDaysInFuture, numOfClaimable)
 
         plotPlotGraph(calculatedData, 'scalcActivePlotsGraph');
         document.getElementById("results").style.display = 'block';
