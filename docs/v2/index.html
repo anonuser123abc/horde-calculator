@@ -334,6 +334,10 @@
                                 <br>
                                 <input class="form-control" value="0" min="0" type="number" id="calculator_invested" style="width: 30%" step="1"/>
                                 <br>
+                                <label class="form-label" for="calculator_wallets_hardcap">$$$ Cashed Out Already (optional)</label>
+                                <br>
+                                <input class="form-control" value="0" min="0" type="number" id="calculator_cashed_out_already" style="width: 30%" step="1"/>
+                                <br>
                                 <div id="calculator-strategies-container">
 
                                 </div>
@@ -1314,6 +1318,7 @@
         let numOfDaysInFuture = parseInt(document.getElementById("calculator_num_of_days_in_future").value)
         let plotHardcap = parseInt(document.getElementById("calculator_wallets_hardcap").value) * 100
         let invested = parseFloat(document.getElementById("calculator_invested").value)
+        let cashedOutAlready = parseFloat(document.getElementById("calculator_cashed_out_already").value)
 
 
         if(numOfDaysInFuture < 2) {
@@ -1323,7 +1328,7 @@
         let calculatedData = calculate(template, settingsTemplate, todayDate, numOfDaysInFuture, numOfClaimable, plotHardcap)
 
         plotPlotGraph(calculatedData, 'calculatorActivePlotsGraph');
-        plotCashoutChart(calculatedData, 'calculatorCashoutGraph', invested);
+        plotCashoutChart(calculatedData, 'calculatorCashoutGraph', invested, cashedOutAlready);
         document.getElementById("results").style.display = 'block';
     }
 
@@ -1388,10 +1393,17 @@
         );
     }
 
-    function plotCashoutChart(calculatedData, plotCanvasId, invested) {
+    function plotCashoutChart(calculatedData, plotCanvasId, invested, cashedOutAlready) {
+        let data = clone(calculatedData)
+        data.forEach(
+            (x, i) => {
+                data[i].totalDollarCashedOut = data[i].totalDollarCashedOut + cashedOutAlready
+            }
+        )
+
         let datasets = [{
             label: 'Cashout (accumulated)',
-            data: calculatedData,
+            data: data,
             borderColor:'#17C139',
             borderWidth: 3,
             pointBorderWidth: 0,
@@ -1402,7 +1414,7 @@
             }
         },{
             label: 'Cashout (daily)',
-            data: calculatedData,
+            data: data,
             borderColor:'#6C0EB6',
             borderWidth: 3,
             pointBorderWidth: 0,
@@ -1415,9 +1427,9 @@
 
         if(invested !== 0) {
             console.log(invested)
-            console.log(calculatedData)
-            let firstDate = calculatedData[0].date;
-            let secondDate = calculatedData[calculatedData.length - 1].date;
+            console.log(data)
+            let firstDate = data[0].date;
+            let secondDate = data[data.length - 1].date;
             let investedDataset = [
                 {
                     'date': firstDate,
