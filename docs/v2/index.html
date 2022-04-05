@@ -274,6 +274,14 @@
             margin-top: 1em;
         }
 
+        .graph-header {
+            padding-left: 20px;
+            display: inline
+        }
+
+        .post-graph-header-note {
+            font-size: 0.6em
+        }
     </style>
 </head>
 <body class="horde-white-text sc6">
@@ -374,26 +382,26 @@
                     </div>
 
 
-                    <h1 style="padding-left: 20px">Plot Graph</h1>
+                    <h1 class="graph-header">Plot Graph</h1> <span class="post-graph-header-note">(you can toggle the lines by clicking on the labels)</span>
                     <br>
                     <div class="standard-size-plot">
                         <canvas id="calculatorActivePlotsGraph"></canvas>
                     </div>
                     <br>
-                    <h1 style="padding-left: 20px">Cashout Graph</h1>
+                    <h1 class="graph-header">Cashout Graph</h1> <span class="post-graph-header-note">(you can toggle the lines by clicking on the labels)</span>
                     <br>
                     <div class="standard-size-plot">
                         <canvas id="calculatorCashoutGraph"></canvas>
                     </div>
                     <br>
-                    <h1 style="padding-left: 20px">Tokenomics Graph</h1>
+                    <h1 class="graph-header">Tokenomics Graph</h1> <span class="post-graph-header-note">(you can toggle the lines by clicking on the labels)</span>
                     <br>
                     <div class="standard-size-plot">
                         <canvas id="calculatorTokenomicsGraph"></canvas>
                     </div>
                     <br>
                     <br>
-                    <h1 style="padding-left: 20px">Tokenomics in $$$ Graph</h1>
+                    <h1 class="graph-header">Tokenomics in $$$ Graph</h1> <span class="post-graph-header-note">(you can toggle the lines by clicking on the labels)</span>
                     <br>
                     <div class="standard-size-plot">
                         <canvas id="calculatorTokenomicsDollarsGraph"></canvas>
@@ -1531,6 +1539,7 @@
             borderWidth: 3,
             pointBorderWidth: 0,
             pointRadius: 0,
+            hidden: true,
             parsing: {
                 xAxisKey: 'date',
                 yAxisKey: 'totalDollarTaxed'
