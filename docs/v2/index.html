@@ -520,8 +520,6 @@
 </html>
 
 <script>
-    let GLOBAL_DATA = readLocalStorage();
-
     const LIVE_WALLET_TEMPLATE_NAME = 'Live Wallet'
     const LIVE_WALLET_TEMPLATE_NAME_EDITED = 'Live Wallet Edited'
     const BE_CREATIVE_NAME = '-- be creative --';
@@ -542,6 +540,8 @@
     const PTEM_MODE_EDIT = 'edit';
     const PTEM_MODE_EDIT_LIVE_WALLET = 'edit_live_wallet';
 
+
+    let GLOBAL_DATA = readLocalStorage();
 
     let currentTab = 'calculator-tab';
     let templateFromInput = null;
@@ -611,13 +611,29 @@
         `;
     }
 
+    function setInitialInputs(inputsData) {
+        document.getElementById("calculator_num_of_days_in_future").value = inputsData.duration_in_future.toString()
+        document.getElementById("calculator_wallets_hardcap").value = inputsData.wallets_hardcap.toString()
+        document.getElementById("calculator_invested").value = inputsData.invested.toString()
+        document.getElementById("calculator_cashed_out_already").value = inputsData.cashed_out_already.toString()
+        document.getElementById(inputsData.chosen_strategy).checked = true;
+    }
+
     function readLocalStorage() {
         let data = localStorage.getItem('horde-calc-global-data');
+        let defaultInputs = {
+            'duration_in_future': 500,
+                'wallets_hardcap': 1,
+                'invested': 0,
+                'cashed_out_already': 0,
+                'chosen_strategy': STRATEGY_FULL_COMPOUND,
+        };
         if(data === null) {
             return {
                 'templates': {
                     //keyed by name
                 },
+                'inputs': defaultInputs
             };
         } else {
             let dataAsJson = JSON.parse(data);
@@ -631,6 +647,10 @@
                         template.plotGroups[i].expiresAt = new Date(template.plotGroups[i].expiresAt)
                     }
                 )
+            }
+
+            if(!('inputs' in dataAsJson)) {
+                dataAsJson['inputs'] = defaultInputs
             }
 
             return dataAsJson;
@@ -1391,7 +1411,8 @@
 
         let numOfClaimable = parseInt(document.getElementById("calculator_num_of_claimable").value)
         let numOfDaysInFuture = parseInt(document.getElementById("calculator_num_of_days_in_future").value)
-        let plotHardcap = parseInt(document.getElementById("calculator_wallets_hardcap").value) * 100
+        let walletsHardcap = parseInt(document.getElementById("calculator_wallets_hardcap").value)
+        let plotHardcap = walletsHardcap * 100
         let invested = parseFloat(document.getElementById("calculator_invested").value)
         let cashedOutAlready = parseFloat(document.getElementById("calculator_cashed_out_already").value)
         let strategy = getSelectedStrategy()
@@ -1404,6 +1425,12 @@
         if(numOfDaysInFuture < 2) {
             return;
         }
+        GLOBAL_DATA.inputs.duration_in_future = numOfDaysInFuture;
+        GLOBAL_DATA.inputs.wallets_hardcap = walletsHardcap;
+        GLOBAL_DATA.inputs.invested = invested;
+        GLOBAL_DATA.inputs.cashed_out_already = cashedOutAlready;
+        GLOBAL_DATA.inputs.chosen_strategy = strategy;
+        writeToLocalStorage(GLOBAL_DATA)
         let todayDate = new Date();
         let calculatedData = calculate(template, settingsTemplate, todayDate, numOfDaysInFuture, numOfClaimable, plotHardcap, invested, cashedOutAlready, strategy)
 
@@ -1903,6 +1930,9 @@
     document.getElementById("scalc_num_of_claimable").value = startingValues.claimable;
 
     document.getElementById("calculator_num_of_claimable").value = startingValues.claimable;
+
+    setInitialInputs(GLOBAL_DATA.inputs)
+
     runSimpleCalculation();
     syncAllTemplates();
     if(userHasTemplates()) {
@@ -1913,6 +1943,6 @@
         document.getElementById('horde-header').style.display = 'none'
     }
     document.getElementById('main-container').style.display = 'block'
-
+    console.log(GLOBAL_DATA);
 
 </script>
