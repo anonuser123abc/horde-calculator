@@ -335,6 +335,12 @@
                         <canvas id="calculatorActivePlotsGraph"></canvas>
                     </div>
                     <br>
+                    <h1 style="padding-left: 20px">Cashout Graph</h1>
+                    <br>
+                    <div class="standard-size-plot">
+                        <canvas id="calculatorCashoutGraph"></canvas>
+                    </div>
+                    <br>
                 </div>
                 </div>
             </div>
@@ -1147,7 +1153,9 @@
                     dailyHorde: dailyHordeGeneration,
                     dailyDollar: dailyDollarGeneration,
                     totalHordeCashedOut: totalHordeCashedOut,
-                    hordeCashedOut: hordeCashedOut
+                    hordeCashedOut: hordeCashedOut,
+                    totalDollarCashedOut: totalHordeCashedOut * 100,
+                    dollarCashedOut: hordeCashedOut * 100
                 }
             )
             activePlots.plotGroups = survivingGroups;
@@ -1257,6 +1265,7 @@
 
     let OLD_ACTIVE_PLOT_CHART = null;
     let ACTIVE_PLOT_CHART = null;
+    let CASHOUT_CHART = null;
 
     function runCalculation() {
         if(!userHasTemplates()) {
@@ -1284,6 +1293,7 @@
         let calculatedData = calculate(template, settingsTemplate, todayDate, numOfDaysInFuture, numOfClaimable, plotHardcap)
 
         plotPlotGraph(calculatedData, 'calculatorActivePlotsGraph');
+        plotCashoutChart(calculatedData, 'calculatorCashoutGraph');
         document.getElementById("results").style.display = 'block';
     }
 
@@ -1315,36 +1325,81 @@
             ACTIVE_PLOT_CHART.destroy()
         }
         let ctx = document.getElementById(plotCanvasId);
-        ACTIVE_PLOT_CHART = new Chart(ctx, {
+        ACTIVE_PLOT_CHART = plotChart(
+            ctx,
+            [{
+                label: 'Decayed Plots',
+                data: calculatedData,
+                borderColor:'#6C0EB6',
+                backgroundColor: 'rgba(108, 14, 182, 0.5)',
+                borderWidth: 3,
+                pointBorderWidth: 0,
+                pointRadius: 0,
+                fill: true,
+                parsing: {
+                    xAxisKey: 'date',
+                    yAxisKey: 'decayedPlots'
+                }
+            },{
+                label: 'Active Plots',
+                data: calculatedData,
+                borderColor:'#17C139',
+                backgroundColor:'rgba(23, 193, 57, 0.5)',
+                borderWidth: 3,
+                pointBorderWidth: 0,
+                pointRadius: 0,
+                fill: true,
+                parsing: {
+                    xAxisKey: 'date',
+                    yAxisKey: 'activePlots'
+                }
+            }],
+            true
+        );
+    }
+
+    function plotCashoutChart(calculatedData, plotCanvasId) {
+        if (CASHOUT_CHART !== null) {
+            CASHOUT_CHART.destroy()
+        }
+        let ctx = document.getElementById(plotCanvasId);
+        CASHOUT_CHART = plotChart(
+            ctx,
+            [{
+                label: 'Cashout (accumulated)',
+                data: calculatedData,
+                borderColor:'#6C0EB6',
+                backgroundColor: 'rgba(108, 14, 182, 0.5)',
+                borderWidth: 3,
+                pointBorderWidth: 0,
+                pointRadius: 0,
+                parsing: {
+                    xAxisKey: 'date',
+                    yAxisKey: 'totalDollarCashedOut'
+                }
+            },{
+                label: 'Cashout (daily)',
+                data: calculatedData,
+                borderColor:'#17C139',
+                backgroundColor:'rgba(23, 193, 57, 0.5)',
+                borderWidth: 3,
+                pointBorderWidth: 0,
+                pointRadius: 0,
+                parsing: {
+                    xAxisKey: 'date',
+                    yAxisKey: 'dollarCashedOut'
+                }
+            }],
+            false
+        );
+    }
+
+
+    function plotChart(ctx, datasets, stacked) {
+        return  new Chart(ctx, {
             type: 'line',
             data: {
-                datasets: [{
-                    label: 'Decayed Plots',
-                    data: calculatedData,
-                    borderColor:'#6C0EB6',
-                    backgroundColor: 'rgba(108, 14, 182, 0.5)',
-                    borderWidth: 3,
-                    pointBorderWidth: 0,
-                    pointRadius: 0,
-                    fill: true,
-                    parsing: {
-                        xAxisKey: 'date',
-                        yAxisKey: 'decayedPlots'
-                    }
-                },{
-                    label: 'Active Plots',
-                    data: calculatedData,
-                    borderColor:'#17C139',
-                    backgroundColor:'rgba(23, 193, 57, 0.5)',
-                    borderWidth: 3,
-                    pointBorderWidth: 0,
-                    pointRadius: 0,
-                    fill: true,
-                    parsing: {
-                        xAxisKey: 'date',
-                        yAxisKey: 'activePlots'
-                    }
-                }]
+                datasets: datasets
             },
             options: {
                 plugins: {  // 'legend' now within object 'plugins {}'
@@ -1367,7 +1422,7 @@
                 scales: {
                     y: {
                         beginAtZero: false,
-                        stacked: true,
+                        stacked: stacked,
                     },
                     x: {
                         grid: {
