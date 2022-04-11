@@ -4,9 +4,6 @@
  - **[ Version 1 ](#version-1)**<br>
 
 
-## Installation Instructions
-
-
 ## Version 2
 Link: https://anonuser123abc.github.io/horde-calculator/v2/
 
@@ -32,24 +29,24 @@ Some fields as in the old version but most are new.
 6. "$$$ Cashed Out Already (optional)" - same as Invested field
 
 There are 2 calculator strategies for now.
-First one is full compound (identical to simple calculator). Second strategy is first cashing out your investments, and only then full compound. There might be more strategies added in the future.
+First one is full compound (identical to simple calculator). Second strategy is first cashing out your investments, and only then full compound. More strategies could be added in the future.
 
 
-When compounding, calculator will continue to compound until the wallet limit is hit, then it will cashout and just maintain active plot count.
+When compounding, calculator will continue to compound until the wallet limit is hit, then it will cashout and just maintain active plot count at the limit.
 
 ##### Graphs
-There are 3 graphs with different information. Each dataset can be toggled if you click on its label.
+There are 3 graphs with different information. Each dataset can be hidden/shown by clicking on its label.
 
 1. Plot Graph - this graph shows count of active and decayed plots though time
-2. Cashout graph - this graph is about money, it shows cashout profit and tax, and also daily cashout profit and tax, if the "Invested" input is populated it will also show a break-even line
+2. Cashout graph - this graph is about money, it shows total cashout profit and tax (if 10 tokens are sold, 9 go into cashout profit, 1 goes to sell tax), daily cashout profit and tax, if the "Invested" input is populated it will also show a break-even line
 3. Two tokenomics graphs, one in HORDE, one in $$$, basically just shows how creating plots feeds the ecosystem
 
 ##### Details about calculator
  - calculator creates new plots at the beginning of a day if it has enough rewards
- - on the last day, plot will generate the reward and then be moved into the decayed status
+ - on the last day, plot will generate the reward and then move into 'decayed' status
  - nfts:
-   - one plot can only have one NFT, and one NFT can only be assigned to one plot
-   - considering that, if you have more plots than NFTs, then calculator will assume all NFTs have been assigned to some plots
+   - one plot can only have one NFT, and one NFT can only be assigned to one plot, its 1 to 1 relationship
+   - considering that, if you have more plots than NFTs, calculator will assume all NFTs have been assigned and are active
    - BUT if you have more NFTs than you have plots, then calculator will assume that the highest reward NFTs are assigned first
 
 ## Version 1
@@ -57,22 +54,12 @@ Link: https://anonuser123abc.github.io/horde-calculator/v1/
 
 Currently used by dApp
 
-The old version is simple to use but lacks in features, however it is very useful if you are NEW to the project. 
-
-This calculator assumes your plots are created today, and that you will simply compound (at end of the day) whenever there are enough rewards.
+The old version is simple to use but lacks in features, however it is still very useful if you are NEW to the project. This calculator assumes plots were created today, and will simply compound (at the end of the day) whenever there are enough rewards.
 
 It offers three inputs:
 1. "How many plots" - how many plots you have or how many plots do you want to start with
 2. "How many claimable tokens" - if you have already started and have some rewards that are claimable, put them here
 3. "Duration in future" - how many days in future to run the simulation
 
-Note - you can have max 100 plots per wallet, this simple old version is not taking that into account so it will compound like crazy without any limits
-
-
-
-
-
-
-
-
+Note - in horde ecosystem you can have max 100 plots per wallet, but this simple old version is not taking that into account, so it will compound like crazy without any limits
 
