@@ -54,6 +54,7 @@ There are 3 graphs with different information. Each dataset can be toggled if yo
 
 ## Version 1
 Link: https://anonuser123abc.github.io/horde-calculator/v1/
+
 Currently used by dApp
 
 The old version is simple to use but lacks in features, however it is very useful if you are NEW to the project. 
