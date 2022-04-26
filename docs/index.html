@@ -10,6 +10,30 @@
     <link rel="icon" type="image/png" href="horde-logo-250.png"/>
 
     <style>
+
+        <!-- scrollbars -->
+
+        body { /* totaly strange, but if this is not here, the scrollbar doesnt work */
+        }
+
+        /* Scroll 6 */
+        .sc6::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+
+        }
+        .sc6::-webkit-scrollbar-track {
+            border-radius: 10px;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+        .sc6::-webkit-scrollbar-thumb {
+            background-color: #aab74d;
+            background-image:linear-gradient(to left top,#f5f97f 0,#17c139 95%,#17c139);
+            border-radius: 10px;
+        }
+        <!-- scrollbars end -->
+
+
         .blockie {
             border: 1px solid black;
             border-radius: 5px;
@@ -37,6 +61,10 @@
         body {
             background-color: #16191d;
             color: #f5f5f5;
+        }
+
+        .horde-default-background {
+            background-color: #16191d;
         }
 
         .btn-horde:hover {
@@ -67,74 +95,946 @@
             color:#e2e2e2
         }
 
+        .nav-tabs {
+            border-bottom: 1px solid #6C0EB6;
+        }
+
+        .nav-link {
+            color: #dee2e6 !important;
+            border-color: #6C0EB6 !important;
+            cursor: pointer;
+        }
+
+        .nav-tabs .nav-link:hover {
+            color: #dee2e6;
+            background-color: #6C0EB6;
+        }
+
+        .tab-active {
+            background:-webkit-gradient(linear,right bottom,left top,from(#f5f97f),color-stop(65%,#17c139),to(#17c139)) !important;
+            background:linear-gradient(to left top,#f5f97f 0,#17c139 65%,#17c139) !important;
+            color:#000 !important;
+            border:none;
+            cursor: pointer;
+        }
+
+        .tab-active:hover {
+            color: #dee2e6 !important;
+        }
+
+        .template-cards-container {
+            display: flex;
+            flex-direction: row;
+            overflow-x: auto;
+            padding-bottom: 1rem;
+        }
+
+        .template-card {
+            flex-shrink : 0;
+            width: 13rem;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            word-wrap: break-word;
+            background-clip: border-box;
+            border: 2px solid rgba(0,0,0,.125);
+            border-radius: 1.5rem;
+            border-color: #6C0EB6;
+            margin-right: 1rem;
+        }
+
+        .template-card {
+            padding: 0.3rem;
+        }
+
+        .template-card .card-header {
+            font-size: 1.2em;
+        }
+
+        .template-card .card-header-small {
+            font-size: 1.1em;
+        }
+
+        .template-card .card-header-smaller {
+            font-size: 1em;
+        }
+
+        .template-card .template-card-body {
+            padding-left: 2rem;
+            padding-bottom: 0.5rem;
+        }
+
+
+        .template-card .template-card-body .card-row {
+            width: 95%;
+            display: block;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #6C0EB6;
+            margin-bottom: 0.5rem;
+            padding-left: 0.8rem;
+        }
+        .template-card .template-card-body .card-row .card-row-number{
+            font-size: 1.2em;
+        }
+
+        .template-card .template-card-pencil {
+            position: absolute;
+            top: 3%;
+            right: 2%;
+            font-size: 14px;
+            cursor: pointer;
+            padding: 3px 8px 3px 8px;
+            border-radius: 1rem;
+            user-select: none;
+        }
+
+        .template-select-container .template-card-pencil {
+            font-size: 14px;
+            cursor: pointer;
+            padding: 7px;
+            border-radius: 1rem;
+            user-select: none;
+        }
+
+        .template-card-pencil:hover {
+            background-color: #6C0EB6;
+        }
+
+        .template-card .template-card-copy {
+            position: absolute;
+            top: 20%;
+            right: 2%;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 2px 7px 2px 7px;
+            border-radius: 1rem;
+            user-select: none; /* Standard */
+        }
+
+        .template-card .template-card-copy:hover {
+            background-color: #6C0EB6;
+        }
+
+        .template-card .template-card-trash {
+            position: absolute;
+            top: 37%;
+            right: 2%;
+            font-size: 14px;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 1rem;
+            user-select: none;
+        }
+
+        .template-card .template-card-trash:hover {
+            background-color: #6C0EB6;
+        }
+
+        #ptem-outer-body {
+            max-width: 35rem;
+        }
+
+        .ptem-datepicker {
+            width: 10rem;
+        }
+
+        .ptem-plotcount {
+            width: 5rem;
+            text-align: right;
+        }
+
+        .ptem-nftcount {
+            width: 5rem;
+            text-align: right;
+        }
+
+        .ptem-plot-group {
+            margin-bottom: 0.3rem;
+        }
+
+        .ptem-delete {
+            cursor: pointer;
+            font-size: 16px;
+            padding: 4px;
+            border-radius: 1rem;
+            user-select: none;
+        }
+
+        .ptem-delete:hover {
+            background-color: #6C0EB6;
+        }
+
+        .form-check-input:checked {
+            background-color: #17C139;
+            border-color:  #f5f97f;
+        }
+
+        .horde-radio-button {
+            margin-top: 1em;
+        }
+
+        .graph-header {
+            padding-left: 20px;
+            display: inline
+        }
+
+        .post-graph-header-note {
+            font-size: 0.6em
+        }
+
+        .pencil-img {
+            background-image: url("pencil.png");
+            width: 2px;
+            height: 2px;
+            display: inline-block;
+            filter: invert(100%);
+            background-size: contain;
+            padding: 8px;
+        }
+
+        #calculator-tab-error{
+            color: red;
+        }
+
     </style>
 </head>
-<body class="horde-white-text" style="overflow-y:scroll;">
-    <div class="container" id="main-container">
-        <!--
-        <div class="blockie">
-            Create plots template
+<body class="horde-white-text sc6">
+    <div style="display: none" class="container" id="main-container">
+        <div id="horde-header">
             <br>
-            Add plots
-            <br>:w
-
-            <label>Expiry date</label>
-            <input id="add_plots_expiry_date" type="date"/>
-            <input id="add_plots_count" type="number" value="1"/>
-            <button onclick="onAddPlotsClicked()">Add plots</button>
-
+            <img alt="logo" src="horde-logo-250.png"/>
+            <br>
         </div>
-        -->
-
-        <!-- Export templates --> <!-- TODO -->
-        <!-- Import templates --> <!-- TODO -->
-
-        <!-- <button onclick="">Calculate</button> -->
-        <br>
-        <img alt="logo" src="horde-logo-250.png"/> version 1
-        <br>
-        <h1 style="margin-top: 5rem; margin-bottom: 5rem;">
-            Version 2 is out <a class="horde-white-text" href="https://anonuser123abc.github.io/horde-calculator/v2/">HERE</a>
-        </h1>
         <div>
             Link to how-to
             <a target="_blank" class="horde-white-text" href="https://github.com/anonuser123abc/horde-calculator/blob/master/how-to.md">https://github.com/anonuser123abc/horde-calculator/blob/master/how-to.md</a>
         </div>
-        <div class="form-container horde-purple-border">
-            <form onsubmit="return false" >
-                <label class="form-label" for="num_of_plots">How many plots you have at the moment:</label><br>
-                <input class="form-control" value="1" type="number" id="num_of_plots" style="width: 20%"/>
-                <br>
-                <label class="form-label" for="num_of_claimable">How many claimable tokens you have at the moment:</label>
-                <br>
-                <input class="form-control" value="0" type="number" id="num_of_claimable" style="width: 20%" step="0.001"/>
-                <br>
-                <label class="form-label" for="num_of_days_in_future">Duration in future:</label>
-                <br>
-                <input class="form-control" value="500" type="number" id="num_of_days_in_future" style="width: 20%"/>
-                <br>
-                <button onclick="runCalculation()" class="btn btn-primary btn-grad">Compound &nbsp:)</button> (scroll down)
-            </form>
-        </div>
         <br>
-        <div style="padding: 5px; display: none" id="results">
-            <h1 style="padding-left: 20px">Plot Graph</h1>
-            <br>
-            <div class="standard-size-plot" id="activePlotsGraphContainer">
-                <canvas id="activePlotsGraph"></canvas>
+        <div>
+            <div>
+                <ul class="nav nav-tabs">
+                    <li class="nav-item">
+                        <span id="calculator-tab-btn" onclick="openTab('calculator-tab')" class="nav-link tab-active" aria-current="page" href="#">Calculator</span>
+                    </li>
+                    <li class="nav-item">
+                        <span id="templates-tab-btn" onclick="openTab('templates-tab')" class="nav-link">Templates</span>
+                    </li>
+                    <li class="nav-item">
+                        <span id="simple-calculator-tab-btn" onclick="openTab('simple-calculator-tab')" class="nav-link">Simple calculator</span>
+                    </li>
+                </ul>
             </div>
             <br>
-            <br>
-            <div id="monthly-results">
-                <h3>Monthly printouts</h3>
-                <div id="monthly-results-raw"></div>
+            <div style="display: none" id="calculator-tab">
+                <div id="calculator-tab-error-container" style="display: none"><h2 id="calculator-tab-error"></h2></div>
+                <div id="calculator-tab-body">
+                    <h3>
+                        Calculator
+                    </h3>
+                    <div>
+                        <div class="form-container horde-purple-border">
+                            <span id="calc-no-template-error" style="color: red; display:none">No templates found, create one!</span>
+                            <span id="calc-generic-error" style="color: red; display:none"></span>
+                            <div class="row">
+                                <div class="col-5">
+                                    <label class="form-label" >Select a template</label>
+                                    <br>
+                                    <div class="template-select-container input-group mb-3">
+                                        <div class="input-group-prepend">
+                                            <label class="input-group-text" for="calculator-template-select">Template</label>
+                                        </div>
+                                        <br/>
+                                        <select style="font-size: 0.8em" id="calculator-template-select">
+                                        </select>
+                                        <span onclick="openSelectPTEM()" class=" template-card-pencil"><span class="pencil-img" style="padding: 10px;"></span></span>
+                                    </div>
+                                    <label class="form-label" for="calculator_num_of_claimable">Claimable tokens at the moment:</label>
+                                    <br>
+                                    <input class="form-control" value="0" type="number" id="calculator_num_of_claimable" style="width: 60%" step="0.001"/>
+                                    <br>
+                                    <label class="form-label" for="calculator_num_of_days_in_future">Duration in future:</label>
+                                    <br>
+                                    <input class="form-control" value="500" type="number" id="calculator_num_of_days_in_future" style="width: 60%"/>
+                                    <br>
+                                    <button onclick="runCalculation()" class="btn btn-primary btn-grad">Compound &nbsp:)</button> (scroll down)
+                                </div>
+                                <div class="col-4">
+
+                                    <label class="form-label" for="calculator_wallets_hardcap"># Wallets Hardcap (how many wallets you use)</label>
+                                    <br>
+                                    <input class="form-control" value="1" min="1" max="5" type="number" id="calculator_wallets_hardcap" style="width: 60%" step="1"/>
+                                    <br>
+                                    <label class="form-label" for="calculator_wallets_hardcap">$$$ Invested (optional)</label>
+                                    <br>
+                                    <input class="form-control" value="0" min="0" type="number" id="calculator_invested" style="width: 60%" step="1"/>
+                                    <br>
+                                    <label class="form-label" for="calculator_wallets_hardcap">$$$ Cashed Out Already (optional)</label>
+                                    <br>
+                                    <input class="form-control" value="0" min="0" type="number" id="calculator_cashed_out_already" style="width: 60%" step="1"/>
+                                    <br>
+                                </div>
+
+                                <div class="col-3" id="calculator-strategies-container">
+                                    <span>Choose a strategy:</span>
+                                    <div style="padding-left: 0.8em">
+                                        <div class="form-check horde-radio-button">
+                                            <input class="form-check-input" type="radio" name="calculator_strategy" id="strategy_full_compound" value="strategy_full_compound" checked>
+                                            <label class="form-check-label" for="strategy_full_compound">
+                                                Full Compound <span style="font-size: 0.6em">(compound until the hardcap is hit)</span>
+                                            </label>
+                                        </div>
+                                        <div class="form-check horde-radio-button">
+                                            <input class="form-check-input" type="radio" name="calculator_strategy" id="strategy_cashout_breakeven" value="strategy_cashout_breakeven">
+                                            <label class="form-check-label" for="strategy_cashout_breakeven">
+                                                Cashout Until Breakeven  <span style="font-size: 0.6em">(then compound)</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="display: none" id="calculator-notemp-message">
+                            There are no templates in the system, create some in the "Templates" tab!
+                        </div>
+
+
+                        <h1 class="graph-header">Plot Graph</h1> <span class="post-graph-header-note">(you can toggle the lines by clicking on the labels)</span>
+                        <br>
+                        <div class="standard-size-plot">
+                            <canvas id="calculatorActivePlotsGraph"></canvas>
+                        </div>
+                        <br>
+                        <h1 class="graph-header">Cashout Graph</h1> <span class="post-graph-header-note">(you can toggle the lines by clicking on the labels)</span>
+                        <br>
+                        <div class="standard-size-plot">
+                            <canvas id="calculatorCashoutGraph"></canvas>
+                        </div>
+                        <br>
+                        <h1 class="graph-header">Tokenomics Graph</h1> <span class="post-graph-header-note">(you can toggle the lines by clicking on the labels)</span>
+                        <br>
+                        <div class="standard-size-plot">
+                            <canvas id="calculatorTokenomicsGraph"></canvas>
+                        </div>
+                        <br>
+                        <br>
+                        <h1 class="graph-header">Tokenomics in $$$ Graph</h1> <span class="post-graph-header-note">(you can toggle the lines by clicking on the labels)</span>
+                        <br>
+                        <div class="standard-size-plot">
+                            <canvas id="calculatorTokenomicsDollarsGraph"></canvas>
+                        </div>
+                        <br>
+                    </div>
+                </div>
+            </div>
+            <div style="display: none" id="templates-tab">
+                <div>
+                    <h3 style="display: inline-block">
+                        Plot Templates
+                    </h3>
+                    <button onclick="openCreatePTEM()" style="margin-left: 0.7rem; margin-bottom: .5rem;" class="btn btn-primary btn-grad">+ New</button>
+                </div>
+                <div class="sc6 template-cards-container" id="templates-tab-container">
+                    <div style="display: none"  class="template-card">  <!-- just a template for testing styles, change display style to play with -->
+                        <div class="card-header">
+                            Wishful Thinking
+                        </div>
+                        <div class="card-body">
+                            <span class="card-row"><span class="card-row-number">8</span> plots</span>
+                            <span class="card-row"><span class="card-row-number">3</span> NFTs</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div style="display: none" id="simple-calculator-tab" >
+                <h3>
+                    Simple calculator - it supposes plots were created today
+                </h3>
+                <div class="form-container horde-purple-border">
+                    <form onsubmit="return false" >
+                        <label class="form-label" for="scalc_num_of_plots">How many plots:</label><br>
+                        <input onchange="testch()" class="form-control" value="1" type="number" id="scalc_num_of_plots" style="width: 20%"/>
+                        <br>
+                        <label class="form-label" for="scalc_num_of_claimable">How many claimable tokens you have at the moment:</label>
+                        <br>
+                        <input class="form-control" value="0" type="number" id="scalc_num_of_claimable" style="width: 20%" step="0.001"/>
+                        <br>
+                        <label class="form-label" for="scalc_num_of_days_in_future">Duration in future:</label>
+                        <br>
+                        <input class="form-control" value="500" type="number" id="scalc_num_of_days_in_future" style="width: 20%"/>
+                        <br>
+                        <button onclick="runSimpleCalculation()" class="btn btn-primary btn-grad">Compound &nbsp:)</button> (scroll down)
+                    </form>
+                </div>
+                <br>
+                <div style="padding: 5px; display: none" id="results">
+                    <h1 style="padding-left: 20px">Plot Graph</h1>
+                    <br>
+                    <div class="standard-size-plot">
+                        <canvas id="scalcActivePlotsGraph"></canvas>
+                    </div>
+                    <br>
+                    <br>
+                    <div id="monthly-results">
+                        <h3>Monthly printouts</h3>
+                        <div id="monthly-results-raw"></div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+
+
+
+    <!-- MODALS -->
+
+    <!-- Plot Template Editor Modal -->
+    <div class="sc6 horde-modal modal fade" id="plot-template-editor-modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div id="ptem-outer-body" class="modal-dialog">
+            <div class="horde-default-background modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="ptem-title">Modal title</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div id="ptem-body" class="modal-body">
+                    Name <input id="ptem-name" style="font-size: 14px" maxlength="18">
+                    <br>
+                    <br>
+                    <div>
+                        Plot groups
+                        <br>
+                        <div style="border-bottom: 1px solid white;">
+                            <span style="font-size: 1.2rem;">#. &nbsp&nbsp&nbsp&nbsp</span> <span style="width: 5rem; display: inline-block; text-align: center;">plot count</span> &nbsp <span style="width: 10rem; display: inline-block; text-align: center;">creation date</span> &nbsp <span style="width: 10rem; display: inline-block; text-align: center;">decay date</span>
+                        </div>
+                        <br>
+                        <div style="border-bottom: 1px solid white;">
+                            <!-- Wow such empty -->
+                            <div id="ptem-plot-groups">
+                            </div>
+                            <br>
+                            <button onclick="addEmptyPlotGroupToPtem()" style="margin-left: 0.7rem; margin-bottom: .5rem;" class="btn btn-primary btn-grad">+ Another Plot Group</button>
+                        </div>
+                    </div>
+                    <div style="border-bottom: 1px solid white; margin-top: 1rem;margin-bottom: 1rem; padding-bottom: 1rem">
+                        NFTs
+                        <div>
+                            <label style="width: 5rem;" for="ptem-nft5perc">NFT 5%</label><input min="0" onchange="ptemNft5Changed()" id="ptem-nft5perc" class="ptem-nftcount" type="number" value="0">
+                            <br>
+                            <label style="width: 5rem;" for="ptem-nft10perc">NFT 10%</label><input min="0" onchange="ptemNft10Changed()" id="ptem-nft10perc" class="ptem-nftcount" type="number" value="0">
+                            <br>
+                            <label style="width: 5rem;" for="ptem-nft15perc">NFT 10%</label><input min="0" onchange="ptemNft15Changed()" id="ptem-nft15perc" class="ptem-nftcount" type="number" value="0">
+                            <br>
+                        </div>
+                    </div>
+                    Total plots: <span id="ptem-total-plots">1</span>
+                    <br>
+                    Total NFTs: <span id="ptem-total-nfts">0</span>
+                </div>
+                <span id="ptem-error" style="color: red; display:none"></span>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button onclick="onPtemSaveClick()" id="ptem-save-btn" type="button" class="btn btn-primary btn-grad"></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
 </body>
 </html>
 
 <script>
+    const LIVE_WALLET_TEMPLATE_NAME = 'Live Wallet'
+    const LIVE_WALLET_TEMPLATE_NAME_EDITED = 'Live Wallet Edited'
+    const BE_CREATIVE_NAME = '-- be creative --';
+
+    const STRATEGY_FULL_COMPOUND = 'strategy_full_compound'
+    const STRATEGY_CASHOUT_BREAKEVEN = 'strategy_cashout_breakeven'
+
+    const HORDE_CURRENT_MIDDLE_PRICE = 100;
+
+    let FORBIDDEN_NAMES = {};
+    FORBIDDEN_NAMES[LIVE_WALLET_TEMPLATE_NAME] = 1;
+    FORBIDDEN_NAMES[LIVE_WALLET_TEMPLATE_NAME_EDITED] = 1;
+    FORBIDDEN_NAMES[BE_CREATIVE_NAME] = 1;
+
+    const PLOT_DECAY = 300;
+
+    const PTEM_MODE_CREATE = 'create';
+    const PTEM_MODE_EDIT = 'edit';
+    const PTEM_MODE_EDIT_LIVE_WALLET = 'edit_live_wallet';
+
+
+    let GLOBAL_DATA = readLocalStorage();
+
+    let currentTab = '';
+    let templateFromInput = null;
+    let plotTemplateEditorModal = new bootstrap.Modal(document.getElementById('plot-template-editor-modal'))
+    let ptemGroupsDiv = document.getElementById('ptem-plot-groups');
+    let ptemName = document.getElementById('ptem-name')
+    let ptemTotalPlots = document.getElementById('ptem-total-plots')
+    let ptemTotalNfts = document.getElementById('ptem-total-nfts')
+    let ptemSaveButton = document.getElementById('ptem-save-btn')
+    let ptemError = document.getElementById('ptem-error')
+    let templatesTabContainer = document.getElementById('templates-tab-container')
+
+    let calculatorTemplatesSelect = document.getElementById('calculator-template-select')
+    let ptemMode = null;
+
+    let currentPtemTemplate = {}
+    //openCreatePTEM();
+
+    function showNoTemplateError() {
+        document.getElementById('calc-no-template-error').style.display = 'block'
+    }
+
+    function hideNoTemplateError() {
+        document.getElementById('calc-no-template-error').style.display = 'none'
+    }
+
+    function showCalculatorError(msg) {
+        document.getElementById('calc-generic-error').innerText = msg
+        document.getElementById('calc-generic-error').style.display = 'block'
+    }
+
+    function hideCalculatorError() {
+        document.getElementById('calc-generic-error').innerText = ''
+        document.getElementById('calc-no-template-error').style.display = 'none'
+    }
+
+    function userHasTemplates() {
+        return !(templateFromInput === null && isEmpty(GLOBAL_DATA.templates));
+    }
+
+    function getSelectedStrategy() {
+        return document.querySelector('input[name="calculator_strategy"]:checked').value;
+    }
+
+    function populateCalculatorTemplatesSelect(keepSameSelectedIfFound) {
+        let selectedTemplateName = calculatorTemplatesSelect.value;
+        console.log(selectedTemplateName)
+        calculatorTemplatesSelect.innerHTML = '';
+        if(templateFromInput !== null) {
+            calculatorTemplatesSelect.insertAdjacentHTML(
+                'beforeend',
+                generateTemplateOption(templateFromInput, selectedTemplateName === templateFromInput.name)
+            );
+        }
+        for(let name in GLOBAL_DATA.templates) {
+            calculatorTemplatesSelect.insertAdjacentHTML(
+                'beforeend',
+                generateTemplateOption(GLOBAL_DATA.templates[name], selectedTemplateName === name)
+            );
+        }
+    }
+
+    function generateTemplateOption(template, selected) {
+        let selectedText = selected ? 'selected' : '';
+        return `
+            <option value="${template.name}" ${selectedText} id="${template.name}">${template.name} (${template.plotCount} plots | ${template.nftCount} NFTs)</option>
+        `;
+    }
+
+    function setInitialInputs(inputsData) {
+        document.getElementById("calculator_num_of_days_in_future").value = inputsData.duration_in_future.toString()
+        document.getElementById("calculator_wallets_hardcap").value = inputsData.wallets_hardcap.toString()
+        document.getElementById("calculator_invested").value = inputsData.invested.toString()
+        document.getElementById("calculator_cashed_out_already").value = inputsData.cashed_out_already.toString()
+        document.getElementById(inputsData.chosen_strategy).checked = true;
+    }
+
+    function readLocalStorage() {
+        let data = localStorage.getItem('horde-calc-global-data');
+        let defaultInputs = {
+            'duration_in_future': 500,
+                'wallets_hardcap': 1,
+                'invested': 0,
+                'cashed_out_already': 0,
+                'chosen_strategy': STRATEGY_FULL_COMPOUND,
+        };
+        if(data === null) {
+            return {
+                'templates': {
+                    //keyed by name
+                },
+                'inputs': defaultInputs
+            };
+        } else {
+            let dataAsJson = JSON.parse(data);
+
+            //convert all date strings to date objects
+            for(let name in dataAsJson.templates) {
+                let template = dataAsJson.templates[name]
+                template.plotGroups.forEach((x, i) =>
+                    {
+                        template.plotGroups[i].createdAt = new Date(template.plotGroups[i].createdAt)
+                        template.plotGroups[i].expiresAt = new Date(template.plotGroups[i].expiresAt)
+                    }
+                )
+            }
+
+            if(!('inputs' in dataAsJson)) {
+                dataAsJson['inputs'] = defaultInputs
+            }
+
+            return dataAsJson;
+        }
+    }
+
+    function writeToLocalStorage(data) {
+        let dataClone = clone(data)
+
+        //convert all dates to strings
+        for(let name in dataClone.templates) {
+            let template = dataClone.templates[name]
+            template.plotGroups.forEach((x, i) =>
+                {
+                    template.plotGroups[i].createdAt = dateOnlyString(template.plotGroups[i].createdAt)
+                    template.plotGroups[i].expiresAt = dateOnlyString(template.plotGroups[i].expiresAt)
+                }
+            )
+        }
+
+        localStorage.setItem('horde-calc-global-data', JSON.stringify(dataClone))
+    }
+
+    function openCreatePTEM() {
+        document.getElementById('ptem-title').innerText = "Create new template";
+        currentPtemTemplate = createPlotTemplate(
+            [
+                createPlotGroupFromCreation(new Date(), 5),
+                createPlotGroupFromCreation(copyAndAddDays(new Date(), 5), 1),
+                createPlotGroupFromCreation(copyAndAddDays(new Date(), 15), 1),
+            ],
+            createEmptyNftGroup(),
+            BE_CREATIVE_NAME
+        )
+        preparePtem(currentPtemTemplate)
+        ptemSaveButton.innerText = "Create Template"
+        ptemMode = PTEM_MODE_CREATE;
+        ptemName.disabled = false
+        plotTemplateEditorModal.show()
+    }
+
+    function openWalletPTEM() {
+        document.getElementById('ptem-title').innerText = "Edit live-wallet template (not permanent)";
+        currentPtemTemplate = clone(templateFromInput)
+        preparePtem(currentPtemTemplate)
+        ptemSaveButton.innerText = "Update Live Template (temporarily)"
+        ptemMode = PTEM_MODE_EDIT_LIVE_WALLET;
+        ptemName.disabled = true
+        plotTemplateEditorModal.show()
+    }
+
+    function openEditPTEM(template) {
+        document.getElementById('ptem-title').innerText = "Edit '" + template.name + "' template";
+        currentPtemTemplate = clone(template)
+        preparePtem(currentPtemTemplate)
+        ptemSaveButton.innerText = "Update"
+        ptemMode = PTEM_MODE_EDIT;
+        ptemName.disabled = false
+        plotTemplateEditorModal.show()
+    }
+
+    function openSelectPTEM() {
+        let templateName = calculatorTemplatesSelect.value;
+        if(!isEmpty(templateName)) {
+            openPTEM(templateName)
+        }
+    }
+
+    function openPTEM(name) {
+        if(name === LIVE_WALLET_TEMPLATE_NAME || name === LIVE_WALLET_TEMPLATE_NAME_EDITED) {
+            openWalletPTEM();
+        } else {
+            openEditPTEM(GLOBAL_DATA['templates'][name]);
+        }
+    }
+
+    function deleteTemplate(name) {
+        if(name in GLOBAL_DATA.templates) {
+            delete GLOBAL_DATA.templates[name]
+            syncAllTemplates()
+        }
+    }
+
+    function copyTemplate(name) {
+
+        let copiedTemplate = null
+        if (name in GLOBAL_DATA.templates) {
+            copiedTemplate = clone(GLOBAL_DATA.templates[name])
+        } else if (name === LIVE_WALLET_TEMPLATE_NAME || name === LIVE_WALLET_TEMPLATE_NAME) {
+            copiedTemplate = clone(templateFromInput)
+        }
+
+        if(copiedTemplate !== null) {
+            let proposedName = '(copy) ' + name
+            let i = 1;
+            while (proposedName in GLOBAL_DATA.templates) {
+                proposedName = '(copy ' + i + ') ' + name;
+                if(i > 100) {
+                    alert('Too much copied templates...')
+                    return;
+                }
+                i++;
+            }
+
+            copiedTemplate.name = proposedName;
+            GLOBAL_DATA.templates[proposedName] = copiedTemplate
+            syncAllTemplates()
+        }
+    }
+
+    function preparePtem(template) {
+        ptemError.innerText = '';
+        ptemError.style.display = 'none'
+        ptemGroupsDiv.innerHTML = ''
+        ptemName.value = template.name;
+        ptemTotalPlots.innerText = template.plotCount;
+        ptemTotalNfts.innerText = template.nftCount;
+
+        document.getElementById('ptem-nft5perc').value = template.nftGroup.nft5perc;
+        document.getElementById('ptem-nft10perc').value = template.nftGroup.nft10perc;
+        document.getElementById('ptem-nft15perc').value = template.nftGroup.nft15perc;
+
+        template.plotGroups.forEach(
+            (item, i) => {
+                addPlotGroupToPtem(i, item)
+            }
+        )
+    }
+
+    function onPtemSaveClick() {
+        if(currentPtemTemplate.plotGroups.length === 0) {
+            ptemError.innerText = 'Cant save a template that has no plots! Add at least one plot group'
+            ptemError.style.display = 'block'
+            return;
+        }
+
+        if(ptemMode === PTEM_MODE_CREATE || ptemMode === PTEM_MODE_EDIT) {
+
+            if(ptemName.value in FORBIDDEN_NAMES) {
+                ptemError.innerText = 'That name is not allowed! Try a different one'
+                ptemError.style.display = 'block'
+                return;
+            }
+
+            if (
+                (ptemMode === PTEM_MODE_CREATE && ptemName.value in GLOBAL_DATA.templates) //if new one is being created and the name is already taken
+                ||
+                (ptemMode === PTEM_MODE_EDIT && ptemName.value !== currentPtemTemplate.name && ptemName.value in GLOBAL_DATA.templates) //OR its edit, and the name is changed, and its changed to an existing one
+            ) {
+                ptemError.innerText = 'That name is already taken! Try a different one'
+                ptemError.style.display = 'block'
+                return;
+            }
+
+            //if its an edit and the name is changed, first remove the old key
+            if(ptemMode === PTEM_MODE_EDIT && ptemName.value !== currentPtemTemplate.name) {
+                delete GLOBAL_DATA.templates[currentPtemTemplate.name]
+                currentPtemTemplate.name = ptemName.value;
+            }
+
+            currentPtemTemplate.name = ptemName.value;
+            GLOBAL_DATA.templates[currentPtemTemplate.name] = clone(currentPtemTemplate);
+            syncAllTemplates();
+
+        } else if(ptemMode === PTEM_MODE_EDIT_LIVE_WALLET) {
+            currentPtemTemplate.name = LIVE_WALLET_TEMPLATE_NAME_EDITED
+            templateFromInput = clone(currentPtemTemplate)
+            syncAllTemplates();
+        }
+
+        plotTemplateEditorModal.hide()
+        currentPtemTemplate = null;
+    }
+
+    function syncAllTemplates() {
+        writeToLocalStorage(GLOBAL_DATA)
+        renderTemplates()
+        populateCalculatorTemplatesSelect(true)
+        if(userHasTemplates()) {
+            hideNoTemplateError()
+        } else {
+            showNoTemplateError()
+
+        }
+    }
+
+    function renderTemplates() {
+        templatesTabContainer.innerHTML = '';
+        if(templateFromInput !== null) {
+            //plotTemplate, isLiveTemplate, isLiveTemplateEdited, generateEditPencil, generateDeleteButton
+            templatesTabContainer.insertAdjacentHTML(
+                'beforeend',
+                generateTemplateUICard(templateFromInput, true, templateFromInput.name === LIVE_WALLET_TEMPLATE_NAME_EDITED, true, false, true)
+            )
+        }
+
+        for(let templateName in GLOBAL_DATA.templates) {
+            let template = GLOBAL_DATA.templates[templateName]
+            templatesTabContainer.insertAdjacentHTML(
+                'beforeend',
+                generateTemplateUICard(template, false, false, true, true, true)
+            )
+        }
+    }
+
+    function addEmptyPlotGroupToPtem() {
+        let date = copyAndAddDays(findNewestCreateDateInPlotTemplate(currentPtemTemplate), 1)
+        let plotCount = 1;
+        let newPlotGroup = createPlotGroupFromCreation(date, plotCount)
+        addPlotGroupToPtem(currentPtemTemplate.plotGroups.length, newPlotGroup)
+        currentPtemTemplate.plotGroups.push(newPlotGroup)
+        currentPtemTemplate.plotCount = countPlots(currentPtemTemplate.plotGroups)
+
+        ptemTotalPlots.innerText = currentPtemTemplate.plotCount.toString();
+        ptemTotalNfts.innerText = currentPtemTemplate.nftCount.toString();
+    }
+
+    function addPlotGroupToPtem(num, plotGroup) {
+        ptemGroupsDiv.insertAdjacentHTML('beforeend', generatePlotGroupEditUI(num, plotGroup.count, dateOnlyString(plotGroup.createdAt), dateOnlyString(plotGroup.expiresAt)))
+    }
+
+    function findNewestCreateDateInPlotTemplate(template) {
+        let newestDate = new Date()
+        template.plotGroups.forEach(
+            (item, i) => {
+                if(item.createdAt > newestDate) {
+                    newestDate = item.createdAt
+                }
+            }
+        )
+
+        return newestDate
+    }
+
+    function openTab(tabId) {
+        if(tabId === currentTab) {
+            return;
+        }
+
+        if(tabId === 'calculator-tab') {
+            //check if there is any template, if not, say to them to create one!
+            if(userHasTemplates()) {
+                console.log("Has templates")
+                document.getElementById('calculator-tab-error-container').style.display = 'none'
+                document.getElementById('calculator-tab-body').style.display = 'block'
+            } else {
+                console.log("Has no templates")
+                document.getElementById('calculator-tab-error').innerHTML = 'You have to create templates to be able to calculate! Go to templates tab'
+                document.getElementById('calculator-tab-error-container').style.display = 'block'
+                document.getElementById('calculator-tab-body').style.display = 'none'
+            }
+        }
+
+        document.getElementById(tabId).style.display = 'block';
+        document.getElementById(tabId + "-btn").classList.add('tab-active');
+
+        let currentTabHtml = document.getElementById(currentTab);
+        if(currentTabHtml !== null) {
+            currentTabHtml.style.display = 'none'
+            document.getElementById(currentTab + "-btn").classList.remove('tab-active');
+        }
+
+        currentTab = tabId;
+    }
+
+    function ptemPlotCountChanged(inputElement) {
+        let plotGroupIndex = parseInt(inputElement.parentNode.dataset.pgroupid);
+        currentPtemTemplate.plotGroups[plotGroupIndex].count = parseInt(inputElement.value)
+        currentPtemTemplate.plotCount = countPlots(currentPtemTemplate.plotGroups)
+
+        ptemTotalPlots.innerText = currentPtemTemplate.plotCount.toString();
+        ptemTotalNfts.innerText = currentPtemTemplate.nftCount.toString();
+    }
+
+    function ptemPlotCreatedAtChanged(inputElement) {
+        let plotGroupIndex = parseInt(inputElement.parentNode.dataset.pgroupid);
+
+        let newCreatedAtDate = new Date(inputElement.value);
+        let newDecayDate = copyAndAddDays(newCreatedAtDate, PLOT_DECAY);
+        let decayAtElement = inputElement.parentNode.querySelectorAll('.plot-decay-at')[0];
+        decayAtElement.value = dateOnlyString(newDecayDate);
+
+        currentPtemTemplate.plotGroups[plotGroupIndex].createdAt = newCreatedAtDate;
+        currentPtemTemplate.plotGroups[plotGroupIndex].expiresAt = newDecayDate;
+    }
+
+    function ptemPlotExpiresAtChanged(inputElement) {
+        let plotGroupIndex = parseInt(inputElement.parentNode.dataset.pgroupid);
+
+        let newDecayDate = new Date(inputElement.value);
+        let newCreatedAtDate = copyAndAddDays(newDecayDate, -PLOT_DECAY);
+        let createdAtElement = inputElement.parentNode.querySelectorAll('.plot-created-at')[0];
+        createdAtElement.value = dateOnlyString(newCreatedAtDate);
+
+        currentPtemTemplate.plotGroups[plotGroupIndex].createdAt = newCreatedAtDate;
+        currentPtemTemplate.plotGroups[plotGroupIndex].expiresAt = newDecayDate;
+    }
+
+    function ptemDeletePlotGroup(inputElement) {
+        let plotGroupIndex = parseInt(inputElement.parentNode.dataset.pgroupid);
+
+        currentPtemTemplate.plotGroups.splice(plotGroupIndex, 1) //remove from data
+        currentPtemTemplate.plotCount = countPlots(currentPtemTemplate.plotGroups)
+        ptemTotalPlots.innerText = currentPtemTemplate.plotCount.toString();
+        inputElement.parentNode.remove() //remove from UI
+
+        //since the index is removed, array elements index have been reduced by one to fill the gap, so we start from the index itself until the end
+        for (let i = plotGroupIndex; i < currentPtemTemplate.plotGroups.length; i++) {
+            let oldId = i + 1;
+            let newId = i;
+            let elem = document.getElementById('pgroup-' + oldId);
+            let textElem = document.getElementById('pgroup-number-' + oldId);
+            elem.id = 'pgroup-' + newId.toString();
+            elem.dataset.pgroupid = newId.toString();
+            textElem.id = 'pgroup-number-' + newId.toString();
+            textElem.innerHTML = generatePlotGroupNumberText(newId + 1);
+        }
+    }
+
+    function ptemNft5Changed(inputElement) {
+        ptemNftChanged("nft5perc");
+    }
+
+    function ptemNft10Changed(inputElement) {
+        ptemNftChanged("nft10perc");
+    }
+
+    function ptemNft15Changed(inputElement) {
+        ptemNftChanged("nft15perc");
+    }
+
+    function ptemNftChanged(nftIdentifier) {
+        currentPtemTemplate.nftGroup[nftIdentifier] = parseInt(document.getElementById('ptem-'+nftIdentifier).value);
+        currentPtemTemplate.nftCount = countNfts(currentPtemTemplate.nftGroup)
+        ptemTotalNfts.innerText = currentPtemTemplate.nftCount.toString();
+    }
+
+    function generatePlotGroupEditUI(num, plotCount, createDate, decayDate) {
+        let deleteButtonHtml = '<span onclick="ptemDeletePlotGroup(this)" class="ptem-delete">🗑</span>';
+        let numberText = generatePlotGroupNumberText(num + 1)
+        return  `
+            <div id="pgroup-${num}" data-pgroupid="${num}" class="ptem-plot-group">
+                <span id="pgroup-number-${num}" style="font-size: 1.2rem;">${numberText}</span> <input min="1" onchange="ptemPlotCountChanged(this)" type="number" class="ptem-plotcount" value="${plotCount}"/> - <input onchange="ptemPlotCreatedAtChanged(this)" class="plot-created-at ptem-datepicker" type="date" value="${createDate}"/> - <input onchange="ptemPlotExpiresAtChanged(this)" class="plot-decay-at ptem-datepicker"  type="date" value="${decayDate}"/> ${deleteButtonHtml}
+            </div>
+        `;
+    }
+
+    function generatePlotGroupNumberText(num) {
+
+        let numString = num.toString();
+        if(num < 10) {
+            numString = '00' + num.toString();
+        } else if (num < 100) {
+            numString = '0' + num.toString();
+        }
+
+        return `${numString}. &nbsp`;
+    }
+
     function copyAndAddDays(initialDate, n) {
         let myNewDate = new Date(initialDate);
         myNewDate.setDate(myNewDate.getDate() + n);
@@ -153,17 +1053,9 @@
         alert(JSON.stringify(obj, null, 2))
     }
 
-    function onAddPlotsClicked() {
-        let expiryDate = new Date(document.getElementById('add_plots_expiry_date').value)
-        assureDateValidity(expiryDate)
-        let count = parseInt(document.getElementById('add_plots_count').value)
-        let plotGroup = createPlotGroupFromExpiration(expiryDate, count)
-        alertObj(plotGroup);
-    }
-
     function createPlotGroupFromExpiration(expireDate, count) {
         return {
-            'createdAt': copyAndAddDays(expireDate, -300),
+            'createdAt': copyAndAddDays(expireDate, -PLOT_DECAY),
             'expiresAt': expireDate,
             'count': count
         }
@@ -172,7 +1064,7 @@
     function createPlotGroupFromCreation(creationDate, count) {
         return {
             'createdAt': creationDate,
-            'expiresAt': copyAndAddDays(creationDate, 300),
+            'expiresAt': copyAndAddDays(creationDate, PLOT_DECAY),
             'count': count
         }
     }
@@ -193,9 +1085,25 @@
         }
     }
 
-    function createPlotTemplate(plotGroups) {
+    function createPlotTemplate(plotGroups, nftGroup, name) {
         return {
             'plotGroups': plotGroups,
+            'nftGroup': nftGroup,
+            'name': name,
+            'plotCount': countPlots(plotGroups),
+            'nftCount': 0
+        }
+    }
+
+    function createEmptyNftGroup() {
+        return createNftGroup(0, 0, 0)
+    }
+
+    function createNftGroup(nft5perc, nft10perc, nft15perc) {
+        return {
+            'nft5perc': nft5perc,
+            'nft10perc': nft10perc,
+            'nft15perc': nft15perc,
         }
     }
 
@@ -210,7 +1118,217 @@
             .split("T")[0];
     }
 
-    function calculate(plotTemplate, settingsTemplate, startFromDate, calculateDays, claimable) {
+    function clone(obj) { //.. makes me happy i dont usually work in JS
+        if (obj === null || typeof (obj) !== 'object' || 'isActiveClone' in obj)
+            return obj;
+
+        if (obj instanceof Date)
+            return new Date(obj); //or new Date(obj);
+        else
+            var temp = obj.constructor();
+
+        for (var key in obj) {
+            if (Object.prototype.hasOwnProperty.call(obj, key)) {
+                obj['isActiveClone'] = null;
+                temp[key] = clone(obj[key]);
+                delete obj['isActiveClone'];
+            }
+        }
+        return temp;
+    }
+
+    function isEmpty(obj) { //another 'I hate JS' instance.. cant they offer this in the standard lib? kill me
+        return Object.keys(obj).length === 0;
+    }
+
+    function prepareApplicableNfts(plotCount, nftGroup) {
+        let applicableNftGroup = createEmptyNftGroup()
+        let nftsApplicable = plotCount;
+        if(plotCount > 0) {
+            //first exhaust highest paying NFTs
+
+            if(nftGroup.nft15perc < nftsApplicable) { //if we have less 15% NFTs than whats applicable
+                applicableNftGroup.nft15perc = nftGroup.nft15perc
+                nftsApplicable -= nftGroup.nft15perc
+
+                if(nftGroup.nft10perc < nftsApplicable) { //if we have less 10% NFTs than whats applicable
+                    applicableNftGroup.nft10perc = nftGroup.nft10perc
+                    nftsApplicable -= nftGroup.nft10perc
+
+                    if(nftGroup.nft5perc < nftsApplicable) { //if we have less 10% NFTs than whats applicable
+                        applicableNftGroup.nft5perc = nftGroup.nft5perc
+                        nftsApplicable -= nftGroup.nft5perc
+
+
+                    } else { //if we have more NFTs than whats applicable, we will apply only as many as are applicable
+                        applicableNftGroup.nft5perc = nftsApplicable;
+                    }
+
+
+                } else { //if we have more NFTs than whats applicable, we will apply only as many as are applicable
+                    applicableNftGroup.nft10perc = nftsApplicable;
+                }
+
+
+            } else { //if we have more NFTs than whats applicable, we will apply only as many as are applicable
+                applicableNftGroup.nft15perc = nftsApplicable;
+            }
+
+        }
+
+        return applicableNftGroup;
+    }
+
+    function calculateNftDailyReward(applicableNftGroup)
+    {
+        return applicableNftGroup.nft5perc * 0.005 + applicableNftGroup.nft10perc * 0.01 + applicableNftGroup.nft15perc * 0.015;
+    }
+
+    function confirmNftCountTest(nftGroup, nft5perc, nft10perc, nft15perc) {
+        if(nftGroup.nft5perc !== nft5perc) {
+            console.log('failed perc5 test', nftGroup, nft5perc);
+        }
+        if(nftGroup.nft10perc !== nft10perc) {
+            console.log('failed perc10 test', nftGroup, nft10perc);
+        }
+        if(nftGroup.nft15perc !== nft15perc) {
+            console.log('failed perc15 test', nftGroup, nft15perc);
+        }
+    }
+
+    //just quick test because i'm writing this late and my brain cant simulate prepareApplicableNfts logic atm
+    function testPrepareApplicableNfts() {
+        let applicableNftTest1 = prepareApplicableNfts(5, createNftGroup(0, 0, 4))
+        confirmNftCountTest(applicableNftTest1, 0, 0, 4)
+
+        let applicableNftTest2 = prepareApplicableNfts(5, createNftGroup(1, 2, 7))
+        confirmNftCountTest(applicableNftTest2, 0, 0, 5)
+
+        let applicableNftTest3 = prepareApplicableNfts(8, createNftGroup(1, 2, 7))
+        confirmNftCountTest(applicableNftTest3, 0, 1, 7)
+
+        let applicableNftTest4 = prepareApplicableNfts(9, createNftGroup(1, 2, 7))
+        confirmNftCountTest(applicableNftTest4, 0, 2, 7)
+
+        let applicableNftTest5 = prepareApplicableNfts(10, createNftGroup(1, 2, 7))
+        confirmNftCountTest(applicableNftTest5, 1, 2, 7)
+
+        let applicableNftTest6 = prepareApplicableNfts(11, createNftGroup(1, 2, 7))
+        confirmNftCountTest(applicableNftTest6, 1, 2, 7)
+    }
+    testPrepareApplicableNfts()
+
+    function calculate(plotTemplate, settingsTemplate, startFromDate, calculateDays, claimable, plotHardcap, invested, cashedOutAlready, selectedStrategy) {
+        let dateIterator = new Date(startFromDate);
+
+
+        let activePlots = Object.assign({}, plotTemplate);
+        let decayedPlotGroups = [];
+        let month = 69; //crazy value to make it print once as soon as it starts
+        let calculatedData = [];
+        let nftRewardSum = 0;
+        let dollarAlreadyCashedOutWithoutTax = (cashedOutAlready * 1.11111111)
+        let totalHordeCashedOut = dollarAlreadyCashedOutWithoutTax / HORDE_CURRENT_MIDDLE_PRICE;
+        let breakEvenStrategyActive = selectedStrategy === STRATEGY_CASHOUT_BREAKEVEN
+
+        for(let i = 0; i < calculateDays; i++) {
+            let hordeCashedOut = 0;
+            let isLastLoop = (i + 1) === calculateDays;
+            let survivingGroups = [];
+            let plotCountBeforeDecay = 0;
+            activePlots.plotGroups.forEach(item => {
+                claimable += (0.1 * item.count)
+                plotCountBeforeDecay += item.count
+
+                if(dateIterator < item.expiresAt) {
+                    survivingGroups.push(item)
+                } else {
+                    decayedPlotGroups.push(item);
+                }
+            })
+            let nftReward = calculateNftDailyReward(prepareApplicableNfts(plotCountBeforeDecay, plotTemplate.nftGroup))
+            claimable += nftReward
+            nftRewardSum += nftReward
+
+            let decayedPlotCount = countPlots(decayedPlotGroups);
+            let activePlotCount = countPlots(survivingGroups); //hmm
+            let dailyHordeGeneration = smartRound(activePlotCount * 0.1, 2);
+            let dailyDollarGeneration = smartRound(dailyHordeGeneration * HORDE_CURRENT_MIDDLE_PRICE, 2);
+            let dateOnlyAsString = dateOnlyString(dateIterator);
+            //print every month (or last date)
+            if(month !== dateIterator.getMonth() ||  isLastLoop) {
+                month = dateIterator.getMonth();
+            }
+
+            let plotsToCreate = 0;
+            let activePlotCountAfterCreation = activePlotCount;
+            if(breakEvenStrategyActive) {
+                let cashedOutDollarTotal = totalHordeCashedOut * HORDE_CURRENT_MIDDLE_PRICE * 0.9;
+                let leftToBreakEven = invested - cashedOutDollarTotal;
+                if(leftToBreakEven > 0) { //if we have not broken even, do a full cashout
+                    hordeCashedOut = claimable;
+                    claimable = 0;
+                } else {
+                    breakEvenStrategyActive = false; //we have cashed out, so we stop the strategy
+                }
+            }
+            //if we have enough to create a plot(s), we create
+            while(claimable >= 10 && activePlotCountAfterCreation < plotHardcap) {
+                claimable -= 10;
+                plotsToCreate++;
+                activePlotCountAfterCreation++;
+            }
+
+            if(plotsToCreate !== 0) {
+                survivingGroups.push(
+                    createPlotGroupFromCreation(
+                        new Date(dateIterator),
+                        plotsToCreate
+                    )
+                )
+            }
+
+            if(survivingGroups.length === 0) {
+                break;
+            }
+
+            let ceilingIsHit = activePlotCountAfterCreation >= plotHardcap;
+            if(ceilingIsHit) {
+                //if ceiling is hit, no strategy can be done except keep at least 10 tokens (to fill the gap in next day if a plot decays) and claim the rest
+                if(claimable > 10) {
+                    hordeCashedOut = claimable - 10;
+                    claimable -= hordeCashedOut;
+                }
+            } else {
+                //do selected strategy
+            }
+
+            totalHordeCashedOut += hordeCashedOut;
+
+            calculatedData.push(
+                {
+                    day: (i + 1),
+                    date: dateOnlyAsString,
+                    activePlots: activePlotCountAfterCreation,
+                    decayedPlots: decayedPlotCount,
+                    dailyHorde: dailyHordeGeneration,
+                    dailyDollar: dailyDollarGeneration,
+                    totalHordeCashedOut: totalHordeCashedOut,
+                    hordeCashedOut: hordeCashedOut,
+                    totalDollarCashedOut: totalHordeCashedOut * HORDE_CURRENT_MIDDLE_PRICE * 0.9,
+                    totalDollarTaxed: totalHordeCashedOut * HORDE_CURRENT_MIDDLE_PRICE * 0.1,
+                    dailyDollarCashedOut: hordeCashedOut * HORDE_CURRENT_MIDDLE_PRICE * 0.9,
+                    dailyDollarTaxed: hordeCashedOut * HORDE_CURRENT_MIDDLE_PRICE * 0.1,
+                }
+            )
+            activePlots.plotGroups = survivingGroups;
+            dateIterator = copyAndAddDays(dateIterator, 1);
+        }
+
+        return calculatedData;
+    }
+
+    function oldCalculate(plotTemplate, settingsTemplate, startFromDate, calculateDays, claimable) {
         let dateIterator = new Date(startFromDate);
 
         let activePlots = Object.assign({}, plotTemplate);
@@ -272,7 +1390,7 @@
             }
 
             if(survivingGroups.length === 0) {
-                console.log("On day " + i.toString() + " you've run out of plots, because you sold too much!")
+                results += "On day " + (i + 1).toString() + " you've run out of plots, because you sold too much!"
                 break;
             }
 
@@ -304,16 +1422,76 @@
         return sum;
     }
 
+    function countNfts(nftGroup) {
+        return nftGroup.nft5perc + nftGroup.nft10perc + nftGroup.nft15perc;
+    }
+
+    let OLD_ACTIVE_PLOT_CHART = null;
     let ACTIVE_PLOT_CHART = null;
+    let CASHOUT_CHART = null;
+    let TOKENOMICS_CHART = null;
+    let TOKENOMICS_CHART_DOLLARS = null;
 
     function runCalculation() {
+        hideCalculatorError()
+        if(!userHasTemplates()) {
+            return;
+        }
+        let templateName = calculatorTemplatesSelect.value;
+        let template = null;
+        if(templateName === LIVE_WALLET_TEMPLATE_NAME || templateName === LIVE_WALLET_TEMPLATE_NAME_EDITED) {
+            template = templateFromInput;
+        } else {
+            template = GLOBAL_DATA.templates[templateName]
+        }
+        console.log()
+        let settingsTemplate = createSettingsTemplate(
+            'justname',
+            1,
+            true,
+            3
+        )
+
+        let numOfClaimable = parseInt(document.getElementById("calculator_num_of_claimable").value)
+        let numOfDaysInFuture = parseInt(document.getElementById("calculator_num_of_days_in_future").value)
+        let walletsHardcap = parseInt(document.getElementById("calculator_wallets_hardcap").value)
+        let plotHardcap = walletsHardcap * 100
+        let invested = parseFloat(document.getElementById("calculator_invested").value)
+        let cashedOutAlready = parseFloat(document.getElementById("calculator_cashed_out_already").value)
+        let strategy = getSelectedStrategy()
+
+        if(strategy === STRATEGY_CASHOUT_BREAKEVEN && invested <= 0) {
+            showCalculatorError('Cant do breakeven strategy if you dont input your investment $$$!')
+            return;
+        }
+
+        if(numOfDaysInFuture < 2) {
+            return;
+        }
+        GLOBAL_DATA.inputs.duration_in_future = numOfDaysInFuture;
+        GLOBAL_DATA.inputs.wallets_hardcap = walletsHardcap;
+        GLOBAL_DATA.inputs.invested = invested;
+        GLOBAL_DATA.inputs.cashed_out_already = cashedOutAlready;
+        GLOBAL_DATA.inputs.chosen_strategy = strategy;
+        writeToLocalStorage(GLOBAL_DATA)
+        let todayDate = new Date();
+        let calculatedData = calculate(template, settingsTemplate, todayDate, numOfDaysInFuture, numOfClaimable, plotHardcap, invested, cashedOutAlready, strategy)
+
+        plotPlotGraph(calculatedData, 'calculatorActivePlotsGraph');
+        plotCashoutChart(calculatedData, 'calculatorCashoutGraph', invested, cashedOutAlready);
+        plotTokenomicsChart(calculatedData, 'calculatorTokenomicsGraph');
+        plotTokenomicsChart(calculatedData, 'calculatorTokenomicsDollarsGraph', true, HORDE_CURRENT_MIDDLE_PRICE);
+        document.getElementById("results").style.display = 'block';
+    }
+
+    function runSimpleCalculation() {
 
         let todayDate = new Date();
-        let decayDate = copyAndAddDays(todayDate, 300);
+        let decayDate = copyAndAddDays(todayDate, PLOT_DECAY);
 
-        let numOfPlots = parseInt(document.getElementById("num_of_plots").value)
-        let numOfClaimable = parseInt(document.getElementById("num_of_claimable").value)
-        let numOfDaysInFuture = parseInt(document.getElementById("num_of_days_in_future").value)
+        let numOfPlots = parseInt(document.getElementById("scalc_num_of_plots").value)
+        let numOfClaimable = parseInt(document.getElementById("scalc_num_of_claimable").value)
+        let numOfDaysInFuture = parseInt(document.getElementById("scalc_num_of_days_in_future").value)
 
         let settingsTemplate = createSettingsTemplate(
             'justname',
@@ -322,31 +1500,283 @@
             3
         )
 
-        let plotTemplate = createPlotTemplate([createPlotGroupFromExpiration(decayDate, numOfPlots)]);
-        let calculatedData = calculate(plotTemplate, settingsTemplate, todayDate, numOfDaysInFuture, numOfClaimable)
-        console.log(calculatedData)
+        let plotTemplate = createPlotTemplate([createPlotGroupFromExpiration(decayDate, numOfPlots)], createEmptyNftGroup(), 'simple');
+        let calculatedData = oldCalculate(plotTemplate, settingsTemplate, todayDate, numOfDaysInFuture, numOfClaimable)
 
-        plotPlotGraph(calculatedData);
+        oldPlotPlotGraph(calculatedData, 'scalcActivePlotsGraph');
         document.getElementById("results").style.display = 'block';
-
-        /*
-        let settingsTemplate = createSettingsTemplate(
-            'justname',
-            1,
-            true,
-            12
-        )
-
-        let plotTemplate = createPlotTemplate([createPlotGroupFromExpiration(new Date('1/16/2023'), 3)]);
-
-        calculate(plotTemplate, settingsTemplate, new Date('03/22/2022'), 720)*/
     }
 
-    function plotPlotGraph(calculatedData) { //plotPlot lmao
+    function plotPlotGraph(calculatedData, plotCanvasId) {
         if (ACTIVE_PLOT_CHART !== null) {
             ACTIVE_PLOT_CHART.destroy()
         }
-        ACTIVE_PLOT_CHART = plotGraphFromCalcData(document.getElementById('activePlotsGraph'), calculatedData,
+        let ctx = document.getElementById(plotCanvasId);
+        ACTIVE_PLOT_CHART = plotChart(
+            ctx,
+            [{
+                label: 'Decayed Plots',
+                data: calculatedData,
+                borderColor:'#6C0EB6',
+                backgroundColor: 'rgba(108, 14, 182, 0.5)',
+                borderWidth: 3,
+                pointBorderWidth: 0,
+                pointRadius: 0,
+                fill: true,
+                parsing: {
+                    xAxisKey: 'date',
+                    yAxisKey: 'decayedPlots'
+                }
+            },{
+                label: 'Active Plots',
+                data: calculatedData,
+                borderColor:'#17C139',
+                backgroundColor:'rgba(23, 193, 57, 0.5)',
+                borderWidth: 3,
+                pointBorderWidth: 0,
+                pointRadius: 0,
+                fill: true,
+                parsing: {
+                    xAxisKey: 'date',
+                    yAxisKey: 'activePlots'
+                }
+            }],
+            true
+        );
+    }
+
+    function plotCashoutChart(calculatedData, plotCanvasId, invested, cashedOutAlready) {
+        let data = clone(calculatedData)
+        /* commented out because the cashedOutAlready is now included in the calculation
+            data.forEach(
+                (x, i) => {
+                    data[i].totalDollarCashedOut = data[i].totalDollarCashedOut + cashedOutAlready
+                    data[i].totalDollarTaxed = data[i].totalDollarTaxed + (cashedOutAlready * 0.1111111111) //multiplying cashed out by 0.1111111111 will give how much was taxed
+                }
+            )
+        */
+
+        let datasets = [{
+            label: 'Cashout Profit (accumulated)',
+            data: data,
+            borderColor:'#17C139',
+            borderWidth: 3,
+            pointBorderWidth: 0,
+            pointRadius: 0,
+            parsing: {
+                xAxisKey: 'date',
+                yAxisKey: 'totalDollarCashedOut'
+            }
+        },{
+            label: 'Cashout Tax (accumulated)',
+            data: data,
+            borderColor:'#F7C139',
+            borderWidth: 3,
+            pointBorderWidth: 0,
+            pointRadius: 0,
+            hidden: true,
+            parsing: {
+                xAxisKey: 'date',
+                yAxisKey: 'totalDollarTaxed'
+            }
+        },{
+            label: 'Cashout Profit (daily)',
+            data: data,
+            borderColor:'#6C0EB6',
+            borderWidth: 3,
+            pointBorderWidth: 0,
+            pointRadius: 0,
+            hidden: true,
+            parsing: {
+                xAxisKey: 'date',
+                yAxisKey: 'dailyDollarCashedOut'
+            }
+        },{
+            label: 'Cashout Tax (daily)',
+            data: data,
+            borderColor:'#FC0EB6',
+            borderWidth: 3,
+            pointBorderWidth: 0,
+            pointRadius: 0,
+            hidden: true,
+            parsing: {
+                xAxisKey: 'date',
+                yAxisKey: 'dailyDollarTaxed'
+            }
+        }];
+
+        if(invested !== 0) {
+            console.log(invested)
+            console.log(data)
+            let firstDate = data[0].date;
+            let secondDate = data[data.length - 1].date;
+            let investedDataset = [
+                {
+                    'date': firstDate,
+                    'invested': invested
+                },
+                {
+                    'date': secondDate,
+                    'invested': invested
+                },
+            ]
+            console.log(investedDataset)
+            datasets.push(
+                {
+                    label: 'Break Even',
+                    data: investedDataset,
+                    borderColor:'white',
+                    borderWidth: 2,
+                    pointBorderWidth: 0,
+                    pointRadius: 0,
+                    parsing: {
+                        xAxisKey: 'date',
+                        yAxisKey: 'invested'
+                    }
+                }
+            )
+        }
+
+        if (CASHOUT_CHART !== null) {
+            CASHOUT_CHART.destroy()
+        }
+        let ctx = document.getElementById(plotCanvasId);
+        CASHOUT_CHART = plotChart(
+            ctx,
+            datasets,
+            false
+        );
+    }
+
+
+    function plotTokenomicsChart(calculatedData, plotCanvasId, inDollars, hordeAvgPrice) {
+        let data = clone(calculatedData)
+        let stringInDollars = '';
+        if(inDollars) {
+            stringInDollars = ' (in $$$)'
+        }
+        data.forEach(
+            (x, i) => {
+                let totalCreatedPlotsHordeValue = (data[i].activePlots + data[i].decayedPlots) * 10;
+                if(inDollars) {
+                    totalCreatedPlotsHordeValue *= hordeAvgPrice
+                }
+                data[i].totalBackRewards = totalCreatedPlotsHordeValue * 0.6
+                data[i].totalBackTreasury = totalCreatedPlotsHordeValue * 0.2
+                data[i].totalBackHordePool = totalCreatedPlotsHordeValue * 0.2
+            }
+        )
+
+        let datasets = [{
+            label: 'Plot creation HORDE -> horde pool' + stringInDollars,
+            data: data,
+            borderColor:'#F7C139',
+            backgroundColor: 'rgba(247, 193, 57, 0.5)',
+            borderWidth: 3,
+            pointBorderWidth: 0,
+            pointRadius: 0,
+            fill: true,
+            parsing: {
+                xAxisKey: 'date',
+                yAxisKey: 'totalBackHordePool'
+            }
+        },{
+            label: 'Plot creation HORDE -> treasury' + stringInDollars,
+            data: data,
+            borderColor:'#6C0EB6',
+            backgroundColor: 'rgba(108, 14, 182, 0.5)',
+            borderWidth: 3,
+            pointBorderWidth: 0,
+            pointRadius: 0,
+            fill: true,
+            parsing: {
+                xAxisKey: 'date',
+                yAxisKey: 'totalBackTreasury'
+            }
+        },{
+            label: 'Plot creation HORDE -> rewards' + stringInDollars,
+            data: data,
+            borderColor:'#17C139',
+            backgroundColor:'rgba(23, 193, 57, 0.5)',
+            borderWidth: 3,
+            pointBorderWidth: 0,
+            pointRadius: 0,
+            fill: true,
+            parsing: {
+                xAxisKey: 'date',
+                yAxisKey: 'totalBackRewards'
+            }
+        }];
+
+        //this is ugly AF but have no mental capacity to make it nice
+        if(inDollars) {
+            if (TOKENOMICS_CHART_DOLLARS !== null) {
+                TOKENOMICS_CHART_DOLLARS.destroy()
+            }
+            let ctx = document.getElementById(plotCanvasId);
+            TOKENOMICS_CHART_DOLLARS = plotChart(
+                ctx,
+                datasets,
+                true
+            );
+        } else {
+            if (TOKENOMICS_CHART !== null) {
+                TOKENOMICS_CHART.destroy()
+            }
+            let ctx = document.getElementById(plotCanvasId);
+            TOKENOMICS_CHART = plotChart(
+                ctx,
+                datasets,
+                true
+            );
+        }
+    }
+
+
+    function plotChart(ctx, datasets, stacked) {
+        return  new Chart(ctx, {
+            type: 'line',
+            data: {
+                datasets: datasets
+            },
+            options: {
+                plugins: {  // 'legend' now within object 'plugins {}'
+                    legend: {
+                        labels: {
+                            color: "#dee2e6",  // not 'fontColor:' anymore
+                            // fontSize: 18  // not 'fontSize:' anymore
+                            font: {
+                                size: 12 // 'size' now within object 'font {}'
+                            }
+                        }
+                    }
+                },
+                responsive:true,
+                maintainAspectRatio: false,
+                interaction: {
+                    intersect: false,
+                    axis: 'x'
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        stacked: stacked,
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    },
+                }
+            }
+        });
+    }
+
+    function oldPlotPlotGraph(calculatedData, plotCanvasId) { //plotPlot lmao
+        if (OLD_ACTIVE_PLOT_CHART !== null) {
+            OLD_ACTIVE_PLOT_CHART.destroy()
+        }
+        OLD_ACTIVE_PLOT_CHART = oldPlotGraphFromCalcData(document.getElementById(plotCanvasId), calculatedData,
             [{
                 label: 'Active Plots',
                 data: calculatedData,
@@ -372,8 +1802,8 @@
             }]);
     }
 
-    function plotGraphFromCalcData(ctx, calculatedData, datasets) {
-        let chart = new Chart(ctx, {
+    function oldPlotGraphFromCalcData(ctx, calculatedData, datasets) {
+        return new Chart(ctx, {
             type: 'line',
             data: {
                 datasets: datasets
@@ -408,51 +1838,156 @@
                 }
             }
         });
-
-        return chart;
     }
 
+    function isJson(item) {
+        item = typeof item !== "string"
+            ? JSON.stringify(item)
+            : item;
 
-    function readV1Input(rawQueryParams, startingValues) {
-        if ('plots' in rawQueryParams) {
-            startingValues.plots = parseInt(rawQueryParams.plots)
+        try {
+            item = JSON.parse(item);
+        } catch (e) {
+            return false;
         }
-        if ('claimable' in rawQueryParams) {
-            startingValues.claimable = parseFloat(rawQueryParams.claimable)
+
+        return typeof item === "object" && item !== null;
+    }
+
+    function generateTemplateUICard(plotTemplate, isLiveTemplate, isLiveTemplateEdited, generateEditPencil, generateDeleteButton, generateCopyButton) {
+        let editPencilHTML = '';
+        if(generateEditPencil) {
+            editPencilHTML = `
+                <span onclick="openPTEM('${plotTemplate.name}')" class="template-card-pencil"><span class="pencil-img" style="padding: 0.4em;"></span></span>
+            `;
+        }
+
+        let copyButtonHTML = '';
+        if(generateCopyButton) {
+            copyButtonHTML = `
+                <span onclick="copyTemplate('${plotTemplate.name}')" class="template-card-copy">⎘</span>
+            `;
+        }
+
+        let deleteButtonHTML = '';
+        if(generateDeleteButton) {
+            deleteButtonHTML = `
+                <span onclick="deleteTemplate('${plotTemplate.name}')" class="template-card-trash">🗑</span>
+            `;
+        }
+
+        let name = plotTemplate.name;
+        if(isLiveTemplate) {
+            let text = '• LIVE';
+            if(isLiveTemplateEdited) {
+                text = '• LIVE (edited) ';
+            }
+            name = `<span style="padding: 2px 12px 2px 8px; background-color: #6C0EB6">${text}</span>`;
+        }
+
+        let headerClass = 'card-header';
+        if(plotTemplate.name.length > 18) {
+            headerClass = 'card-header-small';
+            if(plotTemplate.name.length > 21) {
+                headerClass = 'card-header-smaller';
+            }
+        }
+
+
+
+        return `<div class="template-card">
+                ${editPencilHTML}
+                ${copyButtonHTML}
+                ${deleteButtonHTML}
+                <div class="${headerClass}">
+                    ${name}
+                </div>
+                <div class="template-card-body">
+                    <span class="card-row"><span class="card-row-number">${plotTemplate.plotCount}</span> plots</span>
+                    <span class="card-row"><span class="card-row-number">${plotTemplate.nftCount}</span> NFTs</span>
+                </div>
+        </div>`;
+    }
+
+    function readInput(rawQueryParams, startingValues) {
+        try {
+            if('hideHeader' in rawQueryParams) {
+                startingValues.hideHeader = rawQueryParams.hideHeader
+            }
+            if ('plots' in rawQueryParams) {
+                let decodedString = atob(rawQueryParams.plots);
+                if (isJson) {
+                    let plotsDecayList = JSON.parse(decodedString)
+                    let countByDate = {}
+                    let totalCount = 0;
+                    plotsDecayList.forEach((x, i) => {
+                        if (!(x in countByDate)) {
+                            countByDate[x] = 0
+                        }
+                        countByDate[x]++
+                        totalCount++;
+                    })
+
+                    let plotGroups = []
+                    for(const dateString in countByDate) {
+                        const decayDate = new Date(dateString)
+                        const count = countByDate[dateString];
+                        plotGroups.push(createPlotGroupFromExpiration(decayDate, count))
+                    }
+
+                    startingValues.plots = plotGroups
+                    startingValues.plotsCount = totalCount
+                    templateFromInput = createPlotTemplate(plotGroups, createEmptyNftGroup(), LIVE_WALLET_TEMPLATE_NAME)
+                }
+            }
+            if ('claimable' in rawQueryParams) {
+                startingValues.claimable = parseFloat(rawQueryParams.claimable)
+            }
+        } catch (e) {
+            console.log("Caught exception", e)
         }
 
         return startingValues;
     }
 
-    function readV2Input(rawQueryParams, startingValues) {
-
-    }
-
 
     let rawQueryParams = {
         'v': 0, //placeholders
-        'plots': 0,
+        'plots': [],
+        'plotsCount': [],
         'claimable': 0.0
     }
     location.search.substr(1).split("&").forEach(function(item) {rawQueryParams[item.split("=")[0]] = item.split("=")[1]})
 
-    let defaultPlots = 1;
+    let defaultPlotsCount = 1;
+    let defaultPlots = [createPlotGroupFromCreation(new Date(), defaultPlotsCount)];
     let defaultClaimable = 0;
     let startingValues = {
         plots: defaultPlots,
-        claimable: defaultClaimable
+        claimable: defaultClaimable,
+        plotsCount: defaultPlotsCount,
+        'hideHeader': 'no'
     }
 
-    if(parseInt(rawQueryParams.v) === 1) {
-        startingValues = readV1Input(rawQueryParams, startingValues);
-    } else if(parseInt(rawQueryParams.v) === 2) {
-        startingValues = readV2Input(rawQueryParams, startingValues);
-    } //else - nothing, starting values are used
+    startingValues = readInput(rawQueryParams, startingValues);
+    document.getElementById("scalc_num_of_plots").value = startingValues.plotsCount;
+    document.getElementById("scalc_num_of_claimable").value = startingValues.claimable;
 
-    document.getElementById("num_of_plots").value = startingValues.plots;
-    document.getElementById("num_of_claimable").value = startingValues.claimable;
-    runCalculation();
+    document.getElementById("calculator_num_of_claimable").value = startingValues.claimable;
 
+    setInitialInputs(GLOBAL_DATA.inputs)
 
+    runSimpleCalculation();
+    syncAllTemplates();
+    if(userHasTemplates()) {
+        runCalculation()
+    }
+
+    openTab('calculator-tab')
+    if (startingValues.hideHeader === 'yes') {
+        document.getElementById('horde-header').style.display = 'none'
+    }
+    document.getElementById('main-container').style.display = 'block'
+    console.log(GLOBAL_DATA);
 
 </script>
