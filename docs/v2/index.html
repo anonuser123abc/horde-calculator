@@ -293,6 +293,10 @@
             padding: 8px;
         }
 
+        #calculator-tab-error{
+            color: red;
+        }
+
     </style>
 </head>
 <body class="horde-white-text sc6">
@@ -322,103 +326,105 @@
                 </ul>
             </div>
             <br>
-            <div id="calculator-tab">
-                <h3>
-                    Calculator
-                </h3>
-                <div>
-                    <div class="form-container horde-purple-border">
-                        <span id="calc-no-template-error" style="color: red; display:none">No templates found, create one!</span>
-                        <span id="calc-generic-error" style="color: red; display:none"></span>
-                        <div class="row">
-                            <div class="col-5">
-                                <label class="form-label" >Select a template</label>
-                                <br>
-                                <div class="template-select-container input-group mb-3">
-                                    <div class="input-group-prepend">
-                                        <label class="input-group-text" for="calculator-template-select">Template</label>
+            <div style="display: none" id="calculator-tab">
+                <div id="calculator-tab-error-container" style="display: none"><h2 id="calculator-tab-error"></h2></div>
+                <div id="calculator-tab-body">
+                    <h3>
+                        Calculator
+                    </h3>
+                    <div>
+                        <div class="form-container horde-purple-border">
+                            <span id="calc-no-template-error" style="color: red; display:none">No templates found, create one!</span>
+                            <span id="calc-generic-error" style="color: red; display:none"></span>
+                            <div class="row">
+                                <div class="col-5">
+                                    <label class="form-label" >Select a template</label>
+                                    <br>
+                                    <div class="template-select-container input-group mb-3">
+                                        <div class="input-group-prepend">
+                                            <label class="input-group-text" for="calculator-template-select">Template</label>
+                                        </div>
+                                        <br/>
+                                        <select style="font-size: 0.8em" id="calculator-template-select">
+                                        </select>
+                                        <span onclick="openSelectPTEM()" class=" template-card-pencil"><span class="pencil-img" style="padding: 10px;"></span></span>
                                     </div>
-                                    <br/>
-                                    <select style="font-size: 0.8em" id="calculator-template-select">
-                                    </select>
-                                    <span onclick="openSelectPTEM()" class=" template-card-pencil"><span class="pencil-img" style="padding: 10px;"></span></span>
+                                    <label class="form-label" for="calculator_num_of_claimable">Claimable tokens at the moment:</label>
+                                    <br>
+                                    <input class="form-control" value="0" type="number" id="calculator_num_of_claimable" style="width: 60%" step="0.001"/>
+                                    <br>
+                                    <label class="form-label" for="calculator_num_of_days_in_future">Duration in future:</label>
+                                    <br>
+                                    <input class="form-control" value="500" type="number" id="calculator_num_of_days_in_future" style="width: 60%"/>
+                                    <br>
+                                    <button onclick="runCalculation()" class="btn btn-primary btn-grad">Compound &nbsp:)</button> (scroll down)
                                 </div>
-                                <label class="form-label" for="calculator_num_of_claimable">Claimable tokens at the moment:</label>
-                                <br>
-                                <input class="form-control" value="0" type="number" id="calculator_num_of_claimable" style="width: 60%" step="0.001"/>
-                                <br>
-                                <label class="form-label" for="calculator_num_of_days_in_future">Duration in future:</label>
-                                <br>
-                                <input class="form-control" value="500" type="number" id="calculator_num_of_days_in_future" style="width: 60%"/>
-                                <br>
-                                <button onclick="runCalculation()" class="btn btn-primary btn-grad">Compound &nbsp:)</button> (scroll down)
-                            </div>
-                            <div class="col-4">
+                                <div class="col-4">
 
-                                <label class="form-label" for="calculator_wallets_hardcap"># Wallets Hardcap (how many wallets you use)</label>
-                                <br>
-                                <input class="form-control" value="1" min="1" max="5" type="number" id="calculator_wallets_hardcap" style="width: 60%" step="1"/>
-                                <br>
-                                <label class="form-label" for="calculator_wallets_hardcap">$$$ Invested (optional)</label>
-                                <br>
-                                <input class="form-control" value="0" min="0" type="number" id="calculator_invested" style="width: 60%" step="1"/>
-                                <br>
-                                <label class="form-label" for="calculator_wallets_hardcap">$$$ Cashed Out Already (optional)</label>
-                                <br>
-                                <input class="form-control" value="0" min="0" type="number" id="calculator_cashed_out_already" style="width: 60%" step="1"/>
-                                <br>
-                            </div>
+                                    <label class="form-label" for="calculator_wallets_hardcap"># Wallets Hardcap (how many wallets you use)</label>
+                                    <br>
+                                    <input class="form-control" value="1" min="1" max="5" type="number" id="calculator_wallets_hardcap" style="width: 60%" step="1"/>
+                                    <br>
+                                    <label class="form-label" for="calculator_wallets_hardcap">$$$ Invested (optional)</label>
+                                    <br>
+                                    <input class="form-control" value="0" min="0" type="number" id="calculator_invested" style="width: 60%" step="1"/>
+                                    <br>
+                                    <label class="form-label" for="calculator_wallets_hardcap">$$$ Cashed Out Already (optional)</label>
+                                    <br>
+                                    <input class="form-control" value="0" min="0" type="number" id="calculator_cashed_out_already" style="width: 60%" step="1"/>
+                                    <br>
+                                </div>
 
-                            <div class="col-3" id="calculator-strategies-container">
-                                <span>Choose a strategy:</span>
-                                <div style="padding-left: 0.8em">
-                                    <div class="form-check horde-radio-button">
-                                        <input class="form-check-input" type="radio" name="calculator_strategy" id="strategy_full_compound" value="strategy_full_compound" checked>
-                                        <label class="form-check-label" for="strategy_full_compound">
-                                            Full Compound <span style="font-size: 0.6em">(compound until the hardcap is hit)</span>
-                                        </label>
-                                    </div>
-                                    <div class="form-check horde-radio-button">
-                                        <input class="form-check-input" type="radio" name="calculator_strategy" id="strategy_cashout_breakeven" value="strategy_cashout_breakeven">
-                                        <label class="form-check-label" for="strategy_cashout_breakeven">
-                                            Cashout Until Breakeven  <span style="font-size: 0.6em">(then compound)</span>
-                                        </label>
+                                <div class="col-3" id="calculator-strategies-container">
+                                    <span>Choose a strategy:</span>
+                                    <div style="padding-left: 0.8em">
+                                        <div class="form-check horde-radio-button">
+                                            <input class="form-check-input" type="radio" name="calculator_strategy" id="strategy_full_compound" value="strategy_full_compound" checked>
+                                            <label class="form-check-label" for="strategy_full_compound">
+                                                Full Compound <span style="font-size: 0.6em">(compound until the hardcap is hit)</span>
+                                            </label>
+                                        </div>
+                                        <div class="form-check horde-radio-button">
+                                            <input class="form-check-input" type="radio" name="calculator_strategy" id="strategy_cashout_breakeven" value="strategy_cashout_breakeven">
+                                            <label class="form-check-label" for="strategy_cashout_breakeven">
+                                                Cashout Until Breakeven  <span style="font-size: 0.6em">(then compound)</span>
+                                            </label>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div style="display: none" id="calculator-notemp-message">
-                        There are no templates in the system, create some in the "Templates" tab!
-                    </div>
+                        <div style="display: none" id="calculator-notemp-message">
+                            There are no templates in the system, create some in the "Templates" tab!
+                        </div>
 
 
-                    <h1 class="graph-header">Plot Graph</h1> <span class="post-graph-header-note">(you can toggle the lines by clicking on the labels)</span>
-                    <br>
-                    <div class="standard-size-plot">
-                        <canvas id="calculatorActivePlotsGraph"></canvas>
+                        <h1 class="graph-header">Plot Graph</h1> <span class="post-graph-header-note">(you can toggle the lines by clicking on the labels)</span>
+                        <br>
+                        <div class="standard-size-plot">
+                            <canvas id="calculatorActivePlotsGraph"></canvas>
+                        </div>
+                        <br>
+                        <h1 class="graph-header">Cashout Graph</h1> <span class="post-graph-header-note">(you can toggle the lines by clicking on the labels)</span>
+                        <br>
+                        <div class="standard-size-plot">
+                            <canvas id="calculatorCashoutGraph"></canvas>
+                        </div>
+                        <br>
+                        <h1 class="graph-header">Tokenomics Graph</h1> <span class="post-graph-header-note">(you can toggle the lines by clicking on the labels)</span>
+                        <br>
+                        <div class="standard-size-plot">
+                            <canvas id="calculatorTokenomicsGraph"></canvas>
+                        </div>
+                        <br>
+                        <br>
+                        <h1 class="graph-header">Tokenomics in $$$ Graph</h1> <span class="post-graph-header-note">(you can toggle the lines by clicking on the labels)</span>
+                        <br>
+                        <div class="standard-size-plot">
+                            <canvas id="calculatorTokenomicsDollarsGraph"></canvas>
+                        </div>
+                        <br>
                     </div>
-                    <br>
-                    <h1 class="graph-header">Cashout Graph</h1> <span class="post-graph-header-note">(you can toggle the lines by clicking on the labels)</span>
-                    <br>
-                    <div class="standard-size-plot">
-                        <canvas id="calculatorCashoutGraph"></canvas>
-                    </div>
-                    <br>
-                    <h1 class="graph-header">Tokenomics Graph</h1> <span class="post-graph-header-note">(you can toggle the lines by clicking on the labels)</span>
-                    <br>
-                    <div class="standard-size-plot">
-                        <canvas id="calculatorTokenomicsGraph"></canvas>
-                    </div>
-                    <br>
-                    <br>
-                    <h1 class="graph-header">Tokenomics in $$$ Graph</h1> <span class="post-graph-header-note">(you can toggle the lines by clicking on the labels)</span>
-                    <br>
-                    <div class="standard-size-plot">
-                        <canvas id="calculatorTokenomicsDollarsGraph"></canvas>
-                    </div>
-                    <br>
-                </div>
                 </div>
             </div>
             <div style="display: none" id="templates-tab">
@@ -562,7 +568,7 @@
 
     let GLOBAL_DATA = readLocalStorage();
 
-    let currentTab = 'calculator-tab';
+    let currentTab = '';
     let templateFromInput = null;
     let plotTemplateEditorModal = new bootstrap.Modal(document.getElementById('plot-template-editor-modal'))
     let ptemGroupsDiv = document.getElementById('ptem-plot-groups');
@@ -908,11 +914,29 @@
         if(tabId === currentTab) {
             return;
         }
+
+        if(tabId === 'calculator-tab') {
+            //check if there is any template, if not, say to them to create one!
+            if(userHasTemplates()) {
+                console.log("Has templates")
+                document.getElementById('calculator-tab-error-container').style.display = 'none'
+                document.getElementById('calculator-tab-body').style.display = 'block'
+            } else {
+                console.log("Has no templates")
+                document.getElementById('calculator-tab-error').innerHTML = 'You have to create templates to be able to calculate! Go to templates tab'
+                document.getElementById('calculator-tab-error-container').style.display = 'block'
+                document.getElementById('calculator-tab-body').style.display = 'none'
+            }
+        }
+
         document.getElementById(tabId).style.display = 'block';
         document.getElementById(tabId + "-btn").classList.add('tab-active');
 
-        document.getElementById(currentTab).style.display = 'none';
-        document.getElementById(currentTab + "-btn").classList.remove('tab-active');
+        let currentTabHtml = document.getElementById(currentTab);
+        if(currentTabHtml !== null) {
+            currentTabHtml.style.display = 'none'
+            document.getElementById(currentTab + "-btn").classList.remove('tab-active');
+        }
 
         currentTab = tabId;
     }
@@ -1920,7 +1944,7 @@
                 startingValues.claimable = parseFloat(rawQueryParams.claimable)
             }
         } catch (e) {
-            console.log(e)
+            console.log("Caught exception", e)
         }
 
         return startingValues;
@@ -1959,6 +1983,7 @@
         runCalculation()
     }
 
+    openTab('calculator-tab')
     if (startingValues.hideHeader === 'yes') {
         document.getElementById('horde-header').style.display = 'none'
     }
