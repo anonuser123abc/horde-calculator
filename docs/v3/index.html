@@ -297,6 +297,10 @@
             color: red;
         }
 
+        .buying-prio-row {
+            margin-top: 0.5rem;
+        }
+
     </style>
 </head>
 <body class="horde-white-text sc6">
@@ -391,6 +395,18 @@
                                             </label>
                                         </div>
                                     </div>
+                                    <span>Buying and priority:</span>
+                                        <div>
+                                            <div class="buying-prio-row">
+                                                <label><input id="calc-plots-checkbox" onchange="plotsCheckOnChange()" checked type="checkbox" value="plots" /> Plots </label>&nbsp; <select onchange="priorityChanged('plots')" id="plots-priority"><option selected value="1">1</option><option value="2">2</option><option value="3">3</option></select>
+                                            </div>
+                                            <div class="buying-prio-row">
+                                                <label><input id="calc-stones-checkbox" onchange="stonesCheckOnChange()" type="checkbox" value="stones" /> Stones </label>&nbsp; <select onchange="priorityChanged('stones')" id="stones-priority" style="display: none" ><option value="1">1</option><option selected value="2">2</option><option value="3">3</option></select>
+                                            </div>
+                                            <div class="buying-prio-row">
+                                                <label><input id="calc-runes-checkbox" onchange="runesCheckOnChange()" type="checkbox" value="runes" /> Runes </label>&nbsp; <select onchange="priorityChanged('runes')" id="runes-priority" style="display: none"><option value="1">1</option><option value="2">2</option><option selected value="3">3</option></select>
+                                            </div>
+                                        </div>
                                 </div>
                             </div>
                         </div>
@@ -672,7 +688,7 @@
     function generateTemplateOption(template, selected) {
         let selectedText = selected ? 'selected' : '';
         return `
-            <option value="${template.name}" ${selectedText} id="${template.name}">${template.name} (${template.plotCount} plots | ${template.nftCount} NFTs)</option>
+            <option value="${template.name}" ${selectedText} id="${template.name}">${template.name} (${template.plotCount}p ${template.stones.length}s ${template.runes.length}r | ${template.nftCount} NFTs)</option>
         `;
     }
 
@@ -908,8 +924,12 @@
     }
 
     function onPtemSaveClick() {
-        if(currentPtemTemplate.plotGroups.length === 0) {
-            ptemError.innerText = 'Cant save a template that has no plots! Add at least one plot group'
+        if(
+            currentPtemTemplate.plotGroups.length === 0
+            && currentPtemTemplate.stones.length === 0
+            && currentPtemTemplate.runes.length === 0
+        ) {
+            ptemError.innerText = 'Cant save a template that has no plots/stones/runes! Add at least one of something!'
             ptemError.style.display = 'block'
             return;
         }
@@ -1479,7 +1499,7 @@
     }
     testPrepareApplicableNfts()
 
-    function calculate(plotTemplate, settingsTemplate, startFromDate, calculateDays, claimable, plotHardcap, invested, cashedOutAlready, selectedStrategy) {
+    function calculate(plotTemplate, settingsTemplate, startFromDate, calculateDays, claimable, plotHardcap, stoneHardcap, runeHardcap, invested, cashedOutAlready, selectedStrategy, buyingPriority) {
         let dateIterator = new Date(startFromDate);
 
 
@@ -1521,8 +1541,6 @@
                 month = dateIterator.getMonth();
             }
 
-            let plotsToCreate = 0;
-            let activePlotCountAfterCreation = activePlotCount;
             if(breakEvenStrategyActive) {
                 let cashedOutDollarTotal = totalHordeCashedOut * HORDE_CURRENT_MIDDLE_PRICE * 0.9;
                 let leftToBreakEven = invested - cashedOutDollarTotal;
@@ -1533,6 +1551,9 @@
                     breakEvenStrategyActive = false; //we have cashed out, so we stop the strategy
                 }
             }
+
+            let plotsToCreate = 0;
+            let activePlotCountAfterCreation = activePlotCount;
             //if we have enough to create a plot(s), we create
             while(claimable >= 10 && activePlotCountAfterCreation < plotHardcap) {
                 claimable -= 10;
@@ -1717,6 +1738,8 @@
         let numOfDaysInFuture = parseInt(document.getElementById("calculator_num_of_days_in_future").value)
         let walletsHardcap = parseInt(document.getElementById("calculator_wallets_hardcap").value)
         let plotHardcap = walletsHardcap * 100
+        let stoneHardcap = walletsHardcap * 2
+        let runeHardcap = walletsHardcap * 10
         let invested = parseFloat(document.getElementById("calculator_invested").value)
         let cashedOutAlready = parseFloat(document.getElementById("calculator_cashed_out_already").value)
         let strategy = getSelectedStrategy()
@@ -1736,7 +1759,32 @@
         GLOBAL_DATA.inputs.chosen_strategy = strategy;
         writeToLocalStorage(GLOBAL_DATA)
         let todayDate = new Date();
-        let calculatedData = calculate(template, settingsTemplate, todayDate, numOfDaysInFuture, numOfClaimable, plotHardcap, invested, cashedOutAlready, strategy)
+
+        let buyingPriorities = {}
+        if(document.getElementById("calc-plots-checkbox").checked) {
+            buyingPriorities.plots = parseInt(document.getElementById("plots-priority").value)
+        }
+        if(document.getElementById("calc-stones-checkbox").checked) {
+            buyingPriorities.stones = parseInt(document.getElementById("stones-priority").value)
+        }
+        if(document.getElementById("calc-runes-checkbox").checked) {
+            buyingPriorities.runes = parseInt(document.getElementById("runes-priority").value)
+        }
+
+        let calculatedData = calculate(
+            template,
+            settingsTemplate,
+            todayDate,
+            numOfDaysInFuture,
+            numOfClaimable,
+            plotHardcap,
+            stoneHardcap,
+            runeHardcap,
+            invested,
+            cashedOutAlready,
+            strategy,
+            buyingPriorities
+        )
 
         plotPlotGraph(calculatedData, 'calculatorActivePlotsGraph');
         plotCashoutChart(calculatedData, 'calculatorCashoutGraph', invested, cashedOutAlready);
@@ -2164,10 +2212,67 @@
                     ${name}
                 </div>
                 <div class="template-card-body">
-                    <span class="card-row"><span class="card-row-number">${plotTemplate.plotCount}</span> plots</span>
+                    <span class="card-row"><span class="card-row-number">${plotTemplate.plotCount}</span>p | <span class="card-row-number">${plotTemplate.stones.length}</span>s | <span class="card-row-number">${plotTemplate.runes.length}</span>r</span>
                     <span class="card-row"><span class="card-row-number">${plotTemplate.nftCount}</span> NFTs</span>
                 </div>
         </div>`;
+    }
+
+    function plotsCheckOnChange() {
+        if(document.getElementById('calc-plots-checkbox').checked) {
+            document.getElementById("plots-priority").style.display = 'inline-block'
+        } else {
+            document.getElementById("plots-priority").style.display = 'none'
+        }
+    }
+
+    function stonesCheckOnChange() {
+        if(document.getElementById('calc-stones-checkbox').checked) {
+            document.getElementById("stones-priority").style.display = 'inline-block'
+        } else {
+            document.getElementById("stones-priority").style.display = 'none'
+        }
+    }
+
+    function runesCheckOnChange() {
+        if(document.getElementById('calc-runes-checkbox').checked) {
+            document.getElementById("runes-priority").style.display = 'inline-block'
+        } else {
+            document.getElementById("runes-priority").style.display = 'none'
+        }
+    }
+
+    function priorityChanged(nodeType) {
+        let id = nodeType + '-priority';
+        let newValue = document.getElementById(id).value
+        console.log(newValue)
+
+        let priorities = {pri1: "", pri2: "", pri3: ""}
+        let nodeTypes = ['plots', 'stones', 'runes']
+        let nodeTypeToSwitch = ''
+
+        nodeTypes.forEach((x, i) => {
+            let prioId = x + "-priority"
+            let prioValue = document.getElementById(prioId).value
+            delete priorities['pri'+prioValue];
+
+            //if its not the current node type, but it has the same value
+            if(prioId !== id && prioValue === newValue) {
+                //then that is the type to switch!
+                nodeTypeToSwitch = x
+            }
+        })
+
+        let selectToSwitch = document.getElementById(nodeTypeToSwitch + '-priority')
+
+        //we check which prio survived
+        if("pri1" in priorities) {
+            selectToSwitch.value = '1'
+        } else if("pri2" in priorities) {
+            selectToSwitch.value = '2'
+        } else {
+            selectToSwitch.value = '3'
+        }
     }
 
     function readInput(rawQueryParams, startingValues) {
