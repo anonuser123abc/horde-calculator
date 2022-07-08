@@ -507,12 +507,27 @@
                             <span style="font-size: 1.2rem;">#. &nbsp&nbsp&nbsp&nbsp</span> <span style="width: 5rem; display: inline-block; text-align: center;">plot count</span> &nbsp <span style="width: 10rem; display: inline-block; text-align: center;">creation date</span> &nbsp <span style="width: 10rem; display: inline-block; text-align: center;">decay date</span>
                         </div>
                         <br>
-                        <div style="border-bottom: 1px solid white;">
+                        <div>
                             <!-- Wow such empty -->
                             <div id="ptem-plot-groups">
                             </div>
                             <br>
                             <button onclick="addEmptyPlotGroupToPtem()" style="margin-left: 0.7rem; margin-bottom: .5rem;" class="btn btn-primary btn-grad">+ Another Plot Group</button>
+                        </div>
+                    </div>
+                    <br>
+                    <div>
+                        Soul Stones
+                        <br>
+                        <div style="border-bottom: 1px solid white;">
+                            <span style="font-size: 1.2rem;">#. &nbsp&nbsp&nbsp</span> &nbsp <span style="width: 10rem; display: inline-block; text-align: center;">creation date</span> &nbsp <span style="width: 10rem; display: inline-block; text-align: center;">decay date</span>
+                        </div>
+                        <br>
+                        <div style="border-bottom: 1px solid white;">
+                            <!-- Wow such empty -->
+                            <div id="ptem-stones">
+                            </div>
+                            <button onclick="addEmptyStoneToPtem()" style="margin-left: 0.7rem; margin-bottom: .5rem;" class="btn btn-primary btn-grad">+ Add Souls Stone</button>
                         </div>
                     </div>
                     <div style="border-bottom: 1px solid white; margin-top: 1rem;margin-bottom: 1rem; padding-bottom: 1rem">
@@ -527,6 +542,8 @@
                         </div>
                     </div>
                     Total plots: <span id="ptem-total-plots">1</span>
+                    <br>
+                    Total souls stones: <span id="ptem-total-stones">0</span>
                     <br>
                     Total NFTs: <span id="ptem-total-nfts">0</span>
                 </div>
@@ -560,6 +577,7 @@
     FORBIDDEN_NAMES[BE_CREATIVE_NAME] = 1;
 
     const PLOT_DECAY = 300;
+    const STONE_DECAY = 250;
 
     const PTEM_MODE_CREATE = 'create';
     const PTEM_MODE_EDIT = 'edit';
@@ -572,8 +590,10 @@
     let templateFromInput = null;
     let plotTemplateEditorModal = new bootstrap.Modal(document.getElementById('plot-template-editor-modal'))
     let ptemGroupsDiv = document.getElementById('ptem-plot-groups');
+    let ptemStonesDiv = document.getElementById('ptem-stones');
     let ptemName = document.getElementById('ptem-name')
     let ptemTotalPlots = document.getElementById('ptem-total-plots')
+    let ptemTotalStones = document.getElementById('ptem-total-stones')
     let ptemTotalNfts = document.getElementById('ptem-total-nfts')
     let ptemSaveButton = document.getElementById('ptem-save-btn')
     let ptemError = document.getElementById('ptem-error')
@@ -672,6 +692,18 @@
                         template.plotGroups[i].expiresAt = new Date(template.plotGroups[i].expiresAt)
                     }
                 )
+
+                if('stones' in template) {
+                    template.stones.forEach((x, i) =>
+                        {
+                            template.stones[i].createdAt = new Date(template.stones[i].createdAt)
+                            template.stones[i].expiresAt = new Date(template.stones[i].expiresAt)
+                        }
+                    )
+                } else {
+                    template.stones = [];
+                }
+
             }
 
             if(!('inputs' in dataAsJson)) {
@@ -694,6 +726,12 @@
                     template.plotGroups[i].expiresAt = dateOnlyString(template.plotGroups[i].expiresAt)
                 }
             )
+            template.stones.forEach((x, i) =>
+                {
+                    template.stones[i].createdAt = dateOnlyString(template.stones[i].createdAt)
+                    template.stones[i].expiresAt = dateOnlyString(template.stones[i].expiresAt)
+                }
+            )
         }
 
         localStorage.setItem('horde-calc-global-data', JSON.stringify(dataClone))
@@ -707,6 +745,7 @@
                 createPlotGroupFromCreation(copyAndAddDays(new Date(), 5), 1),
                 createPlotGroupFromCreation(copyAndAddDays(new Date(), 15), 1),
             ],
+            [],
             createEmptyNftGroup(),
             BE_CREATIVE_NAME
         )
@@ -720,6 +759,7 @@
     function openWalletPTEM() {
         document.getElementById('ptem-title').innerText = "Edit live-wallet template (not permanent)";
         currentPtemTemplate = clone(templateFromInput)
+        populatePtemMissingData(currentPtemTemplate);
         preparePtem(currentPtemTemplate)
         ptemSaveButton.innerText = "Update Live Template (temporarily)"
         ptemMode = PTEM_MODE_EDIT_LIVE_WALLET;
@@ -730,11 +770,18 @@
     function openEditPTEM(template) {
         document.getElementById('ptem-title').innerText = "Edit '" + template.name + "' template";
         currentPtemTemplate = clone(template)
+        populatePtemMissingData(currentPtemTemplate);
         preparePtem(currentPtemTemplate)
         ptemSaveButton.innerText = "Update"
         ptemMode = PTEM_MODE_EDIT;
         ptemName.disabled = false
         plotTemplateEditorModal.show()
+    }
+
+    function populatePtemMissingData(ptem) {
+        if(!("stones" in ptem)) {
+            ptem.stones = [];
+        }
     }
 
     function openSelectPTEM() {
@@ -790,8 +837,10 @@
         ptemError.innerText = '';
         ptemError.style.display = 'none'
         ptemGroupsDiv.innerHTML = ''
+        ptemStonesDiv.innerHTML = ''
         ptemName.value = template.name;
         ptemTotalPlots.innerText = template.plotCount;
+        ptemTotalStones.innerText = template.stones.length + '';
         ptemTotalNfts.innerText = template.nftCount;
 
         document.getElementById('ptem-nft5perc').value = template.nftGroup.nft5perc;
@@ -801,6 +850,12 @@
         template.plotGroups.forEach(
             (item, i) => {
                 addPlotGroupToPtem(i, item)
+            }
+        )
+
+        template.stones.forEach(
+            (item, i) => {
+                addStoneToPtem(i, item)
             }
         )
     }
@@ -893,8 +948,26 @@
         ptemTotalNfts.innerText = currentPtemTemplate.nftCount.toString();
     }
 
+    function addEmptyStoneToPtem() {
+        if(currentPtemTemplate.stones.length >= 2) {
+            alert("You can only have 2 Souls Stones!");
+            return;
+        }
+        let date = copyAndAddDays(findNewestCreateDateInPlotTemplate(currentPtemTemplate), 1)
+        let newStone = createStoneFromCreation(date)
+        addStoneToPtem(currentPtemTemplate.stones.length, newStone)
+
+        currentPtemTemplate.stones.push(newStone)
+        currentPtemTemplate.plotCount = countPlots(currentPtemTemplate.plotGroups)
+        ptemTotalStones.innerText = currentPtemTemplate.stones.length.toString();
+    }
+
     function addPlotGroupToPtem(num, plotGroup) {
         ptemGroupsDiv.insertAdjacentHTML('beforeend', generatePlotGroupEditUI(num, plotGroup.count, dateOnlyString(plotGroup.createdAt), dateOnlyString(plotGroup.expiresAt)))
+    }
+
+    function addStoneToPtem(num, stone) {
+        ptemStonesDiv.insertAdjacentHTML('beforeend', generateStoneEditUI(num, dateOnlyString(stone.createdAt), dateOnlyString(stone.expiresAt)))
     }
 
     function findNewestCreateDateInPlotTemplate(template) {
@@ -973,6 +1046,29 @@
         currentPtemTemplate.plotGroups[plotGroupIndex].createdAt = newCreatedAtDate;
         currentPtemTemplate.plotGroups[plotGroupIndex].expiresAt = newDecayDate;
     }
+    function ptemStoneCreatedAtChanged(inputElement) {
+        let stoneGroupIndex = parseInt(inputElement.parentNode.dataset.sstoneid);
+
+        let newCreatedAtDate = new Date(inputElement.value);
+        let newDecayDate = copyAndAddDays(newCreatedAtDate, STONE_DECAY);
+        let decayAtElement = inputElement.parentNode.querySelectorAll('.stone-decay-at')[0];
+        decayAtElement.value = dateOnlyString(newDecayDate);
+
+        currentPtemTemplate.stones[stoneGroupIndex].createdAt = newCreatedAtDate;
+        currentPtemTemplate.stones[stoneGroupIndex].expiresAt = newDecayDate;
+    }
+
+    function ptemStoneExpiresAtChanged(inputElement) {
+        let stoneGroupIndex = parseInt(inputElement.parentNode.dataset.sstoneid);
+
+        let newDecayDate = new Date(inputElement.value);
+        let newCreatedAtDate = copyAndAddDays(newDecayDate, -STONE_DECAY);
+        let createdAtElement = inputElement.parentNode.querySelectorAll('.stone-created-at')[0];
+        createdAtElement.value = dateOnlyString(newCreatedAtDate);
+
+        currentPtemTemplate.stones[stoneGroupIndex].createdAt = newCreatedAtDate;
+        currentPtemTemplate.stones[stoneGroupIndex].expiresAt = newDecayDate;
+    }
 
     function ptemDeletePlotGroup(inputElement) {
         let plotGroupIndex = parseInt(inputElement.parentNode.dataset.pgroupid);
@@ -991,6 +1087,26 @@
             elem.id = 'pgroup-' + newId.toString();
             elem.dataset.pgroupid = newId.toString();
             textElem.id = 'pgroup-number-' + newId.toString();
+            textElem.innerHTML = generatePlotGroupNumberText(newId + 1);
+        }
+    }
+
+    function ptemDeleteStone(inputElement) {
+        let index = parseInt(inputElement.parentNode.dataset.sstoneid);
+
+        currentPtemTemplate.stones.splice(index, 1) //remove from data
+        ptemTotalStones.innerText = currentPtemTemplate.stones.length.toString();
+        inputElement.parentNode.remove() //remove from UI
+
+        //since the index is removed, array elements index have been reduced by one to fill the gap, so we start from the index itself until the end
+        for (let i = index; i < currentPtemTemplate.stones.length; i++) {
+            let oldId = i + 1;
+            let newId = i;
+            let elem = document.getElementById('sstone-' + oldId);
+            let textElem = document.getElementById('sstone-number-' + oldId);
+            elem.id = 'sstone-' + newId.toString();
+            elem.dataset.sstoneid = newId.toString();
+            textElem.id = 'sstone-number-' + newId.toString();
             textElem.innerHTML = generatePlotGroupNumberText(newId + 1);
         }
     }
@@ -1019,6 +1135,16 @@
         return  `
             <div id="pgroup-${num}" data-pgroupid="${num}" class="ptem-plot-group">
                 <span id="pgroup-number-${num}" style="font-size: 1.2rem;">${numberText}</span> <input min="1" onchange="ptemPlotCountChanged(this)" type="number" class="ptem-plotcount" value="${plotCount}"/> - <input onchange="ptemPlotCreatedAtChanged(this)" class="plot-created-at ptem-datepicker" type="date" value="${createDate}"/> - <input onchange="ptemPlotExpiresAtChanged(this)" class="plot-decay-at ptem-datepicker"  type="date" value="${decayDate}"/> ${deleteButtonHtml}
+            </div>
+        `;
+    }
+
+    function generateStoneEditUI(num, createDate, decayDate) {
+        let deleteButtonHtml = '<span onclick="ptemDeleteStone(this)" class="ptem-delete">🗑</span>';
+        let numberText = generatePlotGroupNumberText(num + 1)
+        return  `
+            <div id="sstone-${num}" data-sstoneid="${num}" class="ptem-plot-group">
+                <span id="sstone-number-${num}" style="font-size: 1.2rem;">${numberText}</span> <input onchange="ptemStoneCreatedAtChanged(this)" class="stone-created-at ptem-datepicker" type="date" value="${createDate}"/> - <input onchange="ptemStoneExpiresAtChanged(this)" class="stone-decay-at ptem-datepicker"  type="date" value="${decayDate}"/> ${deleteButtonHtml}
             </div>
         `;
     }
@@ -1069,6 +1195,13 @@
         }
     }
 
+    function createStoneFromCreation(creationDate) {
+        return {
+            'createdAt': creationDate,
+            'expiresAt': copyAndAddDays(creationDate, STONE_DECAY),
+        }
+    }
+
     function createSettingsTemplate(
         //todo: add more params to make the calc more generalized.. reward amount (def 0.25), reward frequency in seconds (def 21600),
         // plot longevity in days (def 300), token price (def $100), sell tax (def 10%) etc..
@@ -1085,9 +1218,10 @@
         }
     }
 
-    function createPlotTemplate(plotGroups, nftGroup, name) {
+    function createPlotTemplate(plotGroups, stones, nftGroup, name) {
         return {
             'plotGroups': plotGroups,
+            'stones': stones,
             'nftGroup': nftGroup,
             'name': name,
             'plotCount': countPlots(plotGroups),
@@ -1500,7 +1634,7 @@
             3
         )
 
-        let plotTemplate = createPlotTemplate([createPlotGroupFromExpiration(decayDate, numOfPlots)], createEmptyNftGroup(), 'simple');
+        let plotTemplate = createPlotTemplate([createPlotGroupFromExpiration(decayDate, numOfPlots)], [], createEmptyNftGroup(), 'simple');
         let calculatedData = oldCalculate(plotTemplate, settingsTemplate, todayDate, numOfDaysInFuture, numOfClaimable)
 
         oldPlotPlotGraph(calculatedData, 'scalcActivePlotsGraph');
@@ -1937,7 +2071,7 @@
 
                     startingValues.plots = plotGroups
                     startingValues.plotsCount = totalCount
-                    templateFromInput = createPlotTemplate(plotGroups, createEmptyNftGroup(), LIVE_WALLET_TEMPLATE_NAME)
+                    templateFromInput = createPlotTemplate(plotGroups, [], createEmptyNftGroup(), LIVE_WALLET_TEMPLATE_NAME)
                 }
             }
             if ('claimable' in rawQueryParams) {
