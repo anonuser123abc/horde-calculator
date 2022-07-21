@@ -421,6 +421,13 @@
                             <canvas id="calculatorActivePlotsGraph"></canvas>
                         </div>
                         <br>
+                        <h1 class="graph-header">Horde Daily Income</h1>
+                        <br>
+                        <div class="standard-size-plot">
+                            <canvas id="calculatorHordeIncomeGraph"></canvas>
+                        </div>
+                        <br>
+                        <br>
                         <h1 class="graph-header">Cashout Graph</h1> <span class="post-graph-header-note">(you can toggle the lines by clicking on the labels)</span>
                         <br>
                         <div class="standard-size-plot">
@@ -602,7 +609,7 @@
     const STRATEGY_FULL_COMPOUND = 'strategy_full_compound'
     const STRATEGY_CASHOUT_BREAKEVEN = 'strategy_cashout_breakeven'
 
-    const HORDE_CURRENT_MIDDLE_PRICE = 100;
+    const HORDE_CURRENT_MIDDLE_PRICE = 105.5;
 
     let FORBIDDEN_NAMES = {};
     FORBIDDEN_NAMES[LIVE_WALLET_TEMPLATE_NAME] = 1;
@@ -1499,12 +1506,27 @@
     }
     testPrepareApplicableNfts()
 
-    function calculate(plotTemplate, settingsTemplate, startFromDate, calculateDays, claimable, plotHardcap, stoneHardcap, runeHardcap, invested, cashedOutAlready, selectedStrategy, buyingPriority) {
+    function calculate(
+        plotTemplate,
+        settingsTemplate,
+        startFromDate,
+        calculateDays,
+        claimable,
+        plotHardcap,
+        stoneHardcap,
+        runeHardcap,
+        invested,
+        cashedOutAlready,
+        selectedStrategy,
+        buyingPriority
+    ) {
         let dateIterator = new Date(startFromDate);
 
 
         let activePlots = Object.assign({}, plotTemplate);
         let decayedPlotGroups = [];
+        let decayedStones = [];
+        let decayedRunes = [];
         let month = 69; //crazy value to make it print once as soon as it starts
         let calculatedData = [];
         let nftRewardSum = 0;
@@ -1531,9 +1553,41 @@
             claimable += nftReward
             nftRewardSum += nftReward
 
+            let survivingStones = [];
+            let stonesCountBeforeDecay = 0;
+
+            activePlots.stones.forEach(item => {
+                claimable += 0.05
+                stonesCountBeforeDecay += 1
+
+                if(dateIterator < item.expiresAt) {
+                    survivingStones.push(item)
+                } else {
+                    decayedStones.push(item);
+                }
+            })
+
+            let survivingRunes = [];
+            let runesCountBeforeDecay = 0;
+
+            activePlots.runes.forEach(item => {
+                claimable += 0.01
+                runesCountBeforeDecay += 1
+
+                if(dateIterator < item.expiresAt) {
+                    survivingRunes.push(item)
+                } else {
+                    decayedRunes.push(item);
+                }
+            })
+
             let decayedPlotCount = countPlots(decayedPlotGroups);
+            let decayedStoneCount = decayedStones.length;
+            let decayedRuneCount = decayedRunes.length;
             let activePlotCount = countPlots(survivingGroups); //hmm
-            let dailyHordeGeneration = smartRound(activePlotCount * 0.1, 2);
+            let activeStoneCount = survivingStones.length;
+            let activeRuneCount = survivingRunes.length;
+            let dailyHordeGeneration = smartRound(activePlotCount * 0.1 + activeStoneCount * 0.05 + activeRuneCount * 0.01, 2);
             let dailyDollarGeneration = smartRound(dailyHordeGeneration * HORDE_CURRENT_MIDDLE_PRICE, 2);
             let dateOnlyAsString = dateOnlyString(dateIterator);
             //print every month (or last date)
@@ -1552,29 +1606,91 @@
                 }
             }
 
-            let plotsToCreate = 0;
+            ////BUYING/CREATION!!!!
             let activePlotCountAfterCreation = activePlotCount;
-            //if we have enough to create a plot(s), we create
-            while(claimable >= 10 && activePlotCountAfterCreation < plotHardcap) {
-                claimable -= 10;
-                plotsToCreate++;
-                activePlotCountAfterCreation++;
+            let activeStoneCountAfterCreation = activeStoneCount;
+            let activeRuneCountAfterCreation = activeRuneCount;
+
+
+
+            let haveMaxPlots = !('plots' in buyingPriority) || activePlotCountAfterCreation >= plotHardcap;
+            let haveMaxStones = !('stones' in buyingPriority) || activeStoneCountAfterCreation >= stoneHardcap;
+
+            console.log(`===== buying stuff =====`);
+            for(let priorityCounter = 1; priorityCounter <= 3; priorityCounter++) {
+                for(const key in buyingPriority) {
+                    //nested loop needed to execute in given priority
+                    if (buyingPriority.hasOwnProperty(key) && buyingPriority[key] === priorityCounter) {
+                        //we have a prio match
+                        if(key === 'plots') {
+
+                            let plotsToCreate = 0;
+                            console.log(`doing plots`);
+                            //if we have enough to create a plot(s), we create
+                            while(claimable >= 10 && activePlotCountAfterCreation < plotHardcap) {
+                                claimable -= 10;
+                                plotsToCreate++;
+                                activePlotCountAfterCreation++;
+                            }
+
+                            if(plotsToCreate !== 0) {
+                                survivingGroups.push(
+                                    createPlotGroupFromCreation(
+                                        new Date(dateIterator),
+                                        plotsToCreate
+                                    )
+                                )
+                            }
+                            //recalculating haveMaxPlots because the numbers changed
+                            haveMaxPlots = (!('plots' in buyingPriority) || activePlotCountAfterCreation >= plotHardcap)
+                        } else if (key === 'stones') {
+                            console.log(`doing stones`);
+
+                            //since stones need less claimable horde than plots, even if plot prio is 1 and stones are 2,
+                            // stones will get created because if we have i.e. 6 horde plot cant be created so in next
+                            // loop stone is created.. therefore we need to add an additional check
+
+                            if('plots' in buyingPriority && buyingPriority['plots'] < buyingPriority['stones'] && haveMaxPlots === false) {
+                                continue;
+                            }
+
+                            while(claimable >= 5 && activeStoneCountAfterCreation < stoneHardcap) {
+                                claimable -= 5;
+                                survivingStones.push(createStoneFromCreation(new Date(dateIterator)))
+                                activeStoneCountAfterCreation++;
+                            }
+                            haveMaxStones = !('stones' in buyingPriority) || activeStoneCountAfterCreation >= stoneHardcap;
+                        } else if (key === 'runes') {
+                            console.log(`doing runes`);
+
+                            //same like for stones, but this time we have to check plots and stones
+
+                            if(
+                                'plots' in buyingPriority && buyingPriority['plots'] < buyingPriority['stones'] && haveMaxPlots === false
+                                && 'stones' in buyingPriority && buyingPriority['stones'] < buyingPriority['runes'] && haveMaxStones === false
+                            ) {
+                                continue;
+                            }
+
+                            while(claimable >= 1 && activeRuneCountAfterCreation < runeHardcap) {
+                                claimable -= 1;
+                                survivingRunes.push(createRuneFromCreation(new Date(dateIterator)))
+                                activeRuneCountAfterCreation++;
+                            }
+                        }
+                    }
+                }
             }
 
-            if(plotsToCreate !== 0) {
-                survivingGroups.push(
-                    createPlotGroupFromCreation(
-                        new Date(dateIterator),
-                        plotsToCreate
-                    )
-                )
-            }
-
-            if(survivingGroups.length === 0) {
+            if(survivingGroups.length === 0 && survivingStones.length === 0 && survivingRunes.length === 0) {
                 break;
             }
 
-            let ceilingIsHit = activePlotCountAfterCreation >= plotHardcap;
+            let ceilingIsHit =
+                (!('plots' in buyingPriority) || activePlotCountAfterCreation >= plotHardcap)
+                && (!('stones' in buyingPriority) || activeStoneCountAfterCreation >= stoneHardcap)
+                && (!('runes' in buyingPriority) || activeRuneCountAfterCreation >= runeHardcap)
+            ;
             if(ceilingIsHit) {
                 //if ceiling is hit, no strategy can be done except keep at least 10 tokens (to fill the gap in next day if a plot decays) and claim the rest
                 if(claimable > 10) {
@@ -1592,7 +1708,11 @@
                     day: (i + 1),
                     date: dateOnlyAsString,
                     activePlots: activePlotCountAfterCreation,
+                    activeStones: activeStoneCountAfterCreation,
+                    activeRunes: activeRuneCountAfterCreation,
                     decayedPlots: decayedPlotCount,
+                    decayedStones: decayedStoneCount,
+                    decayedRunes: decayedRuneCount,
                     dailyHorde: dailyHordeGeneration,
                     dailyDollar: dailyDollarGeneration,
                     totalHordeCashedOut: totalHordeCashedOut,
@@ -1604,6 +1724,8 @@
                 }
             )
             activePlots.plotGroups = survivingGroups;
+            activePlots.stones = survivingStones;
+            activePlots.runes = survivingRunes;
             dateIterator = copyAndAddDays(dateIterator, 1);
         }
 
@@ -1710,6 +1832,7 @@
 
     let OLD_ACTIVE_PLOT_CHART = null;
     let ACTIVE_PLOT_CHART = null;
+    let HORDE_INCOME_CHART = null;
     let CASHOUT_CHART = null;
     let TOKENOMICS_CHART = null;
     let TOKENOMICS_CHART_DOLLARS = null;
@@ -1787,6 +1910,7 @@
         )
 
         plotPlotGraph(calculatedData, 'calculatorActivePlotsGraph');
+        plotHordeIncomeChart(calculatedData, 'calculatorHordeIncomeGraph');
         plotCashoutChart(calculatedData, 'calculatorCashoutGraph', invested, cashedOutAlready);
         plotTokenomicsChart(calculatedData, 'calculatorTokenomicsGraph');
         plotTokenomicsChart(calculatedData, 'calculatorTokenomicsDollarsGraph', true, HORDE_CURRENT_MIDDLE_PRICE);
@@ -1837,6 +1961,58 @@
                     yAxisKey: 'decayedPlots'
                 }
             },{
+                label: 'Decayed Stones',
+                data: calculatedData,
+                borderColor:'#6c0eb6',
+                backgroundColor: 'rgba(44, 12, 122, 1)',
+                borderWidth: 2,
+                pointBorderWidth: 0,
+                pointRadius: 0,
+                fill: true,
+                parsing: {
+                    xAxisKey: 'date',
+                    yAxisKey: 'decayedStones'
+                }
+            },{
+                label: 'Decayed Runes',
+                data: calculatedData,
+                borderColor:'rgba(33, 33, 33, 1)',
+                backgroundColor: 'rgba(44, 44, 44, 1)',
+                borderWidth: 2,
+                pointBorderWidth: 0,
+                pointRadius: 0,
+                fill: true,
+                parsing: {
+                    xAxisKey: 'date',
+                    yAxisKey: 'decayedRunes'
+                }
+            },{
+                label: 'Active Runes',
+                data: calculatedData,
+                borderColor:'rgba(150, 30, 50, 1)',
+                backgroundColor:'rgba(200, 30, 50, 1)',
+                borderWidth: 2,
+                pointBorderWidth: 0,
+                pointRadius: 0,
+                fill: true,
+                parsing: {
+                    xAxisKey: 'date',
+                    yAxisKey: 'activeRunes'
+                }
+            },{
+                label: 'Active Stones',
+                data: calculatedData,
+                borderColor:'#03002e',
+                backgroundColor:'rgba(2, 0, 108, 1)',
+                borderWidth: 2,
+                pointBorderWidth: 0,
+                pointRadius: 0,
+                fill: true,
+                parsing: {
+                    xAxisKey: 'date',
+                    yAxisKey: 'activeStones'
+                }
+            },{
                 label: 'Active Plots',
                 data: calculatedData,
                 borderColor:'#17C139',
@@ -1851,6 +2027,31 @@
                 }
             }],
             true
+        );
+    }
+
+    function plotHordeIncomeChart(calculatedData, plotCanvasId) {
+        let datasets = [{
+            label: 'Daily horde generation',
+            data: calculatedData,
+            borderColor:'rgba(23, 193, 57, 0.5)',
+            borderWidth: 3,
+            pointBorderWidth: 0,
+            pointRadius: 0,
+            parsing: {
+                xAxisKey: 'date',
+                yAxisKey: 'dailyHorde'
+            }
+        }];
+
+        if (HORDE_INCOME_CHART !== null) {
+            HORDE_INCOME_CHART.destroy()
+        }
+        let ctx = document.getElementById(plotCanvasId);
+        HORDE_INCOME_CHART = plotChart(
+            ctx,
+            datasets,
+            false
         );
     }
 
