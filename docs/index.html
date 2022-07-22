@@ -297,247 +297,304 @@
             color: red;
         }
 
+        .buying-prio-row {
+            margin-top: 0.5rem;
+        }
+
     </style>
 </head>
 <body class="horde-white-text sc6">
-    <div style="display: none" class="container" id="main-container">
-        <div id="horde-header">
-            <br>
-            <img alt="logo" src="horde-logo-250.png"/>
-            <br>
-        </div>
+<div style="display: none" class="container" id="main-container">
+    <div id="horde-header">
+        <br>
+        <img alt="logo" src="horde-logo-250.png"/>
+        <br>
+    </div>
+    <div>
+        Link to how-to
+        <a target="_blank" class="horde-white-text" href="https://github.com/anonuser123abc/horde-calculator/blob/master/how-to.md">https://github.com/anonuser123abc/horde-calculator/blob/master/how-to.md</a>
+    </div>
+    <br>
+    <div>
         <div>
-            Link to how-to
-            <a target="_blank" class="horde-white-text" href="https://github.com/anonuser123abc/horde-calculator/blob/master/how-to.md">https://github.com/anonuser123abc/horde-calculator/blob/master/how-to.md</a>
+            <ul class="nav nav-tabs">
+                <li class="nav-item">
+                    <span id="calculator-tab-btn" onclick="openTab('calculator-tab')" class="nav-link tab-active" aria-current="page" href="#">Calculator</span>
+                </li>
+                <li class="nav-item">
+                    <span id="templates-tab-btn" onclick="openTab('templates-tab')" class="nav-link">Templates</span>
+                </li>
+                <li class="nav-item">
+                    <span id="simple-calculator-tab-btn" onclick="openTab('simple-calculator-tab')" class="nav-link">Simple calculator</span>
+                </li>
+            </ul>
         </div>
         <br>
-        <div>
-            <div>
-                <ul class="nav nav-tabs">
-                    <li class="nav-item">
-                        <span id="calculator-tab-btn" onclick="openTab('calculator-tab')" class="nav-link tab-active" aria-current="page" href="#">Calculator</span>
-                    </li>
-                    <li class="nav-item">
-                        <span id="templates-tab-btn" onclick="openTab('templates-tab')" class="nav-link">Templates</span>
-                    </li>
-                    <li class="nav-item">
-                        <span id="simple-calculator-tab-btn" onclick="openTab('simple-calculator-tab')" class="nav-link">Simple calculator</span>
-                    </li>
-                </ul>
-            </div>
-            <br>
-            <div style="display: none" id="calculator-tab">
-                <div id="calculator-tab-error-container" style="display: none"><h2 id="calculator-tab-error"></h2></div>
-                <div id="calculator-tab-body">
-                    <h3>
-                        Calculator
-                    </h3>
-                    <div>
-                        <div class="form-container horde-purple-border">
-                            <span id="calc-no-template-error" style="color: red; display:none">No templates found, create one!</span>
-                            <span id="calc-generic-error" style="color: red; display:none"></span>
-                            <div class="row">
-                                <div class="col-5">
-                                    <label class="form-label" >Select a template</label>
-                                    <br>
-                                    <div class="template-select-container input-group mb-3">
-                                        <div class="input-group-prepend">
-                                            <label class="input-group-text" for="calculator-template-select">Template</label>
-                                        </div>
-                                        <br/>
-                                        <select style="font-size: 0.8em" id="calculator-template-select">
-                                        </select>
-                                        <span onclick="openSelectPTEM()" class=" template-card-pencil"><span class="pencil-img" style="padding: 10px;"></span></span>
+        <div style="display: none" id="calculator-tab">
+            <div id="calculator-tab-error-container" style="display: none"><h2 id="calculator-tab-error"></h2></div>
+            <div id="calculator-tab-body">
+                <h3>
+                    Calculator
+                </h3>
+                <div>
+                    <div class="form-container horde-purple-border">
+                        <span id="calc-no-template-error" style="color: red; display:none">No templates found, create one!</span>
+                        <span id="calc-generic-error" style="color: red; display:none"></span>
+                        <div class="row">
+                            <div class="col-5">
+                                <label class="form-label" >Select a template</label>
+                                <br>
+                                <div class="template-select-container input-group mb-3">
+                                    <div class="input-group-prepend">
+                                        <label class="input-group-text" for="calculator-template-select">Template</label>
                                     </div>
-                                    <label class="form-label" for="calculator_num_of_claimable">Claimable tokens at the moment:</label>
-                                    <br>
-                                    <input class="form-control" value="0" type="number" id="calculator_num_of_claimable" style="width: 60%" step="0.001"/>
-                                    <br>
-                                    <label class="form-label" for="calculator_num_of_days_in_future">Duration in future:</label>
-                                    <br>
-                                    <input class="form-control" value="500" type="number" id="calculator_num_of_days_in_future" style="width: 60%"/>
-                                    <br>
-                                    <button onclick="runCalculation()" class="btn btn-primary btn-grad">Compound &nbsp:)</button> (scroll down)
+                                    <br/>
+                                    <select style="font-size: 0.8em" id="calculator-template-select">
+                                    </select>
+                                    <span onclick="openSelectPTEM()" class=" template-card-pencil"><span class="pencil-img" style="padding: 10px;"></span></span>
                                 </div>
-                                <div class="col-4">
+                                <label class="form-label" for="calculator_num_of_claimable">Claimable tokens at the moment:</label>
+                                <br>
+                                <input class="form-control" value="0" type="number" id="calculator_num_of_claimable" style="width: 60%" step="0.001"/>
+                                <br>
+                                <label class="form-label" for="calculator_num_of_days_in_future">Duration in future:</label>
+                                <br>
+                                <input class="form-control" value="500" type="number" id="calculator_num_of_days_in_future" style="width: 60%"/>
+                                <br>
+                                <button onclick="runCalculation()" class="btn btn-primary btn-grad">Compound &nbsp:)</button> (scroll down)
+                            </div>
+                            <div class="col-4">
 
-                                    <label class="form-label" for="calculator_wallets_hardcap"># Wallets Hardcap (how many wallets you use)</label>
-                                    <br>
-                                    <input class="form-control" value="1" min="1" max="5" type="number" id="calculator_wallets_hardcap" style="width: 60%" step="1"/>
-                                    <br>
-                                    <label class="form-label" for="calculator_wallets_hardcap">$$$ Invested (optional)</label>
-                                    <br>
-                                    <input class="form-control" value="0" min="0" type="number" id="calculator_invested" style="width: 60%" step="1"/>
-                                    <br>
-                                    <label class="form-label" for="calculator_wallets_hardcap">$$$ Cashed Out Already (optional)</label>
-                                    <br>
-                                    <input class="form-control" value="0" min="0" type="number" id="calculator_cashed_out_already" style="width: 60%" step="1"/>
-                                    <br>
+                                <label class="form-label" for="calculator_wallets_hardcap"># Wallets Hardcap (how many wallets you use)</label>
+                                <br>
+                                <input class="form-control" value="1" min="1" max="5" type="number" id="calculator_wallets_hardcap" style="width: 60%" step="1"/>
+                                <br>
+                                <label class="form-label" for="calculator_wallets_hardcap">$$$ Invested (optional)</label>
+                                <br>
+                                <input class="form-control" value="0" min="0" type="number" id="calculator_invested" style="width: 60%" step="1"/>
+                                <br>
+                                <label class="form-label" for="calculator_wallets_hardcap">$$$ Cashed Out Already (optional)</label>
+                                <br>
+                                <input class="form-control" value="0" min="0" type="number" id="calculator_cashed_out_already" style="width: 60%" step="1"/>
+                                <br>
+                            </div>
+
+                            <div class="col-3" id="calculator-strategies-container">
+                                <span>Choose a strategy:</span>
+                                <div style="padding-left: 0.8em">
+                                    <div class="form-check horde-radio-button">
+                                        <input class="form-check-input" type="radio" name="calculator_strategy" id="strategy_full_compound" value="strategy_full_compound" checked>
+                                        <label class="form-check-label" for="strategy_full_compound">
+                                            Full Compound <span style="font-size: 0.6em">(compound until the hardcap is hit)</span>
+                                        </label>
+                                    </div>
+                                    <div class="form-check horde-radio-button">
+                                        <input class="form-check-input" type="radio" name="calculator_strategy" id="strategy_cashout_breakeven" value="strategy_cashout_breakeven">
+                                        <label class="form-check-label" for="strategy_cashout_breakeven">
+                                            Cashout Until Breakeven  <span style="font-size: 0.6em">(then compound)</span>
+                                        </label>
+                                    </div>
                                 </div>
-
-                                <div class="col-3" id="calculator-strategies-container">
-                                    <span>Choose a strategy:</span>
-                                    <div style="padding-left: 0.8em">
-                                        <div class="form-check horde-radio-button">
-                                            <input class="form-check-input" type="radio" name="calculator_strategy" id="strategy_full_compound" value="strategy_full_compound" checked>
-                                            <label class="form-check-label" for="strategy_full_compound">
-                                                Full Compound <span style="font-size: 0.6em">(compound until the hardcap is hit)</span>
-                                            </label>
-                                        </div>
-                                        <div class="form-check horde-radio-button">
-                                            <input class="form-check-input" type="radio" name="calculator_strategy" id="strategy_cashout_breakeven" value="strategy_cashout_breakeven">
-                                            <label class="form-check-label" for="strategy_cashout_breakeven">
-                                                Cashout Until Breakeven  <span style="font-size: 0.6em">(then compound)</span>
-                                            </label>
-                                        </div>
+                                <span>Buying and priority:</span>
+                                <div>
+                                    <div class="buying-prio-row">
+                                        <label><input id="calc-plots-checkbox" onchange="plotsCheckOnChange()" checked type="checkbox" value="plots" /> Plots </label>&nbsp; <select onchange="priorityChanged('plots')" id="plots-priority"><option selected value="1">1</option><option value="2">2</option><option value="3">3</option></select>
+                                    </div>
+                                    <div class="buying-prio-row">
+                                        <label><input id="calc-stones-checkbox" onchange="stonesCheckOnChange()" type="checkbox" value="stones" /> Stones </label>&nbsp; <select onchange="priorityChanged('stones')" id="stones-priority" style="display: none" ><option value="1">1</option><option selected value="2">2</option><option value="3">3</option></select>
+                                    </div>
+                                    <div class="buying-prio-row">
+                                        <label><input id="calc-runes-checkbox" onchange="runesCheckOnChange()" type="checkbox" value="runes" /> Runes </label>&nbsp; <select onchange="priorityChanged('runes')" id="runes-priority" style="display: none"><option value="1">1</option><option value="2">2</option><option selected value="3">3</option></select>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div style="display: none" id="calculator-notemp-message">
-                            There are no templates in the system, create some in the "Templates" tab!
-                        </div>
+                    </div>
+                    <div style="display: none" id="calculator-notemp-message">
+                        There are no templates in the system, create some in the "Templates" tab!
+                    </div>
 
 
-                        <h1 class="graph-header">Plot Graph</h1> <span class="post-graph-header-note">(you can toggle the lines by clicking on the labels)</span>
-                        <br>
-                        <div class="standard-size-plot">
-                            <canvas id="calculatorActivePlotsGraph"></canvas>
-                        </div>
-                        <br>
-                        <h1 class="graph-header">Cashout Graph</h1> <span class="post-graph-header-note">(you can toggle the lines by clicking on the labels)</span>
-                        <br>
-                        <div class="standard-size-plot">
-                            <canvas id="calculatorCashoutGraph"></canvas>
-                        </div>
-                        <br>
-                        <h1 class="graph-header">Tokenomics Graph</h1> <span class="post-graph-header-note">(you can toggle the lines by clicking on the labels)</span>
-                        <br>
-                        <div class="standard-size-plot">
-                            <canvas id="calculatorTokenomicsGraph"></canvas>
-                        </div>
-                        <br>
-                        <br>
-                        <h1 class="graph-header">Tokenomics in $$$ Graph</h1> <span class="post-graph-header-note">(you can toggle the lines by clicking on the labels)</span>
-                        <br>
-                        <div class="standard-size-plot">
-                            <canvas id="calculatorTokenomicsDollarsGraph"></canvas>
-                        </div>
-                        <br>
-                    </div>
-                </div>
-            </div>
-            <div style="display: none" id="templates-tab">
-                <div>
-                    <h3 style="display: inline-block">
-                        Plot Templates
-                    </h3>
-                    <button onclick="openCreatePTEM()" style="margin-left: 0.7rem; margin-bottom: .5rem;" class="btn btn-primary btn-grad">+ New</button>
-                </div>
-                <div class="sc6 template-cards-container" id="templates-tab-container">
-                    <div style="display: none"  class="template-card">  <!-- just a template for testing styles, change display style to play with -->
-                        <div class="card-header">
-                            Wishful Thinking
-                        </div>
-                        <div class="card-body">
-                            <span class="card-row"><span class="card-row-number">8</span> plots</span>
-                            <span class="card-row"><span class="card-row-number">3</span> NFTs</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div style="display: none" id="simple-calculator-tab" >
-                <h3>
-                    Simple calculator - it supposes plots were created today
-                </h3>
-                <div class="form-container horde-purple-border">
-                    <form onsubmit="return false" >
-                        <label class="form-label" for="scalc_num_of_plots">How many plots:</label><br>
-                        <input onchange="testch()" class="form-control" value="1" type="number" id="scalc_num_of_plots" style="width: 20%"/>
-                        <br>
-                        <label class="form-label" for="scalc_num_of_claimable">How many claimable tokens you have at the moment:</label>
-                        <br>
-                        <input class="form-control" value="0" type="number" id="scalc_num_of_claimable" style="width: 20%" step="0.001"/>
-                        <br>
-                        <label class="form-label" for="scalc_num_of_days_in_future">Duration in future:</label>
-                        <br>
-                        <input class="form-control" value="500" type="number" id="scalc_num_of_days_in_future" style="width: 20%"/>
-                        <br>
-                        <button onclick="runSimpleCalculation()" class="btn btn-primary btn-grad">Compound &nbsp:)</button> (scroll down)
-                    </form>
-                </div>
-                <br>
-                <div style="padding: 5px; display: none" id="results">
-                    <h1 style="padding-left: 20px">Plot Graph</h1>
+                    <h1 class="graph-header">Plot Graph</h1> <span class="post-graph-header-note">(you can toggle the lines by clicking on the labels)</span>
                     <br>
                     <div class="standard-size-plot">
-                        <canvas id="scalcActivePlotsGraph"></canvas>
+                        <canvas id="calculatorActivePlotsGraph"></canvas>
+                    </div>
+                    <br>
+                    <h1 class="graph-header">Horde Daily Income</h1>
+                    <br>
+                    <div class="standard-size-plot">
+                        <canvas id="calculatorHordeIncomeGraph"></canvas>
                     </div>
                     <br>
                     <br>
-                    <div id="monthly-results">
-                        <h3>Monthly printouts</h3>
-                        <div id="monthly-results-raw"></div>
+                    <h1 class="graph-header">Cashout Graph</h1> <span class="post-graph-header-note">(you can toggle the lines by clicking on the labels)</span>
+                    <br>
+                    <div class="standard-size-plot">
+                        <canvas id="calculatorCashoutGraph"></canvas>
+                    </div>
+                    <br>
+                    <h1 class="graph-header">Tokenomics Graph</h1> <span class="post-graph-header-note">(you can toggle the lines by clicking on the labels)</span>
+                    <br>
+                    <div class="standard-size-plot">
+                        <canvas id="calculatorTokenomicsGraph"></canvas>
+                    </div>
+                    <br>
+                    <br>
+                    <h1 class="graph-header">Tokenomics in $$$ Graph</h1> <span class="post-graph-header-note">(you can toggle the lines by clicking on the labels)</span>
+                    <br>
+                    <div class="standard-size-plot">
+                        <canvas id="calculatorTokenomicsDollarsGraph"></canvas>
+                    </div>
+                    <br>
+                </div>
+            </div>
+        </div>
+        <div style="display: none" id="templates-tab">
+            <div>
+                <h3 style="display: inline-block">
+                    Plot Templates
+                </h3>
+                <button onclick="openCreatePTEM()" style="margin-left: 0.7rem; margin-bottom: .5rem;" class="btn btn-primary btn-grad">+ New</button>
+            </div>
+            <div class="sc6 template-cards-container" id="templates-tab-container">
+                <div style="display: none"  class="template-card">  <!-- just a template for testing styles, change display style to play with -->
+                    <div class="card-header">
+                        Wishful Thinking
+                    </div>
+                    <div class="card-body">
+                        <span class="card-row"><span class="card-row-number">8</span> plots</span>
+                        <span class="card-row"><span class="card-row-number">3</span> NFTs</span>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-
-
-
-    <!-- MODALS -->
-
-    <!-- Plot Template Editor Modal -->
-    <div class="sc6 horde-modal modal fade" id="plot-template-editor-modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div id="ptem-outer-body" class="modal-dialog">
-            <div class="horde-default-background modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="ptem-title">Modal title</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div id="ptem-body" class="modal-body">
-                    Name <input id="ptem-name" style="font-size: 14px" maxlength="18">
+        <div style="display: none" id="simple-calculator-tab" >
+            <h3>
+                Simple calculator - it supposes plots were created today
+            </h3>
+            <div class="form-container horde-purple-border">
+                <form onsubmit="return false" >
+                    <label class="form-label" for="scalc_num_of_plots">How many plots:</label><br>
+                    <input onchange="testch()" class="form-control" value="1" type="number" id="scalc_num_of_plots" style="width: 20%"/>
                     <br>
+                    <label class="form-label" for="scalc_num_of_claimable">How many claimable tokens you have at the moment:</label>
+                    <br>
+                    <input class="form-control" value="0" type="number" id="scalc_num_of_claimable" style="width: 20%" step="0.001"/>
+                    <br>
+                    <label class="form-label" for="scalc_num_of_days_in_future">Duration in future:</label>
+                    <br>
+                    <input class="form-control" value="500" type="number" id="scalc_num_of_days_in_future" style="width: 20%"/>
+                    <br>
+                    <button onclick="runSimpleCalculation()" class="btn btn-primary btn-grad">Compound &nbsp:)</button> (scroll down)
+                </form>
+            </div>
+            <br>
+            <div style="padding: 5px; display: none" id="results">
+                <h1 style="padding-left: 20px">Plot Graph</h1>
+                <br>
+                <div class="standard-size-plot">
+                    <canvas id="scalcActivePlotsGraph"></canvas>
+                </div>
+                <br>
+                <br>
+                <div id="monthly-results">
+                    <h3>Monthly printouts</h3>
+                    <div id="monthly-results-raw"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- MODALS -->
+
+<!-- Plot Template Editor Modal -->
+<div class="sc6 horde-modal modal fade" id="plot-template-editor-modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div id="ptem-outer-body" class="modal-dialog">
+        <div class="horde-default-background modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="ptem-title">Modal title</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div id="ptem-body" class="modal-body">
+                Name <input id="ptem-name" style="font-size: 14px" maxlength="18">
+                <br>
+                <br>
+                <div>
+                    Plot groups
+                    <br>
+                    <div style="border-bottom: 1px solid white;">
+                        <span style="font-size: 1.2rem;">#. &nbsp&nbsp&nbsp&nbsp</span> <span style="width: 5rem; display: inline-block; text-align: center;">plot count</span> &nbsp <span style="width: 10rem; display: inline-block; text-align: center;">creation date</span> &nbsp <span style="width: 10rem; display: inline-block; text-align: center;">decay date</span>
+                    </div>
                     <br>
                     <div>
-                        Plot groups
-                        <br>
-                        <div style="border-bottom: 1px solid white;">
-                            <span style="font-size: 1.2rem;">#. &nbsp&nbsp&nbsp&nbsp</span> <span style="width: 5rem; display: inline-block; text-align: center;">plot count</span> &nbsp <span style="width: 10rem; display: inline-block; text-align: center;">creation date</span> &nbsp <span style="width: 10rem; display: inline-block; text-align: center;">decay date</span>
+                        <!-- Wow such empty -->
+                        <div id="ptem-plot-groups">
                         </div>
                         <br>
-                        <div style="border-bottom: 1px solid white;">
-                            <!-- Wow such empty -->
-                            <div id="ptem-plot-groups">
-                            </div>
-                            <br>
-                            <button onclick="addEmptyPlotGroupToPtem()" style="margin-left: 0.7rem; margin-bottom: .5rem;" class="btn btn-primary btn-grad">+ Another Plot Group</button>
-                        </div>
+                        <button onclick="addEmptyPlotGroupToPtem()" style="margin-left: 0.7rem; margin-bottom: .5rem;" class="btn btn-primary btn-grad">+ Another Plot Group</button>
                     </div>
-                    <div style="border-bottom: 1px solid white; margin-top: 1rem;margin-bottom: 1rem; padding-bottom: 1rem">
-                        NFTs
-                        <div>
-                            <label style="width: 5rem;" for="ptem-nft5perc">NFT 5%</label><input min="0" onchange="ptemNft5Changed()" id="ptem-nft5perc" class="ptem-nftcount" type="number" value="0">
-                            <br>
-                            <label style="width: 5rem;" for="ptem-nft10perc">NFT 10%</label><input min="0" onchange="ptemNft10Changed()" id="ptem-nft10perc" class="ptem-nftcount" type="number" value="0">
-                            <br>
-                            <label style="width: 5rem;" for="ptem-nft15perc">NFT 15%</label><input min="0" onchange="ptemNft15Changed()" id="ptem-nft15perc" class="ptem-nftcount" type="number" value="0">
-                            <br>
-                        </div>
-                    </div>
-                    Total plots: <span id="ptem-total-plots">1</span>
+                </div>
+                <br>
+                <div>
+                    Soul Stones
                     <br>
-                    Total NFTs: <span id="ptem-total-nfts">0</span>
+                    <div style="border-bottom: 1px solid white;">
+                        <span style="font-size: 1.2rem;">#. &nbsp&nbsp&nbsp</span> &nbsp <span style="width: 10rem; display: inline-block; text-align: center;">creation date</span> &nbsp <span style="width: 10rem; display: inline-block; text-align: center;">decay date</span>
+                    </div>
+                    <br>
+                    <div style="border-bottom: 1px solid white;">
+                        <!-- Wow such empty -->
+                        <div id="ptem-stones">
+                        </div>
+                        <button onclick="addEmptyStoneToPtem()" style="margin-left: 0.7rem; margin-bottom: .5rem;" class="btn btn-primary btn-grad">+ Add Souls Stone</button>
+                    </div>
                 </div>
-                <span id="ptem-error" style="color: red; display:none"></span>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button onclick="onPtemSaveClick()" id="ptem-save-btn" type="button" class="btn btn-primary btn-grad"></button>
+                <br>
+                <div>
+                    Soul Runes
+                    <br>
+                    <div style="border-bottom: 1px solid white;">
+                        <span style="font-size: 1.2rem;">#. &nbsp&nbsp&nbsp</span> &nbsp <span style="width: 10rem; display: inline-block; text-align: center;">creation date</span> &nbsp <span style="width: 10rem; display: inline-block; text-align: center;">decay date</span>
+                    </div>
+                    <br>
+                    <div style="border-bottom: 1px solid white;">
+                        <!-- Wow such empty -->
+                        <div id="ptem-runes">
+                        </div>
+                        <button onclick="addEmptyRuneToPtem()" style="margin-left: 0.7rem; margin-bottom: .5rem;" class="btn btn-primary btn-grad">+ Add Souls Rune</button>
+                    </div>
                 </div>
+                <div style="border-bottom: 1px solid white; margin-top: 1rem;margin-bottom: 1rem; padding-bottom: 1rem">
+                    NFTs
+                    <div>
+                        <label style="width: 5rem;" for="ptem-nft5perc">NFT 5%</label><input min="0" onchange="ptemNft5Changed()" id="ptem-nft5perc" class="ptem-nftcount" type="number" value="0">
+                        <br>
+                        <label style="width: 5rem;" for="ptem-nft10perc">NFT 10%</label><input min="0" onchange="ptemNft10Changed()" id="ptem-nft10perc" class="ptem-nftcount" type="number" value="0">
+                        <br>
+                        <label style="width: 5rem;" for="ptem-nft15perc">NFT 15%</label><input min="0" onchange="ptemNft15Changed()" id="ptem-nft15perc" class="ptem-nftcount" type="number" value="0">
+                        <br>
+                    </div>
+                </div>
+                Total plots: <span id="ptem-total-plots">1</span>
+                <br>
+                Total souls stones: <span id="ptem-total-stones">0</span>
+                <br>
+                Total souls runes: <span id="ptem-total-runes">0</span>
+                <br>
+                Total NFTs: <span id="ptem-total-nfts">0</span>
+            </div>
+            <span id="ptem-error" style="color: red; display:none"></span>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button onclick="onPtemSaveClick()" id="ptem-save-btn" type="button" class="btn btn-primary btn-grad"></button>
             </div>
         </div>
     </div>
+</div>
 
 
 
@@ -552,7 +609,7 @@
     const STRATEGY_FULL_COMPOUND = 'strategy_full_compound'
     const STRATEGY_CASHOUT_BREAKEVEN = 'strategy_cashout_breakeven'
 
-    const HORDE_CURRENT_MIDDLE_PRICE = 100;
+    const HORDE_CURRENT_MIDDLE_PRICE = 105.5;
 
     let FORBIDDEN_NAMES = {};
     FORBIDDEN_NAMES[LIVE_WALLET_TEMPLATE_NAME] = 1;
@@ -560,6 +617,8 @@
     FORBIDDEN_NAMES[BE_CREATIVE_NAME] = 1;
 
     const PLOT_DECAY = 300;
+    const STONE_DECAY = 250;
+    const RUNE_DECAY = 200;
 
     const PTEM_MODE_CREATE = 'create';
     const PTEM_MODE_EDIT = 'edit';
@@ -572,8 +631,12 @@
     let templateFromInput = null;
     let plotTemplateEditorModal = new bootstrap.Modal(document.getElementById('plot-template-editor-modal'))
     let ptemGroupsDiv = document.getElementById('ptem-plot-groups');
+    let ptemStonesDiv = document.getElementById('ptem-stones');
+    let ptemRunesDiv = document.getElementById('ptem-runes');
     let ptemName = document.getElementById('ptem-name')
     let ptemTotalPlots = document.getElementById('ptem-total-plots')
+    let ptemTotalStones = document.getElementById('ptem-total-stones')
+    let ptemTotalRunes = document.getElementById('ptem-total-runes')
     let ptemTotalNfts = document.getElementById('ptem-total-nfts')
     let ptemSaveButton = document.getElementById('ptem-save-btn')
     let ptemError = document.getElementById('ptem-error')
@@ -632,7 +695,7 @@
     function generateTemplateOption(template, selected) {
         let selectedText = selected ? 'selected' : '';
         return `
-            <option value="${template.name}" ${selectedText} id="${template.name}">${template.name} (${template.plotCount} plots | ${template.nftCount} NFTs)</option>
+            <option value="${template.name}" ${selectedText} id="${template.name}">${template.name} (${template.plotCount}p ${template.stones.length}s ${template.runes.length}r | ${template.nftCount} NFTs)</option>
         `;
     }
 
@@ -648,10 +711,10 @@
         let data = localStorage.getItem('horde-calc-global-data');
         let defaultInputs = {
             'duration_in_future': 500,
-                'wallets_hardcap': 1,
-                'invested': 0,
-                'cashed_out_already': 0,
-                'chosen_strategy': STRATEGY_FULL_COMPOUND,
+            'wallets_hardcap': 1,
+            'invested': 0,
+            'cashed_out_already': 0,
+            'chosen_strategy': STRATEGY_FULL_COMPOUND,
         };
         if(data === null) {
             return {
@@ -672,6 +735,28 @@
                         template.plotGroups[i].expiresAt = new Date(template.plotGroups[i].expiresAt)
                     }
                 )
+
+                if('stones' in template) {
+                    template.stones.forEach((x, i) =>
+                        {
+                            template.stones[i].createdAt = new Date(template.stones[i].createdAt)
+                            template.stones[i].expiresAt = new Date(template.stones[i].expiresAt)
+                        }
+                    )
+                } else {
+                    template.stones = [];
+                }
+
+                if('runes' in template) {
+                    template.runes.forEach((x, i) =>
+                        {
+                            template.runes[i].createdAt = new Date(template.runes[i].createdAt)
+                            template.runes[i].expiresAt = new Date(template.runes[i].expiresAt)
+                        }
+                    )
+                } else {
+                    template.runes = [];
+                }
             }
 
             if(!('inputs' in dataAsJson)) {
@@ -694,6 +779,18 @@
                     template.plotGroups[i].expiresAt = dateOnlyString(template.plotGroups[i].expiresAt)
                 }
             )
+            template.stones.forEach((x, i) =>
+                {
+                    template.stones[i].createdAt = dateOnlyString(template.stones[i].createdAt)
+                    template.stones[i].expiresAt = dateOnlyString(template.stones[i].expiresAt)
+                }
+            )
+            template.runes.forEach((x, i) =>
+                {
+                    template.runes[i].createdAt = dateOnlyString(template.runes[i].createdAt)
+                    template.runes[i].expiresAt = dateOnlyString(template.runes[i].expiresAt)
+                }
+            )
         }
 
         localStorage.setItem('horde-calc-global-data', JSON.stringify(dataClone))
@@ -707,6 +804,8 @@
                 createPlotGroupFromCreation(copyAndAddDays(new Date(), 5), 1),
                 createPlotGroupFromCreation(copyAndAddDays(new Date(), 15), 1),
             ],
+            [],
+            [],
             createEmptyNftGroup(),
             BE_CREATIVE_NAME
         )
@@ -720,6 +819,7 @@
     function openWalletPTEM() {
         document.getElementById('ptem-title').innerText = "Edit live-wallet template (not permanent)";
         currentPtemTemplate = clone(templateFromInput)
+        populatePtemMissingData(currentPtemTemplate);
         preparePtem(currentPtemTemplate)
         ptemSaveButton.innerText = "Update Live Template (temporarily)"
         ptemMode = PTEM_MODE_EDIT_LIVE_WALLET;
@@ -730,11 +830,21 @@
     function openEditPTEM(template) {
         document.getElementById('ptem-title').innerText = "Edit '" + template.name + "' template";
         currentPtemTemplate = clone(template)
+        populatePtemMissingData(currentPtemTemplate);
         preparePtem(currentPtemTemplate)
         ptemSaveButton.innerText = "Update"
         ptemMode = PTEM_MODE_EDIT;
         ptemName.disabled = false
         plotTemplateEditorModal.show()
+    }
+
+    function populatePtemMissingData(ptem) {
+        if(!("stones" in ptem)) {
+            ptem.stones = [];
+        }
+        if(!("runes" in ptem)) {
+            ptem.runes = [];
+        }
     }
 
     function openSelectPTEM() {
@@ -790,8 +900,12 @@
         ptemError.innerText = '';
         ptemError.style.display = 'none'
         ptemGroupsDiv.innerHTML = ''
+        ptemStonesDiv.innerHTML = ''
+        ptemRunesDiv.innerHTML = ''
         ptemName.value = template.name;
         ptemTotalPlots.innerText = template.plotCount;
+        ptemTotalStones.innerText = template.stones.length + '';
+        ptemTotalRunes.innerText = template.runes.length + '';
         ptemTotalNfts.innerText = template.nftCount;
 
         document.getElementById('ptem-nft5perc').value = template.nftGroup.nft5perc;
@@ -803,11 +917,26 @@
                 addPlotGroupToPtem(i, item)
             }
         )
+
+        template.stones.forEach(
+            (item, i) => {
+                addStoneToPtem(i, item)
+            }
+        )
+        template.runes.forEach(
+            (item, i) => {
+                addRuneToPtem(i, item)
+            }
+        )
     }
 
     function onPtemSaveClick() {
-        if(currentPtemTemplate.plotGroups.length === 0) {
-            ptemError.innerText = 'Cant save a template that has no plots! Add at least one plot group'
+        if(
+            currentPtemTemplate.plotGroups.length === 0
+            && currentPtemTemplate.stones.length === 0
+            && currentPtemTemplate.runes.length === 0
+        ) {
+            ptemError.innerText = 'Cant save a template that has no plots/stones/runes! Add at least one of something!'
             ptemError.style.display = 'block'
             return;
         }
@@ -893,8 +1022,44 @@
         ptemTotalNfts.innerText = currentPtemTemplate.nftCount.toString();
     }
 
+    function addEmptyStoneToPtem() {
+        if(currentPtemTemplate.stones.length >= 2) {
+            alert("You can only have 2 Souls Stones!");
+            return;
+        }
+        let date = copyAndAddDays(findNewestCreateDateInPlotTemplate(currentPtemTemplate), 1)
+        let newStone = createStoneFromCreation(date)
+        addStoneToPtem(currentPtemTemplate.stones.length, newStone)
+
+        currentPtemTemplate.stones.push(newStone)
+        currentPtemTemplate.plotCount = countPlots(currentPtemTemplate.plotGroups)
+        ptemTotalStones.innerText = currentPtemTemplate.stones.length.toString();
+    }
+
+    function addEmptyRuneToPtem() {
+        if(currentPtemTemplate.runes.length >= 10) {
+            alert("You can only have 10 Souls Runes!");
+            return;
+        }
+        let date = copyAndAddDays(findNewestCreateDateInPlotTemplate(currentPtemTemplate), 1)
+        let newRune = createRuneFromCreation(date)
+        addRuneToPtem(currentPtemTemplate.runes.length, newRune)
+
+        currentPtemTemplate.runes.push(newRune)
+        currentPtemTemplate.plotCount = countPlots(currentPtemTemplate.plotGroups)
+        ptemTotalRunes.innerText = currentPtemTemplate.runes.length.toString();
+    }
+
     function addPlotGroupToPtem(num, plotGroup) {
         ptemGroupsDiv.insertAdjacentHTML('beforeend', generatePlotGroupEditUI(num, plotGroup.count, dateOnlyString(plotGroup.createdAt), dateOnlyString(plotGroup.expiresAt)))
+    }
+
+    function addStoneToPtem(num, stone) {
+        ptemStonesDiv.insertAdjacentHTML('beforeend', generateStoneEditUI(num, dateOnlyString(stone.createdAt), dateOnlyString(stone.expiresAt)))
+    }
+
+    function addRuneToPtem(num, rune) {
+        ptemRunesDiv.insertAdjacentHTML('beforeend', generateRuneEditUI(num, dateOnlyString(rune.createdAt), dateOnlyString(rune.expiresAt)))
     }
 
     function findNewestCreateDateInPlotTemplate(template) {
@@ -973,6 +1138,53 @@
         currentPtemTemplate.plotGroups[plotGroupIndex].createdAt = newCreatedAtDate;
         currentPtemTemplate.plotGroups[plotGroupIndex].expiresAt = newDecayDate;
     }
+    function ptemStoneCreatedAtChanged(inputElement) {
+        let stoneGroupIndex = parseInt(inputElement.parentNode.dataset.sstoneid);
+
+        let newCreatedAtDate = new Date(inputElement.value);
+        let newDecayDate = copyAndAddDays(newCreatedAtDate, STONE_DECAY);
+        let decayAtElement = inputElement.parentNode.querySelectorAll('.stone-decay-at')[0];
+        decayAtElement.value = dateOnlyString(newDecayDate);
+
+        currentPtemTemplate.stones[stoneGroupIndex].createdAt = newCreatedAtDate;
+        currentPtemTemplate.stones[stoneGroupIndex].expiresAt = newDecayDate;
+    }
+
+    function ptemStoneExpiresAtChanged(inputElement) {
+        let stoneGroupIndex = parseInt(inputElement.parentNode.dataset.sstoneid);
+
+        let newDecayDate = new Date(inputElement.value);
+        let newCreatedAtDate = copyAndAddDays(newDecayDate, -STONE_DECAY);
+        let createdAtElement = inputElement.parentNode.querySelectorAll('.stone-created-at')[0];
+        createdAtElement.value = dateOnlyString(newCreatedAtDate);
+
+        currentPtemTemplate.stones[stoneGroupIndex].createdAt = newCreatedAtDate;
+        currentPtemTemplate.stones[stoneGroupIndex].expiresAt = newDecayDate;
+    }
+
+    function ptemRuneCreatedAtChanged(inputElement) {
+        let runeGroupIndex = parseInt(inputElement.parentNode.dataset.sruneid);
+
+        let newCreatedAtDate = new Date(inputElement.value);
+        let newDecayDate = copyAndAddDays(newCreatedAtDate, RUNE_DECAY);
+        let decayAtElement = inputElement.parentNode.querySelectorAll('.rune-decay-at')[0];
+        decayAtElement.value = dateOnlyString(newDecayDate);
+
+        currentPtemTemplate.runes[runeGroupIndex].createdAt = newCreatedAtDate;
+        currentPtemTemplate.runes[runeGroupIndex].expiresAt = newDecayDate;
+    }
+
+    function ptemRuneExpiresAtChanged(inputElement) {
+        let runeGroupIndex = parseInt(inputElement.parentNode.dataset.sruneid);
+
+        let newDecayDate = new Date(inputElement.value);
+        let newCreatedAtDate = copyAndAddDays(newDecayDate, -RUNE_DECAY);
+        let createdAtElement = inputElement.parentNode.querySelectorAll('.rune-created-at')[0];
+        createdAtElement.value = dateOnlyString(newCreatedAtDate);
+
+        currentPtemTemplate.runes[runeGroupIndex].createdAt = newCreatedAtDate;
+        currentPtemTemplate.runes[runeGroupIndex].expiresAt = newDecayDate;
+    }
 
     function ptemDeletePlotGroup(inputElement) {
         let plotGroupIndex = parseInt(inputElement.parentNode.dataset.pgroupid);
@@ -991,6 +1203,46 @@
             elem.id = 'pgroup-' + newId.toString();
             elem.dataset.pgroupid = newId.toString();
             textElem.id = 'pgroup-number-' + newId.toString();
+            textElem.innerHTML = generatePlotGroupNumberText(newId + 1);
+        }
+    }
+
+    function ptemDeleteStone(inputElement) {
+        let index = parseInt(inputElement.parentNode.dataset.sstoneid);
+
+        currentPtemTemplate.stones.splice(index, 1) //remove from data
+        ptemTotalStones.innerText = currentPtemTemplate.stones.length.toString();
+        inputElement.parentNode.remove() //remove from UI
+
+        //since the index is removed, array elements index have been reduced by one to fill the gap, so we start from the index itself until the end
+        for (let i = index; i < currentPtemTemplate.stones.length; i++) {
+            let oldId = i + 1;
+            let newId = i;
+            let elem = document.getElementById('sstone-' + oldId);
+            let textElem = document.getElementById('sstone-number-' + oldId);
+            elem.id = 'sstone-' + newId.toString();
+            elem.dataset.sstoneid = newId.toString();
+            textElem.id = 'sstone-number-' + newId.toString();
+            textElem.innerHTML = generatePlotGroupNumberText(newId + 1);
+        }
+    }
+
+    function ptemDeleteRune(inputElement) {
+        let index = parseInt(inputElement.parentNode.dataset.sruneid);
+
+        currentPtemTemplate.runes.splice(index, 1) //remove from data
+        ptemTotalRunes.innerText = currentPtemTemplate.runes.length.toString();
+        inputElement.parentNode.remove() //remove from UI
+
+        //since the index is removed, array elements index have been reduced by one to fill the gap, so we start from the index itself until the end
+        for (let i = index; i < currentPtemTemplate.runes.length; i++) {
+            let oldId = i + 1;
+            let newId = i;
+            let elem = document.getElementById('srune-' + oldId);
+            let textElem = document.getElementById('srune-number-' + oldId);
+            elem.id = 'srune-' + newId.toString();
+            elem.dataset.sruneid = newId.toString();
+            textElem.id = 'srune-number-' + newId.toString();
             textElem.innerHTML = generatePlotGroupNumberText(newId + 1);
         }
     }
@@ -1019,6 +1271,26 @@
         return  `
             <div id="pgroup-${num}" data-pgroupid="${num}" class="ptem-plot-group">
                 <span id="pgroup-number-${num}" style="font-size: 1.2rem;">${numberText}</span> <input min="1" onchange="ptemPlotCountChanged(this)" type="number" class="ptem-plotcount" value="${plotCount}"/> - <input onchange="ptemPlotCreatedAtChanged(this)" class="plot-created-at ptem-datepicker" type="date" value="${createDate}"/> - <input onchange="ptemPlotExpiresAtChanged(this)" class="plot-decay-at ptem-datepicker"  type="date" value="${decayDate}"/> ${deleteButtonHtml}
+            </div>
+        `;
+    }
+
+    function generateStoneEditUI(num, createDate, decayDate) {
+        let deleteButtonHtml = '<span onclick="ptemDeleteStone(this)" class="ptem-delete">🗑</span>';
+        let numberText = generatePlotGroupNumberText(num + 1)
+        return  `
+            <div id="sstone-${num}" data-sstoneid="${num}" class="ptem-plot-group">
+                <span id="sstone-number-${num}" style="font-size: 1.2rem;">${numberText}</span> <input onchange="ptemStoneCreatedAtChanged(this)" class="stone-created-at ptem-datepicker" type="date" value="${createDate}"/> - <input onchange="ptemStoneExpiresAtChanged(this)" class="stone-decay-at ptem-datepicker"  type="date" value="${decayDate}"/> ${deleteButtonHtml}
+            </div>
+        `;
+    }
+
+    function generateRuneEditUI(num, createDate, decayDate) {
+        let deleteButtonHtml = '<span onclick="ptemDeleteRune(this)" class="ptem-delete">🗑</span>';
+        let numberText = generatePlotGroupNumberText(num + 1)
+        return  `
+            <div id="srune-${num}" data-sruneid="${num}" class="ptem-plot-group">
+                <span id="srune-number-${num}" style="font-size: 1.2rem;">${numberText}</span> <input onchange="ptemRuneCreatedAtChanged(this)" class="rune-created-at ptem-datepicker" type="date" value="${createDate}"/> - <input onchange="ptemRuneExpiresAtChanged(this)" class="rune-decay-at ptem-datepicker"  type="date" value="${decayDate}"/> ${deleteButtonHtml}
             </div>
         `;
     }
@@ -1069,6 +1341,20 @@
         }
     }
 
+    function createStoneFromCreation(creationDate) {
+        return {
+            'createdAt': creationDate,
+            'expiresAt': copyAndAddDays(creationDate, STONE_DECAY),
+        }
+    }
+
+    function createRuneFromCreation(creationDate) {
+        return {
+            'createdAt': creationDate,
+            'expiresAt': copyAndAddDays(creationDate, RUNE_DECAY),
+        }
+    }
+
     function createSettingsTemplate(
         //todo: add more params to make the calc more generalized.. reward amount (def 0.25), reward frequency in seconds (def 21600),
         // plot longevity in days (def 300), token price (def $100), sell tax (def 10%) etc..
@@ -1085,9 +1371,11 @@
         }
     }
 
-    function createPlotTemplate(plotGroups, nftGroup, name) {
+    function createPlotTemplate(plotGroups, stones, runes, nftGroup, name) {
         return {
             'plotGroups': plotGroups,
+            'stones': stones,
+            'runes': runes,
             'nftGroup': nftGroup,
             'name': name,
             'plotCount': countPlots(plotGroups),
@@ -1218,12 +1506,27 @@
     }
     testPrepareApplicableNfts()
 
-    function calculate(plotTemplate, settingsTemplate, startFromDate, calculateDays, claimable, plotHardcap, invested, cashedOutAlready, selectedStrategy) {
+    function calculate(
+        plotTemplate,
+        settingsTemplate,
+        startFromDate,
+        calculateDays,
+        claimable,
+        plotHardcap,
+        stoneHardcap,
+        runeHardcap,
+        invested,
+        cashedOutAlready,
+        selectedStrategy,
+        buyingPriority
+    ) {
         let dateIterator = new Date(startFromDate);
 
 
         let activePlots = Object.assign({}, plotTemplate);
         let decayedPlotGroups = [];
+        let decayedStones = [];
+        let decayedRunes = [];
         let month = 69; //crazy value to make it print once as soon as it starts
         let calculatedData = [];
         let nftRewardSum = 0;
@@ -1250,9 +1553,41 @@
             claimable += nftReward
             nftRewardSum += nftReward
 
+            let survivingStones = [];
+            let stonesCountBeforeDecay = 0;
+
+            activePlots.stones.forEach(item => {
+                claimable += 0.05
+                stonesCountBeforeDecay += 1
+
+                if(dateIterator < item.expiresAt) {
+                    survivingStones.push(item)
+                } else {
+                    decayedStones.push(item);
+                }
+            })
+
+            let survivingRunes = [];
+            let runesCountBeforeDecay = 0;
+
+            activePlots.runes.forEach(item => {
+                claimable += 0.01
+                runesCountBeforeDecay += 1
+
+                if(dateIterator < item.expiresAt) {
+                    survivingRunes.push(item)
+                } else {
+                    decayedRunes.push(item);
+                }
+            })
+
             let decayedPlotCount = countPlots(decayedPlotGroups);
+            let decayedStoneCount = decayedStones.length;
+            let decayedRuneCount = decayedRunes.length;
             let activePlotCount = countPlots(survivingGroups); //hmm
-            let dailyHordeGeneration = smartRound(activePlotCount * 0.1, 2);
+            let activeStoneCount = survivingStones.length;
+            let activeRuneCount = survivingRunes.length;
+            let dailyHordeGeneration = smartRound(activePlotCount * 0.1 + activeStoneCount * 0.05 + activeRuneCount * 0.01, 2);
             let dailyDollarGeneration = smartRound(dailyHordeGeneration * HORDE_CURRENT_MIDDLE_PRICE, 2);
             let dateOnlyAsString = dateOnlyString(dateIterator);
             //print every month (or last date)
@@ -1260,8 +1595,6 @@
                 month = dateIterator.getMonth();
             }
 
-            let plotsToCreate = 0;
-            let activePlotCountAfterCreation = activePlotCount;
             if(breakEvenStrategyActive) {
                 let cashedOutDollarTotal = totalHordeCashedOut * HORDE_CURRENT_MIDDLE_PRICE * 0.9;
                 let leftToBreakEven = invested - cashedOutDollarTotal;
@@ -1272,27 +1605,92 @@
                     breakEvenStrategyActive = false; //we have cashed out, so we stop the strategy
                 }
             }
-            //if we have enough to create a plot(s), we create
-            while(claimable >= 10 && activePlotCountAfterCreation < plotHardcap) {
-                claimable -= 10;
-                plotsToCreate++;
-                activePlotCountAfterCreation++;
+
+            ////BUYING/CREATION!!!!
+            let activePlotCountAfterCreation = activePlotCount;
+            let activeStoneCountAfterCreation = activeStoneCount;
+            let activeRuneCountAfterCreation = activeRuneCount;
+
+
+
+            let haveMaxPlots = !('plots' in buyingPriority) || activePlotCountAfterCreation >= plotHardcap;
+            let haveMaxStones = !('stones' in buyingPriority) || activeStoneCountAfterCreation >= stoneHardcap;
+
+            console.log(`===== buying stuff =====`);
+            for(let priorityCounter = 1; priorityCounter <= 3; priorityCounter++) {
+                for(const key in buyingPriority) {
+                    //nested loop needed to execute in given priority
+                    if (buyingPriority.hasOwnProperty(key) && buyingPriority[key] === priorityCounter) {
+                        //we have a prio match
+                        if(key === 'plots') {
+
+                            let plotsToCreate = 0;
+                            console.log(`doing plots`);
+                            //if we have enough to create a plot(s), we create
+                            while(claimable >= 10 && activePlotCountAfterCreation < plotHardcap) {
+                                claimable -= 10;
+                                plotsToCreate++;
+                                activePlotCountAfterCreation++;
+                            }
+
+                            if(plotsToCreate !== 0) {
+                                survivingGroups.push(
+                                    createPlotGroupFromCreation(
+                                        new Date(dateIterator),
+                                        plotsToCreate
+                                    )
+                                )
+                            }
+                            //recalculating haveMaxPlots because the numbers changed
+                            haveMaxPlots = (!('plots' in buyingPriority) || activePlotCountAfterCreation >= plotHardcap)
+                        } else if (key === 'stones') {
+                            console.log(`doing stones`);
+
+                            //since stones need less claimable horde than plots, even if plot prio is 1 and stones are 2,
+                            // stones will get created because if we have i.e. 6 horde plot cant be created so in next
+                            // loop stone is created.. therefore we need to add an additional check
+
+                            if('plots' in buyingPriority && buyingPriority['plots'] < buyingPriority['stones'] && haveMaxPlots === false) {
+                                continue;
+                            }
+
+                            while(claimable >= 5 && activeStoneCountAfterCreation < stoneHardcap) {
+                                claimable -= 5;
+                                survivingStones.push(createStoneFromCreation(new Date(dateIterator)))
+                                activeStoneCountAfterCreation++;
+                            }
+                            haveMaxStones = !('stones' in buyingPriority) || activeStoneCountAfterCreation >= stoneHardcap;
+                        } else if (key === 'runes') {
+                            console.log(`doing runes`);
+
+                            //same like for stones, but this time we have to check plots and stones
+
+                            if(
+                                'plots' in buyingPriority && buyingPriority['plots'] < buyingPriority['stones'] && haveMaxPlots === false
+                                && 'stones' in buyingPriority && buyingPriority['stones'] < buyingPriority['runes'] && haveMaxStones === false
+                            ) {
+                                continue;
+                            }
+
+                            while(claimable >= 1 && activeRuneCountAfterCreation < runeHardcap) {
+                                claimable -= 1;
+                                survivingRunes.push(createRuneFromCreation(new Date(dateIterator)))
+                                activeRuneCountAfterCreation++;
+                            }
+                        }
+                    }
+                }
             }
 
-            if(plotsToCreate !== 0) {
-                survivingGroups.push(
-                    createPlotGroupFromCreation(
-                        new Date(dateIterator),
-                        plotsToCreate
-                    )
-                )
-            }
-
-            if(survivingGroups.length === 0) {
+            if(survivingGroups.length === 0 && survivingStones.length === 0 && survivingRunes.length === 0) {
                 break;
             }
 
-            let ceilingIsHit = activePlotCountAfterCreation >= plotHardcap;
+            let ceilingIsHit =
+                (!('plots' in buyingPriority) || activePlotCountAfterCreation >= plotHardcap)
+                && (!('stones' in buyingPriority) || activeStoneCountAfterCreation >= stoneHardcap)
+                && (!('runes' in buyingPriority) || activeRuneCountAfterCreation >= runeHardcap)
+            ;
             if(ceilingIsHit) {
                 //if ceiling is hit, no strategy can be done except keep at least 10 tokens (to fill the gap in next day if a plot decays) and claim the rest
                 if(claimable > 10) {
@@ -1310,7 +1708,11 @@
                     day: (i + 1),
                     date: dateOnlyAsString,
                     activePlots: activePlotCountAfterCreation,
+                    activeStones: activeStoneCountAfterCreation,
+                    activeRunes: activeRuneCountAfterCreation,
                     decayedPlots: decayedPlotCount,
+                    decayedStones: decayedStoneCount,
+                    decayedRunes: decayedRuneCount,
                     dailyHorde: dailyHordeGeneration,
                     dailyDollar: dailyDollarGeneration,
                     totalHordeCashedOut: totalHordeCashedOut,
@@ -1322,6 +1724,8 @@
                 }
             )
             activePlots.plotGroups = survivingGroups;
+            activePlots.stones = survivingStones;
+            activePlots.runes = survivingRunes;
             dateIterator = copyAndAddDays(dateIterator, 1);
         }
 
@@ -1428,6 +1832,7 @@
 
     let OLD_ACTIVE_PLOT_CHART = null;
     let ACTIVE_PLOT_CHART = null;
+    let HORDE_INCOME_CHART = null;
     let CASHOUT_CHART = null;
     let TOKENOMICS_CHART = null;
     let TOKENOMICS_CHART_DOLLARS = null;
@@ -1456,6 +1861,8 @@
         let numOfDaysInFuture = parseInt(document.getElementById("calculator_num_of_days_in_future").value)
         let walletsHardcap = parseInt(document.getElementById("calculator_wallets_hardcap").value)
         let plotHardcap = walletsHardcap * 100
+        let stoneHardcap = walletsHardcap * 2
+        let runeHardcap = walletsHardcap * 10
         let invested = parseFloat(document.getElementById("calculator_invested").value)
         let cashedOutAlready = parseFloat(document.getElementById("calculator_cashed_out_already").value)
         let strategy = getSelectedStrategy()
@@ -1475,9 +1882,35 @@
         GLOBAL_DATA.inputs.chosen_strategy = strategy;
         writeToLocalStorage(GLOBAL_DATA)
         let todayDate = new Date();
-        let calculatedData = calculate(template, settingsTemplate, todayDate, numOfDaysInFuture, numOfClaimable, plotHardcap, invested, cashedOutAlready, strategy)
+
+        let buyingPriorities = {}
+        if(document.getElementById("calc-plots-checkbox").checked) {
+            buyingPriorities.plots = parseInt(document.getElementById("plots-priority").value)
+        }
+        if(document.getElementById("calc-stones-checkbox").checked) {
+            buyingPriorities.stones = parseInt(document.getElementById("stones-priority").value)
+        }
+        if(document.getElementById("calc-runes-checkbox").checked) {
+            buyingPriorities.runes = parseInt(document.getElementById("runes-priority").value)
+        }
+
+        let calculatedData = calculate(
+            template,
+            settingsTemplate,
+            todayDate,
+            numOfDaysInFuture,
+            numOfClaimable,
+            plotHardcap,
+            stoneHardcap,
+            runeHardcap,
+            invested,
+            cashedOutAlready,
+            strategy,
+            buyingPriorities
+        )
 
         plotPlotGraph(calculatedData, 'calculatorActivePlotsGraph');
+        plotHordeIncomeChart(calculatedData, 'calculatorHordeIncomeGraph');
         plotCashoutChart(calculatedData, 'calculatorCashoutGraph', invested, cashedOutAlready);
         plotTokenomicsChart(calculatedData, 'calculatorTokenomicsGraph');
         plotTokenomicsChart(calculatedData, 'calculatorTokenomicsDollarsGraph', true, HORDE_CURRENT_MIDDLE_PRICE);
@@ -1500,7 +1933,7 @@
             3
         )
 
-        let plotTemplate = createPlotTemplate([createPlotGroupFromExpiration(decayDate, numOfPlots)], createEmptyNftGroup(), 'simple');
+        let plotTemplate = createPlotTemplate([createPlotGroupFromExpiration(decayDate, numOfPlots)], [], [], createEmptyNftGroup(), 'simple');
         let calculatedData = oldCalculate(plotTemplate, settingsTemplate, todayDate, numOfDaysInFuture, numOfClaimable)
 
         oldPlotPlotGraph(calculatedData, 'scalcActivePlotsGraph');
@@ -1528,6 +1961,58 @@
                     yAxisKey: 'decayedPlots'
                 }
             },{
+                label: 'Decayed Stones',
+                data: calculatedData,
+                borderColor:'#6c0eb6',
+                backgroundColor: 'rgba(44, 12, 122, 1)',
+                borderWidth: 2,
+                pointBorderWidth: 0,
+                pointRadius: 0,
+                fill: true,
+                parsing: {
+                    xAxisKey: 'date',
+                    yAxisKey: 'decayedStones'
+                }
+            },{
+                label: 'Decayed Runes',
+                data: calculatedData,
+                borderColor:'rgba(33, 33, 33, 1)',
+                backgroundColor: 'rgba(44, 44, 44, 1)',
+                borderWidth: 2,
+                pointBorderWidth: 0,
+                pointRadius: 0,
+                fill: true,
+                parsing: {
+                    xAxisKey: 'date',
+                    yAxisKey: 'decayedRunes'
+                }
+            },{
+                label: 'Active Runes',
+                data: calculatedData,
+                borderColor:'rgba(150, 30, 50, 1)',
+                backgroundColor:'rgba(200, 30, 50, 1)',
+                borderWidth: 2,
+                pointBorderWidth: 0,
+                pointRadius: 0,
+                fill: true,
+                parsing: {
+                    xAxisKey: 'date',
+                    yAxisKey: 'activeRunes'
+                }
+            },{
+                label: 'Active Stones',
+                data: calculatedData,
+                borderColor:'#03002e',
+                backgroundColor:'rgba(2, 0, 108, 1)',
+                borderWidth: 2,
+                pointBorderWidth: 0,
+                pointRadius: 0,
+                fill: true,
+                parsing: {
+                    xAxisKey: 'date',
+                    yAxisKey: 'activeStones'
+                }
+            },{
                 label: 'Active Plots',
                 data: calculatedData,
                 borderColor:'#17C139',
@@ -1542,6 +2027,31 @@
                 }
             }],
             true
+        );
+    }
+
+    function plotHordeIncomeChart(calculatedData, plotCanvasId) {
+        let datasets = [{
+            label: 'Daily horde generation',
+            data: calculatedData,
+            borderColor:'rgba(23, 193, 57, 0.5)',
+            borderWidth: 3,
+            pointBorderWidth: 0,
+            pointRadius: 0,
+            parsing: {
+                xAxisKey: 'date',
+                yAxisKey: 'dailyHorde'
+            }
+        }];
+
+        if (HORDE_INCOME_CHART !== null) {
+            HORDE_INCOME_CHART.destroy()
+        }
+        let ctx = document.getElementById(plotCanvasId);
+        HORDE_INCOME_CHART = plotChart(
+            ctx,
+            datasets,
+            false
         );
     }
 
@@ -1661,8 +2171,11 @@
                 if(inDollars) {
                     totalCreatedPlotsHordeValue *= hordeAvgPrice
                 }
+
+                //mults have to add up to 1
                 data[i].totalBackRewards = totalCreatedPlotsHordeValue * 0.6
-                data[i].totalBackTreasury = totalCreatedPlotsHordeValue * 0.2
+                data[i].totalBackTreasury = totalCreatedPlotsHordeValue * 0
+                data[i].totalBackLm = totalCreatedPlotsHordeValue * 0.2
                 data[i].totalBackHordePool = totalCreatedPlotsHordeValue * 0.2
             }
         )
@@ -1671,7 +2184,7 @@
             label: 'Plot creation HORDE -> horde pool' + stringInDollars,
             data: data,
             borderColor:'#F7C139',
-            backgroundColor: 'rgba(247, 193, 57, 0.5)',
+            backgroundColor: 'rgba(247, 193, 57, 1)',
             borderWidth: 3,
             pointBorderWidth: 0,
             pointRadius: 0,
@@ -1684,7 +2197,7 @@
             label: 'Plot creation HORDE -> treasury' + stringInDollars,
             data: data,
             borderColor:'#6C0EB6',
-            backgroundColor: 'rgba(108, 14, 182, 0.5)',
+            backgroundColor: 'rgba(108, 14, 182, 1)',
             borderWidth: 3,
             pointBorderWidth: 0,
             pointRadius: 0,
@@ -1694,10 +2207,23 @@
                 yAxisKey: 'totalBackTreasury'
             }
         },{
+            label: 'Plot creation HORDE -> LM' + stringInDollars,
+            data: data,
+            borderColor:'rgba(150, 30, 50, 1)',
+            backgroundColor:'rgba(200, 30, 50, 1)',
+            borderWidth: 3,
+            pointBorderWidth: 0,
+            pointRadius: 0,
+            fill: true,
+            parsing: {
+                xAxisKey: 'date',
+                yAxisKey: 'totalBackLm'
+            }
+        },{
             label: 'Plot creation HORDE -> rewards' + stringInDollars,
             data: data,
             borderColor:'#17C139',
-            backgroundColor:'rgba(23, 193, 57, 0.5)',
+            backgroundColor:'rgba(23, 193, 57, 1)',
             borderWidth: 3,
             pointBorderWidth: 0,
             pointRadius: 0,
@@ -1903,10 +2429,67 @@
                     ${name}
                 </div>
                 <div class="template-card-body">
-                    <span class="card-row"><span class="card-row-number">${plotTemplate.plotCount}</span> plots</span>
+                    <span class="card-row"><span class="card-row-number">${plotTemplate.plotCount}</span>p | <span class="card-row-number">${plotTemplate.stones.length}</span>s | <span class="card-row-number">${plotTemplate.runes.length}</span>r</span>
                     <span class="card-row"><span class="card-row-number">${plotTemplate.nftCount}</span> NFTs</span>
                 </div>
         </div>`;
+    }
+
+    function plotsCheckOnChange() {
+        if(document.getElementById('calc-plots-checkbox').checked) {
+            document.getElementById("plots-priority").style.display = 'inline-block'
+        } else {
+            document.getElementById("plots-priority").style.display = 'none'
+        }
+    }
+
+    function stonesCheckOnChange() {
+        if(document.getElementById('calc-stones-checkbox').checked) {
+            document.getElementById("stones-priority").style.display = 'inline-block'
+        } else {
+            document.getElementById("stones-priority").style.display = 'none'
+        }
+    }
+
+    function runesCheckOnChange() {
+        if(document.getElementById('calc-runes-checkbox').checked) {
+            document.getElementById("runes-priority").style.display = 'inline-block'
+        } else {
+            document.getElementById("runes-priority").style.display = 'none'
+        }
+    }
+
+    function priorityChanged(nodeType) {
+        let id = nodeType + '-priority';
+        let newValue = document.getElementById(id).value
+        console.log(newValue)
+
+        let priorities = {pri1: "", pri2: "", pri3: ""}
+        let nodeTypes = ['plots', 'stones', 'runes']
+        let nodeTypeToSwitch = ''
+
+        nodeTypes.forEach((x, i) => {
+            let prioId = x + "-priority"
+            let prioValue = document.getElementById(prioId).value
+            delete priorities['pri'+prioValue];
+
+            //if its not the current node type, but it has the same value
+            if(prioId !== id && prioValue === newValue) {
+                //then that is the type to switch!
+                nodeTypeToSwitch = x
+            }
+        })
+
+        let selectToSwitch = document.getElementById(nodeTypeToSwitch + '-priority')
+
+        //we check which prio survived
+        if("pri1" in priorities) {
+            selectToSwitch.value = '1'
+        } else if("pri2" in priorities) {
+            selectToSwitch.value = '2'
+        } else {
+            selectToSwitch.value = '3'
+        }
     }
 
     function readInput(rawQueryParams, startingValues) {
@@ -1937,7 +2520,7 @@
 
                     startingValues.plots = plotGroups
                     startingValues.plotsCount = totalCount
-                    templateFromInput = createPlotTemplate(plotGroups, createEmptyNftGroup(), LIVE_WALLET_TEMPLATE_NAME)
+                    templateFromInput = createPlotTemplate(plotGroups, [], [], createEmptyNftGroup(), LIVE_WALLET_TEMPLATE_NAME)
                 }
             }
             if ('claimable' in rawQueryParams) {
