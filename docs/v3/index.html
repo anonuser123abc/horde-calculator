@@ -2171,8 +2171,11 @@
                 if(inDollars) {
                     totalCreatedPlotsHordeValue *= hordeAvgPrice
                 }
+
+                //mults have to add up to 1
                 data[i].totalBackRewards = totalCreatedPlotsHordeValue * 0.6
-                data[i].totalBackTreasury = totalCreatedPlotsHordeValue * 0.2
+                data[i].totalBackTreasury = totalCreatedPlotsHordeValue * 0
+                data[i].totalBackLm = totalCreatedPlotsHordeValue * 0.2
                 data[i].totalBackHordePool = totalCreatedPlotsHordeValue * 0.2
             }
         )
@@ -2181,7 +2184,7 @@
             label: 'Plot creation HORDE -> horde pool' + stringInDollars,
             data: data,
             borderColor:'#F7C139',
-            backgroundColor: 'rgba(247, 193, 57, 0.5)',
+            backgroundColor: 'rgba(247, 193, 57, 1)',
             borderWidth: 3,
             pointBorderWidth: 0,
             pointRadius: 0,
@@ -2194,7 +2197,7 @@
             label: 'Plot creation HORDE -> treasury' + stringInDollars,
             data: data,
             borderColor:'#6C0EB6',
-            backgroundColor: 'rgba(108, 14, 182, 0.5)',
+            backgroundColor: 'rgba(108, 14, 182, 1)',
             borderWidth: 3,
             pointBorderWidth: 0,
             pointRadius: 0,
@@ -2204,10 +2207,23 @@
                 yAxisKey: 'totalBackTreasury'
             }
         },{
+            label: 'Plot creation HORDE -> LM' + stringInDollars,
+            data: data,
+            borderColor:'rgba(150, 30, 50, 1)',
+            backgroundColor:'rgba(200, 30, 50, 1)',
+            borderWidth: 3,
+            pointBorderWidth: 0,
+            pointRadius: 0,
+            fill: true,
+            parsing: {
+                xAxisKey: 'date',
+                yAxisKey: 'totalBackLm'
+            }
+        },{
             label: 'Plot creation HORDE -> rewards' + stringInDollars,
             data: data,
             borderColor:'#17C139',
-            backgroundColor:'rgba(23, 193, 57, 0.5)',
+            backgroundColor:'rgba(23, 193, 57, 1)',
             borderWidth: 3,
             pointBorderWidth: 0,
             pointRadius: 0,
