@@ -1348,10 +1348,24 @@
         }
     }
 
+    function createStoneFromExpiration(expireDate) {
+        return {
+            'createdAt': copyAndAddDays(expireDate, -STONE_DECAY),
+            'expiresAt': expireDate,
+        }
+    }
+
     function createRuneFromCreation(creationDate) {
         return {
             'createdAt': creationDate,
             'expiresAt': copyAndAddDays(creationDate, RUNE_DECAY),
+        }
+    }
+
+    function createRuneFromExpiration(expireDate) {
+        return {
+            'createdAt': copyAndAddDays(expireDate, -RUNE_DECAY),
+            'expiresAt': expireDate,
         }
     }
 
@@ -1372,6 +1386,13 @@
     }
 
     function createPlotTemplate(plotGroups, stones, runes, nftGroup, name) {
+        let nftCount = 0;
+        if(nftGroup !== undefined) {
+            nftCount =
+                parseInt('nft5perc' in nftGroup ? nftGroup['nft5perc'] : 0) +
+                parseInt('nft10perc' in nftGroup ? nftGroup['nft10perc'] : 0) +
+                parseInt('nft15perc' in nftGroup ? nftGroup['nft15perc'] : 0);
+        }
         return {
             'plotGroups': plotGroups,
             'stones': stones,
@@ -1379,7 +1400,7 @@
             'nftGroup': nftGroup,
             'name': name,
             'plotCount': countPlots(plotGroups),
-            'nftCount': 0
+            'nftCount': nftCount
         }
     }
 
@@ -1616,7 +1637,7 @@
             let haveMaxPlots = !('plots' in buyingPriority) || activePlotCountAfterCreation >= plotHardcap;
             let haveMaxStones = !('stones' in buyingPriority) || activeStoneCountAfterCreation >= stoneHardcap;
 
-            console.log(`===== buying stuff =====`);
+            //console.log(`===== buying stuff =====`);
             for(let priorityCounter = 1; priorityCounter <= 3; priorityCounter++) {
                 for(const key in buyingPriority) {
                     //nested loop needed to execute in given priority
@@ -1625,7 +1646,7 @@
                         if(key === 'plots') {
 
                             let plotsToCreate = 0;
-                            console.log(`doing plots`);
+                            //console.log(`doing plots`);
                             //if we have enough to create a plot(s), we create
                             while(claimable >= 10 && activePlotCountAfterCreation < plotHardcap) {
                                 claimable -= 10;
@@ -1644,7 +1665,7 @@
                             //recalculating haveMaxPlots because the numbers changed
                             haveMaxPlots = (!('plots' in buyingPriority) || activePlotCountAfterCreation >= plotHardcap)
                         } else if (key === 'stones') {
-                            console.log(`doing stones`);
+                            //console.log(`doing stones`);
 
                             //since stones need less claimable horde than plots, even if plot prio is 1 and stones are 2,
                             // stones will get created because if we have i.e. 6 horde plot cant be created so in next
@@ -1661,7 +1682,7 @@
                             }
                             haveMaxStones = !('stones' in buyingPriority) || activeStoneCountAfterCreation >= stoneHardcap;
                         } else if (key === 'runes') {
-                            console.log(`doing runes`);
+                            //console.log(`doing runes`);
 
                             //same like for stones, but this time we have to check plots and stones
 
@@ -1951,7 +1972,7 @@
                 label: 'Decayed Plots',
                 data: calculatedData,
                 borderColor:'#6C0EB6',
-                backgroundColor: 'rgba(108, 14, 182, 0.5)',
+                backgroundColor: 'rgba(108, 14, 182, 1)',
                 borderWidth: 3,
                 pointBorderWidth: 0,
                 pointRadius: 0,
@@ -2002,8 +2023,8 @@
             },{
                 label: 'Active Stones',
                 data: calculatedData,
-                borderColor:'#03002e',
-                backgroundColor:'rgba(2, 0, 108, 1)',
+                borderColor:'#F7C139',
+                backgroundColor: 'rgba(247, 193, 57, 1)',
                 borderWidth: 2,
                 pointBorderWidth: 0,
                 pointRadius: 0,
@@ -2116,8 +2137,8 @@
         }];
 
         if(invested !== 0) {
-            console.log(invested)
-            console.log(data)
+            //console.log(invested)
+            //console.log(data)
             let firstDate = data[0].date;
             let secondDate = data[data.length - 1].date;
             let investedDataset = [
@@ -2130,7 +2151,7 @@
                     'invested': invested
                 },
             ]
-            console.log(investedDataset)
+            //console.log(investedDataset)
             datasets.push(
                 {
                     label: 'Break Even',
@@ -2500,7 +2521,13 @@
             if ('plots' in rawQueryParams) {
                 let decodedString = atob(rawQueryParams.plots);
                 if (isJson) {
-                    let plotsDecayList = JSON.parse(decodedString)
+                    console.log("Input found")
+                    let inputJson = JSON.parse(decodedString)
+                    let plotsDecayList = inputJson.plots
+                    let stonesDecayList = inputJson.stones
+                    let runesDecayList = inputJson.runes
+                    let nftGroup = createNftGroup(parseInt(inputJson.nft5), parseInt(inputJson.nft10), parseInt(inputJson.nft15))
+                    console.log(nftGroup)
                     let countByDate = {}
                     let totalCount = 0;
                     plotsDecayList.forEach((x, i) => {
@@ -2518,9 +2545,22 @@
                         plotGroups.push(createPlotGroupFromExpiration(decayDate, count))
                     }
 
+                    let stones = [];
+                    for(const dateString of stonesDecayList) {
+                        const decayDate = new Date(dateString)
+                        stones.push(createStoneFromExpiration(decayDate))
+                    }
+
+                    let runes = [];
+                    for(const dateString of runesDecayList) {
+                        const decayDate = new Date(dateString)
+                        runes.push(createRuneFromExpiration(decayDate))
+                    }
+
                     startingValues.plots = plotGroups
                     startingValues.plotsCount = totalCount
-                    templateFromInput = createPlotTemplate(plotGroups, [], [], createEmptyNftGroup(), LIVE_WALLET_TEMPLATE_NAME)
+                    templateFromInput = createPlotTemplate(plotGroups, stones, runes, nftGroup, LIVE_WALLET_TEMPLATE_NAME)
+                    console.log("Input handled properly")
                 }
             }
             if ('claimable' in rawQueryParams) {
@@ -2535,9 +2575,8 @@
 
 
     let rawQueryParams = {
-        'v': 0, //placeholders
-        'plots': [],
-        'plotsCount': [],
+        'plots': [], //placeholders
+        'plotsCount': 0,
         'claimable': 0.0
     }
     location.search.substr(1).split("&").forEach(function(item) {rawQueryParams[item.split("=")[0]] = item.split("=")[1]})
