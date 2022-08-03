@@ -1975,6 +1975,18 @@
 
     document.getElementById("calculator_num_of_claimable").value = startingValues.claimable;
 
+    if(GLOBAL_DATA.inputs.duration_in_future === null) {
+        GLOBAL_DATA.inputs.duration_in_future = 0;
+    }
+    if(GLOBAL_DATA.inputs.wallets_hardcap === null) {
+        GLOBAL_DATA.inputs.wallets_hardcap = 1;
+    }
+    if(GLOBAL_DATA.inputs.invested === null) {
+        GLOBAL_DATA.inputs.invested = 0;
+    }
+    if(GLOBAL_DATA.inputs.cashed_out_already === null) {
+        GLOBAL_DATA.inputs.cashed_out_already = 0;
+    }
     setInitialInputs(GLOBAL_DATA.inputs)
 
     runSimpleCalculation();
