@@ -5,7 +5,10 @@ UI based calculator for HORDE token
 
 # Urls
 
-Version 2
+Version 3
+https://anonuser123abc.github.io/horde-calculator/v3/
+
+Version 2 (old)
 https://anonuser123abc.github.io/horde-calculator/v2/
 
 
