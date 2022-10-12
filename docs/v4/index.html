@@ -319,7 +319,10 @@
         <div>
             <ul class="nav nav-tabs">
                 <li class="nav-item">
-                    <span id="calculator-tab-btn" onclick="openTab('calculator-tab')" class="nav-link tab-active" aria-current="page" href="#">Calculator</span>
+                    <span id="znft-tab-btn" onclick="openTab('znft-tab')" class="nav-link tab-active">zNFT Calculator</span>
+                </li>
+                <li class="nav-item">
+                    <span id="calculator-tab-btn" onclick="openTab('calculator-tab')" class="nav-link" aria-current="page" href="#">Calculator</span>
                 </li>
                 <li class="nav-item">
                     <span id="templates-tab-btn" onclick="openTab('templates-tab')" class="nav-link">Templates</span>
@@ -330,6 +333,50 @@
             </ul>
         </div>
         <br>
+        <div style="display: none" id="znft-tab">
+
+            <div id="znft-tab-error-container" style="display: none"><h2 id="znft-tab-error"></h2></div>
+            <div id="znft-tab-body">
+                <h3>
+                    zNFT Calculator
+                </h3>
+
+                <div>
+                    <div class="form-container horde-purple-border">
+                        <span id="znft-calc-generic-error" style="color: red; display:none"></span>
+                        <div class="row">
+                            <div class="col-5">
+                                <label class="form-label" for="znft_calculator_user_rarity_score">Your Rarity Score:</label>
+                                <br>
+                                <input class="form-control" value="5" type="number" id="znft_calculator_user_rarity_score" style="width: 60%" step="1"/>
+                                <br>
+                                <label class="form-label" for="znft_calculator_invested">$$$ Invested:</label>
+                                <br>
+                                <input class="form-control" value="400" min="0" type="number" id="znft_calculator_invested" style="width: 60%" step="1"/>
+                                <br>
+                                <label class="form-label" for="znft_calculator_months">Months in future:</label>
+                                <br>
+                                <input class="form-control" value="24" type="number" id="znft_calculator_months" style="width: 60%"/>
+                                <br>
+                                <button onclick="runZnftCalculation()" class="btn btn-primary btn-grad">Calculate &nbsp:)</button> (scroll down)
+                            </div>
+                            <div class="col-5">
+                                <label class="form-label" for="znft_calculator_system_rarity_score">System Rarity Score:</label>
+                                <br>
+                                <input class="form-control" value="50000" type="number" id="znft_calculator_system_rarity_score" style="width: 60%" step="1"/>
+                                <br>
+                                <label class="form-label" for="znft_calculator_minted_left">Minted left:</label>
+                                <br>
+                                <input class="form-control" value="6000" min="0" max="10000" type="number" id="znft_calculator_minted_left" style="width: 60%" step="1"/>
+                                <br>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- add charts -->
+                </div>
+            </div>
+
+        </div>
         <div style="display: none" id="calculator-tab">
             <div id="calculator-tab-error-container" style="display: none"><h2 id="calculator-tab-error"></h2></div>
             <div id="calculator-tab-body">
@@ -620,6 +667,8 @@
     const STONE_DECAY = 250;
     const RUNE_DECAY = 200;
 
+    const ZNFT_MAX_COUNT = 10000;
+
     const PTEM_MODE_CREATE = 'create';
     const PTEM_MODE_EDIT = 'edit';
     const PTEM_MODE_EDIT_LIVE_WALLET = 'edit_live_wallet';
@@ -707,6 +756,14 @@
         document.getElementById(inputsData.chosen_strategy).checked = true;
     }
 
+    function setInitialZnftInputs(inputsData) {
+        document.getElementById("znft_calculator_user_rarity_score").value = inputsData.znft_calculator_user_rarity_score.toString()
+        document.getElementById("znft_calculator_invested").value = inputsData.znft_calculator_invested.toString()
+        document.getElementById("znft_calculator_months").value = inputsData.znft_calculator_months.toString()
+        document.getElementById("znft_calculator_system_rarity_score").value = inputsData.znft_calculator_system_rarity_score.toString()
+        document.getElementById("znft_calculator_minted_left").value = inputsData.znft_calculator_minted_left.toString()
+    }
+
     function readLocalStorage() {
         let data = localStorage.getItem('horde-calc-global-data');
         let defaultInputs = {
@@ -716,12 +773,22 @@
             'cashed_out_already': 0,
             'chosen_strategy': STRATEGY_FULL_COMPOUND,
         };
+
+        let defaultZnftInputs = {
+            'znft_calculator_user_rarity_score': 10,
+            'znft_calculator_invested': 400,
+            'znft_calculator_months': 24,
+            'znft_calculator_system_rarity_score': 50000,
+            'znft_calculator_minted_left': 6000,
+        };
+
         if(data === null) {
             return {
                 'templates': {
                     //keyed by name
                 },
-                'inputs': defaultInputs
+                'inputs': defaultInputs,
+                'znft_inputs': defaultZnftInputs
             };
         } else {
             let dataAsJson = JSON.parse(data);
@@ -759,8 +826,13 @@
                 }
             }
 
+            //TODO: do a foreach and fill missing fields if some are missing
             if(!('inputs' in dataAsJson)) {
                 dataAsJson['inputs'] = defaultInputs
+            }
+
+            if(!('znft_inputs' in dataAsJson)) {
+                dataAsJson['znft_inputs'] = defaultZnftInputs
             }
 
             return dataAsJson;
@@ -1858,6 +1930,37 @@
     let TOKENOMICS_CHART = null;
     let TOKENOMICS_CHART_DOLLARS = null;
 
+    function runZnftCalculation() {
+
+        let znft_calculator_user_rarity_score = parseInt(document.getElementById("znft_calculator_user_rarity_score").value)
+        let znft_calculator_invested = parseInt(document.getElementById("znft_calculator_invested").value)
+        let znft_calculator_months = parseInt(document.getElementById("znft_calculator_months").value)
+        let znft_calculator_system_rarity_score = parseInt(document.getElementById("znft_calculator_system_rarity_score").value)
+        let znft_calculator_minted_left = parseInt(document.getElementById("znft_calculator_minted_left").value)
+
+        GLOBAL_DATA.znft_inputs.znft_calculator_user_rarity_score = znft_calculator_user_rarity_score;
+        GLOBAL_DATA.znft_inputs.znft_calculator_invested = znft_calculator_invested;
+        GLOBAL_DATA.znft_inputs.znft_calculator_months = znft_calculator_months;
+        GLOBAL_DATA.znft_inputs.znft_calculator_system_rarity_score = znft_calculator_system_rarity_score;
+        GLOBAL_DATA.znft_inputs.znft_calculator_minted_left = znft_calculator_minted_left;
+        writeToLocalStorage(GLOBAL_DATA)
+        let todayDate = new Date();
+        let totalInvested = (ZNFT_MAX_COUNT - znft_calculator_minted_left) * 400;
+
+        let calculatedData = calculateZnft(
+            znft_calculator_user_rarity_score,
+            znft_calculator_system_rarity_score,
+            znft_calculator_invested,
+            totalInvested,
+            znft_calculator_months,
+            todayDate
+        )
+    }
+
+    function calculateZnft(userRS, systemRS, userInvested, totalInvested, months, fromDate) {
+
+    }
+
     function runCalculation() {
         hideCalculatorError()
         if(!userHasTemplates()) {
@@ -2610,6 +2713,7 @@
         GLOBAL_DATA.inputs.cashed_out_already = 0;
     }
     setInitialInputs(GLOBAL_DATA.inputs)
+    setInitialZnftInputs(GLOBAL_DATA.znft_inputs)
 
     runSimpleCalculation();
     syncAllTemplates();
@@ -2617,7 +2721,7 @@
         runCalculation()
     }
 
-    openTab('calculator-tab')
+    openTab('znft-tab')
     if (startingValues.hideHeader === 'yes') {
         document.getElementById('horde-header').style.display = 'none'
     }
