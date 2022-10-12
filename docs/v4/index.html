@@ -340,7 +340,6 @@
                 <h3>
                     zNFT Calculator
                 </h3>
-                (assuming <span id="znft_avg_bot_profit"></span> monthly bot profits)
 
                 <div>
                     <div class="form-container horde-purple-border">
@@ -370,10 +369,17 @@
                                 <br>
                                 <input class="form-control" value="6000" min="0" max="10000" type="number" id="znft_calculator_minted_left" style="width: 60%" step="1"/>
                                 <br>
+                                <label class="form-label" for="znft_calculator_bot_monthly_roi">Assumed monthly bot profits (usually 10-20%):</label>
+                                <br>
+                                <input class="form-control" value="0" min="0" type="number" id="znft_calculator_bot_monthly_roi" style="width: 60%" step="1"/>
+                                <br>
                             </div>
                         </div>
                     </div>
                     <!-- add charts -->
+                    <div style="display: none; color: red" id="znft-calculator-noroi-message">
+                        You must input "Assumed monthly bot profits"
+                    </div>
                     <div id="znft-calculation-results" style="display: none">
                         <br>
                         <div>
@@ -1975,39 +1981,51 @@
         let znft_calculator_months = parseInt(document.getElementById("znft_calculator_months").value)
         let znft_calculator_system_rarity_score = parseInt(document.getElementById("znft_calculator_system_rarity_score").value)
         let znft_calculator_minted_left = parseInt(document.getElementById("znft_calculator_minted_left").value)
+        let znft_calculator_bot_monthly_roi = parseInt(document.getElementById("znft_calculator_bot_monthly_roi").value)
 
         GLOBAL_DATA.znft_inputs.znft_calculator_user_rarity_score = znft_calculator_user_rarity_score;
         GLOBAL_DATA.znft_inputs.znft_calculator_invested = znft_calculator_invested;
         GLOBAL_DATA.znft_inputs.znft_calculator_months = znft_calculator_months;
         GLOBAL_DATA.znft_inputs.znft_calculator_system_rarity_score = znft_calculator_system_rarity_score;
         GLOBAL_DATA.znft_inputs.znft_calculator_minted_left = znft_calculator_minted_left;
+        //dont remember bot monthly roi, might be problems about people assuming numbers
         writeToLocalStorage(GLOBAL_DATA)
         let todayDate = new Date();
         let totalInvested = (ZNFT_MAX_COUNT - znft_calculator_minted_left) * 400;
 
-        //TODO: later initial bot funds will be dynamic because of auto-compound, fetch it from some horde API or ask for user input instead of number of minted
-        let totalBotFunds = totalInvested * ZNFT_BOT_SHARE_OF_FUNDS;
-        document.getElementById("znft_result_bot_initial_funds").innerHTML =  "$" + totalBotFunds;
+        if(znft_calculator_bot_monthly_roi <= 0) {
 
-        let userRSShare = znft_calculator_user_rarity_score /  znft_calculator_system_rarity_score;
-        document.getElementById("znft_result_user_rs_share").innerHTML =  smartRound((userRSShare * 100), 7) + "%";
+            document.getElementById("znft-calculation-results").style.display = 'none';
+            document.getElementById("znft-calculator-noroi-message").style.display = 'block';
+        } else {
 
-        let calculatedData = calculateZnft(
-            userRSShare,
-            znft_calculator_invested,
-            totalBotFunds,
-            znft_calculator_months,
-            todayDate
-        )
+            //TODO: later initial bot funds will be dynamic because of auto-compound, fetch it from some horde API or ask for user input instead of number of minted
+            let totalBotFunds = totalInvested * ZNFT_BOT_SHARE_OF_FUNDS;
+            document.getElementById("znft_result_bot_initial_funds").innerHTML =  "$" + totalBotFunds;
+
+            let userRSShare = znft_calculator_user_rarity_score /  znft_calculator_system_rarity_score;
+            document.getElementById("znft_result_user_rs_share").innerHTML =  smartRound((userRSShare * 100), 7) + "%";
+
+            let calculatedData = calculateZnft(
+                userRSShare,
+                znft_calculator_invested,
+                totalBotFunds,
+                znft_calculator_months,
+                todayDate,
+                (znft_calculator_bot_monthly_roi / 100)
+            )
 
 
-        plotZnftUserGraph(calculatedData, "znftCalculatorUserProfits");
-        plotZnftMonthlyGraph(calculatedData, "znftCalculatorMonthlyProfits");
+            plotZnftUserGraph(calculatedData, "znftCalculatorUserProfits");
+            plotZnftMonthlyGraph(calculatedData, "znftCalculatorMonthlyProfits");
 
-        document.getElementById("znft-calculation-results").style.display = 'block';
+            document.getElementById("znft-calculation-results").style.display = 'block';
+            document.getElementById("znft-calculator-noroi-message").style.display = 'none';
+        }
+
     }
 
-    function calculateZnft(userRSShare, userInvested, totalBotFunds, months, todayDate) {
+    function calculateZnft(userRSShare, userInvested, totalBotFunds, months, todayDate, monthlyBotRoi) {
         if(months < 0) {
             return {};
         }
@@ -2026,7 +2044,7 @@
         let loopDate = new Date(todayDate.getFullYear(), todayDate.getMonth(), 1);
         for(let i = 0; i < months; i++) {
             loopDate.setMonth(loopDate.getMonth()+1)
-            let profit = botFunds * ZNFT_AVERAGE_MONTHLY_BOT_ROI;
+            let profit = botFunds * monthlyBotRoi;
 
             let botShare = profit * ZNFT_BOT_PROFIT_COMPOUND_SHARE;
             let lmShare = profit * ZNFT_BOT_PROFIT_LM_SHARE;
@@ -3046,7 +3064,7 @@
     }
     setInitialInputs(GLOBAL_DATA.inputs)
     setInitialZnftInputs(GLOBAL_DATA.znft_inputs)
-    document.getElementById("znft_avg_bot_profit").innerHTML = (ZNFT_AVERAGE_MONTHLY_BOT_ROI * 100) + "%";
+    //document.getElementById("znft_avg_bot_profit").innerHTML = (ZNFT_AVERAGE_MONTHLY_BOT_ROI * 100) + "%";
 
     runSimpleCalculation();
     syncAllTemplates();
