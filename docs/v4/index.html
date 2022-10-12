@@ -340,6 +340,7 @@
                 <h3>
                     zNFT Calculator
                 </h3>
+                (assuming <span id="znft_avg_bot_profit"></span> monthly bot profits)
 
                 <div>
                     <div class="form-container horde-purple-border">
@@ -373,6 +374,31 @@
                         </div>
                     </div>
                     <!-- add charts -->
+                    <div id="znft-calculation-results" style="display: none">
+                        <br>
+                        <div>
+                            <h3>Initial Bot funds: <span id="znft_result_bot_initial_funds"></span></h3>
+                        </div>
+                        <div>
+                            <h3>User RS share: <span id="znft_result_user_rs_share"></span></h3>
+                        </div>
+                        <br>
+                        <br>
+                        <h1 class="graph-header">User Share Monthly</h1>
+                        <br>
+                        <div class="standard-size-plot">
+                            <canvas id="znftCalculatorUserProfits"></canvas>
+                        </div>
+                        <br>
+                        <br>
+                        <h1 class="graph-header">Monthly Profits</h1> <span class="post-graph-header-note">(you can toggle the lines by clicking on the labels)</span>
+                        <br>
+                        <div class="standard-size-plot">
+                            <canvas id="znftCalculatorMonthlyProfits"></canvas>
+                        </div>
+                        <br>
+
+                    </div>
                 </div>
             </div>
 
@@ -668,6 +694,15 @@
     const RUNE_DECAY = 200;
 
     const ZNFT_MAX_COUNT = 10000;
+    const ZNFT_AVERAGE_MONTHLY_BOT_ROI = 0.15; //15%
+    const ZNFT_BOT_SHARE_OF_FUNDS = 0.4; //40%
+
+    const ZNFT_BOT_PROFIT_HORDE_POOL_SHARE = 0.05; //5%
+    const ZNFT_BOT_PROFIT_LM_SHARE = 0.2; //20%
+    const ZNFT_BOT_PROFIT_COMPOUND_SHARE = 0.25; //25%
+    const ZNFT_BOT_PROFIT_HOLDERS_SHARE = 0.5; //50%
+    //5+20+25+50 = 100%
+
 
     const PTEM_MODE_CREATE = 'create';
     const PTEM_MODE_EDIT = 'edit';
@@ -775,7 +810,7 @@
         };
 
         let defaultZnftInputs = {
-            'znft_calculator_user_rarity_score': 10,
+            'znft_calculator_user_rarity_score': 13,
             'znft_calculator_invested': 400,
             'znft_calculator_months': 24,
             'znft_calculator_system_rarity_score': 50000,
@@ -1930,6 +1965,9 @@
     let TOKENOMICS_CHART = null;
     let TOKENOMICS_CHART_DOLLARS = null;
 
+    let ACTIVE_ZNFT_MONTHLY_CHART = null;
+    let ACTIVE_ZNFT_USER_CHART = null;
+
     function runZnftCalculation() {
 
         let znft_calculator_user_rarity_score = parseInt(document.getElementById("znft_calculator_user_rarity_score").value)
@@ -1947,18 +1985,312 @@
         let todayDate = new Date();
         let totalInvested = (ZNFT_MAX_COUNT - znft_calculator_minted_left) * 400;
 
+        //TODO: later initial bot funds will be dynamic because of auto-compound, fetch it from some horde API or ask for user input instead of number of minted
+        let totalBotFunds = totalInvested * ZNFT_BOT_SHARE_OF_FUNDS;
+        document.getElementById("znft_result_bot_initial_funds").innerHTML =  "$" + totalBotFunds;
+
+        let userRSShare = znft_calculator_user_rarity_score /  znft_calculator_system_rarity_score;
+        document.getElementById("znft_result_user_rs_share").innerHTML =  smartRound((userRSShare * 100), 7) + "%";
+
         let calculatedData = calculateZnft(
-            znft_calculator_user_rarity_score,
-            znft_calculator_system_rarity_score,
+            userRSShare,
             znft_calculator_invested,
-            totalInvested,
+            totalBotFunds,
             znft_calculator_months,
             todayDate
         )
+
+
+        plotZnftUserGraph(calculatedData, "znftCalculatorUserProfits");
+        plotZnftMonthlyGraph(calculatedData, "znftCalculatorMonthlyProfits");
+
+        document.getElementById("znft-calculation-results").style.display = 'block';
     }
 
-    function calculateZnft(userRS, systemRS, userInvested, totalInvested, months, fromDate) {
+    function calculateZnft(userRSShare, userInvested, totalBotFunds, months, todayDate) {
+        if(months < 0) {
+            return {};
+        }
 
+
+
+        let botFunds = totalBotFunds;
+        let totalBotShare = 0;
+        let totalLMShare = 0;
+        let totalHordePoolShare = 0;
+        let totalHoldersShare = 0;
+
+        let totalUserShare = userInvested;
+        let totalUserRoi = 100;
+        let calculatedData = [];
+        let loopDate = new Date(todayDate.getFullYear(), todayDate.getMonth(), 1);
+        for(let i = 0; i < months; i++) {
+            loopDate.setMonth(loopDate.getMonth()+1)
+            let profit = botFunds * ZNFT_AVERAGE_MONTHLY_BOT_ROI;
+
+            let botShare = profit * ZNFT_BOT_PROFIT_COMPOUND_SHARE;
+            let lmShare = profit * ZNFT_BOT_PROFIT_LM_SHARE;
+            let hordePoolShare = profit * ZNFT_BOT_PROFIT_HORDE_POOL_SHARE;
+            let holdersShare = profit * ZNFT_BOT_PROFIT_HOLDERS_SHARE;
+            let userShare = holdersShare * userRSShare;
+
+            totalBotShare += botShare;
+            totalLMShare += lmShare;
+            totalHordePoolShare += hordePoolShare;
+            totalHoldersShare += holdersShare;
+            totalUserShare += userShare;
+
+            let botFundsDuringMonth = botFunds; //bot funds are compounded with its share of profits
+            botFunds += botShare; //bot funds are compounded with its share of profits
+
+            let endOfMonth = new Date(loopDate);
+            endOfMonth.setDate(endOfMonth.getDate() - 1);
+
+            let thisMonthUserRoi = (userShare / userInvested) * 100;
+            totalUserRoi += thisMonthUserRoi;
+            calculatedData.push({
+                "botFundsDuringMonth" : botFundsDuringMonth,
+                "botFundsEndOfMonth" : botFunds,
+                "botShare" : botShare,
+                "lmShare" : lmShare,
+                "hordePoolShare" : hordePoolShare,
+                "holdersShare" : holdersShare,
+                "userShare" : userShare,
+
+                //calculated
+                "thisMonthUserRoi": thisMonthUserRoi,
+                "totalUserRoi": totalUserRoi,
+
+                //date
+                "monthOrdinal": i,
+                "date": endOfMonth,
+                "dateOnlyString": dateOnlyString(endOfMonth),
+
+
+                //totals
+                "totalBotShare" : totalBotShare,
+                "totalLMShare" : totalLMShare,
+                "totalHordePoolShare" : totalHordePoolShare,
+                "totalHoldersShare" : totalHoldersShare,
+                "totalUserShare" : totalUserShare,
+            })
+        }
+
+        let totals = {
+            "botFunds" : botFunds,
+            "totalBotShare" : totalBotShare,
+            "totalLMShare" : totalLMShare,
+            "totalHordePoolShare" : totalHordePoolShare,
+            "totalHoldersShare" : totalHoldersShare,
+            "totalUserShare" : totalUserShare,
+        }
+
+        console.log("calculatedData", calculatedData);
+        console.log("totals", totals);
+
+        return calculatedData;
+    }
+
+    function plotZnftMonthlyGraph(calculatedData, plotCanvasId) {
+        if (ACTIVE_ZNFT_MONTHLY_CHART !== null) {
+            ACTIVE_ZNFT_MONTHLY_CHART.destroy()
+        }
+        let ctx = document.getElementById(plotCanvasId);
+        ACTIVE_ZNFT_MONTHLY_CHART = plotChart(
+            ctx,
+            [
+                {
+                    label: 'HordePool Share',
+                    data: calculatedData,
+                    borderColor:'#17C139',
+                    backgroundColor:'rgba(23, 193, 57, 1)',
+                    borderWidth: 1,
+                    pointBorderWidth: 1,
+                    pointRadius: 1,
+                    fill: true,
+                    parsing: {
+                        xAxisKey: 'dateOnlyString',
+                        yAxisKey: 'hordePoolShare'
+                    }
+                },
+                {
+                    label: 'Compound Share',
+                    data: calculatedData,
+                    borderColor:'#6C0EB6',
+                    backgroundColor: 'rgba(108, 14, 182, 1)',
+                    borderWidth: 1,
+                    pointBorderWidth: 1,
+                    pointRadius: 1,
+                    fill: true,
+                    parsing: {
+                        xAxisKey: 'dateOnlyString',
+                        yAxisKey: 'botShare'
+                    }
+                },
+                {
+                    label: 'LM Share',
+                    data: calculatedData,
+                    borderColor:'#F7C139',
+                    backgroundColor: 'rgba(247, 193, 57, 1)',
+                    borderWidth: 1,
+                    pointBorderWidth: 1,
+                    pointRadius: 1,
+                    fill: true,
+                    parsing: {
+                        xAxisKey: 'dateOnlyString',
+                        yAxisKey: 'lmShare'
+                    }
+                },
+                {
+                    label: 'Holders Share',
+                    data: calculatedData,
+                    borderColor:'rgba(150, 30, 50, 1)',
+                    backgroundColor:'rgba(200, 30, 50, 1)',
+                    borderWidth: 1,
+                    pointBorderWidth: 1,
+                    pointRadius: 1,
+                    fill: true,
+                    parsing: {
+                        xAxisKey: 'dateOnlyString',
+                        yAxisKey: 'holdersShare'
+                    }
+                },
+                {
+                    label: 'HordePool Share - CUMULATIVE',
+                    data: calculatedData,
+                    borderColor:'#17C139',
+                    backgroundColor:'rgba(23, 193, 57, 1)',
+                    borderWidth: 1,
+                    pointBorderWidth: 1,
+                    pointRadius: 1,
+                    fill: true,
+                    parsing: {
+                        xAxisKey: 'dateOnlyString',
+                        yAxisKey: 'totalHordePoolShare'
+                    },
+                    hidden: true
+                },
+                {
+                    label: 'Compound Share - CUMULATIVE',
+                    data: calculatedData,
+                    borderColor:'#6C0EB6',
+                    backgroundColor: 'rgba(108, 14, 182, 1)',
+                    borderWidth: 1,
+                    pointBorderWidth: 1,
+                    pointRadius: 1,
+                    fill: true,
+                    parsing: {
+                        xAxisKey: 'dateOnlyString',
+                        yAxisKey: 'totalBotShare'
+                    },
+                    hidden: true
+                },
+                {
+                    label: 'LM Share - CUMULATIVE',
+                    data: calculatedData,
+                    borderColor:'#F7C139',
+                    backgroundColor: 'rgba(247, 193, 57, 1)',
+                    borderWidth: 1,
+                    pointBorderWidth: 1,
+                    pointRadius: 1,
+                    fill: true,
+                    parsing: {
+                        xAxisKey: 'dateOnlyString',
+                        yAxisKey: 'totalLMShare'
+                    },
+                    hidden: true
+                },
+                {
+                    label: 'Holders Share - CUMULATIVE',
+                    data: calculatedData,
+                    borderColor:'rgba(150, 30, 50, 1)',
+                    backgroundColor:'rgba(200, 30, 50, 1)',
+                    borderWidth: 1,
+                    pointBorderWidth: 1,
+                    pointRadius: 1,
+                    fill: true,
+                    parsing: {
+                        xAxisKey: 'dateOnlyString',
+                        yAxisKey: 'totalHoldersShare'
+                    },
+                    hidden: true
+                },
+            ],
+            true
+        );
+
+    }
+
+    function plotZnftUserGraph(calculatedData, plotCanvasId) {
+        if (ACTIVE_ZNFT_USER_CHART !== null) {
+            ACTIVE_ZNFT_USER_CHART.destroy()
+        }
+        let ctx = document.getElementById(plotCanvasId);
+        ACTIVE_ZNFT_USER_CHART = plotChart(
+            ctx,
+            [
+                {
+                    label: 'Profit',
+                    data: calculatedData,
+                    borderColor:'#17C139',
+                    backgroundColor:'rgba(16, 138, 40, 1)',
+                    borderWidth: 5,
+                    pointBorderWidth: 3,
+                    pointRadius: 3,
+                    fill: true,
+                    parsing: {
+                        xAxisKey: 'dateOnlyString',
+                        yAxisKey: 'userShare'
+                    },
+                    hidden: true
+                },
+                {
+                    label: 'ROI perc',
+                    data: calculatedData,
+                    borderColor:'rgba(75, 10, 127, 1)',
+                    backgroundColor: 'rgba(108, 14, 182, 1)',
+                    borderWidth: 5,
+                    pointBorderWidth: 3,
+                    pointRadius: 3,
+                    fill: true,
+                    parsing: {
+                        xAxisKey: 'dateOnlyString',
+                        yAxisKey: 'thisMonthUserRoi'
+                    },
+                    hidden: true
+                },
+                {
+                    label: 'Profit - CUMULATIVE',
+                    data: calculatedData,
+                    borderColor:'rgba(172, 135, 40, 1)',
+                    backgroundColor: 'rgba(247, 193, 57, 1)',
+                    borderWidth: 5,
+                    pointBorderWidth: 3,
+                    pointRadius: 3,
+                    fill: true,
+                    parsing: {
+                        xAxisKey: 'dateOnlyString',
+                        yAxisKey: 'totalUserShare'
+                    }
+                },
+                {
+                    label: 'ROI perc - CUMULATIVE',
+                    data: calculatedData,
+                    borderColor:'rgba(150, 30, 50, 1)',
+                    backgroundColor:'rgba(200, 30, 50, 1)',
+                    borderWidth: 5,
+                    pointBorderWidth: 3,
+                    pointRadius: 3,
+                    fill: true,
+                    parsing: {
+                        xAxisKey: 'dateOnlyString',
+                        yAxisKey: 'totalUserRoi'
+                    },
+                    hidden: true
+                },
+            ],
+            true
+        );
     }
 
     function runCalculation() {
@@ -2714,6 +3046,7 @@
     }
     setInitialInputs(GLOBAL_DATA.inputs)
     setInitialZnftInputs(GLOBAL_DATA.znft_inputs)
+    document.getElementById("znft_avg_bot_profit").innerHTML = (ZNFT_AVERAGE_MONTHLY_BOT_ROI * 100) + "%";
 
     runSimpleCalculation();
     syncAllTemplates();
@@ -2728,4 +3061,5 @@
     document.getElementById('main-container').style.display = 'block'
     console.log(GLOBAL_DATA);
 
+    runZnftCalculation()
 </script>
